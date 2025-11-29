@@ -44,6 +44,18 @@ npm run dev    # Test in browser
 ```bash
 cd backend
 pytest        # Run tests
+
+# Format code
+ruff format .
+
+# Check formatting
+ruff format --check .
+
+# Lint code
+ruff check .
+
+# Auto-fix linting issues
+ruff check --fix .
 ```
 
 ### 3. Commit Your Changes

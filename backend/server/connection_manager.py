@@ -55,7 +55,7 @@ class ConnectionManager:
             try:
                 await websocket.send_text(message)
             except Exception as e:
-                self.logger.error(f"Error sending message: {e}")
+                self.logger.exception(f"Error sending message: {e}")
         else:
             self.logger.warning(f"WebSocket is not connected. Cannot send message: {message}")
 

@@ -4,7 +4,7 @@ This module provides the old get_settings() function while internally using the 
 """
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 # Import the new configuration system
 try:
@@ -15,7 +15,7 @@ except ImportError:
     NEW_CONFIG_AVAILABLE = False
 
 
-def get_settings() -> Dict[str, Any]:
+def get_settings() -> dict[str, Any]:
     """
     Get application settings.
     Uses the new configuration system if available, falls back to environment variables.
@@ -54,7 +54,7 @@ def get_settings() -> Dict[str, Any]:
     }
 
 
-def _convert_new_config_to_legacy(config: ApplicationConfig) -> Dict[str, Any]:
+def _convert_new_config_to_legacy(config: ApplicationConfig) -> dict[str, Any]:
     """Convert new configuration format to legacy format for backward compatibility"""
     # Build LLM provider API keys dictionary
     llm_api_keys = {}

@@ -19,7 +19,7 @@ import os
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from candidate_agent.generate_candidate_profile import CandidateProfileGenerator
 from globals import main_logger
@@ -60,15 +60,15 @@ class InterviewConfigurationService:
             self.database = await get_database()
         return self.database
 
-    def get_available_job_types(self) -> List[Dict[str, str]]:
+    def get_available_job_types(self) -> list[dict[str, str]]:
         """
         Get list of available job types for frontend dropdown
         """
         return AVAILABLE_JOB_TYPES
 
     def get_example_job_details(
-        self, examples: List[BaseInterviewConfiguration]
-    ) -> List[JobDetails]:
+        self, examples: list[BaseInterviewConfiguration]
+    ) -> list[JobDetails]:
         """
         Get example job details for a given job type
         """
@@ -79,8 +79,8 @@ class InterviewConfigurationService:
         return job_details
 
     def get_example_activity_details(
-        self, examples: List[BaseInterviewConfiguration]
-    ) -> List[ActivityDetailsOutputMessage]:
+        self, examples: list[BaseInterviewConfiguration]
+    ) -> list[ActivityDetailsOutputMessage]:
         """
         Get example activity details for a given job type
         """
@@ -90,8 +90,8 @@ class InterviewConfigurationService:
         return activity_details
 
     def get_example_starter_code(
-        self, examples: List[BaseInterviewConfiguration], job_type: str
-    ) -> List[StarterCodeData]:
+        self, examples: list[BaseInterviewConfiguration], job_type: str
+    ) -> list[StarterCodeData]:
         """
         Get example starter code for a given job type
         """
@@ -110,8 +110,8 @@ class InterviewConfigurationService:
         return starter_code
 
     def get_example_character_information(
-        self, examples: List[BaseInterviewConfiguration]
-    ) -> List[CharacterDataOutput]:
+        self, examples: list[BaseInterviewConfiguration]
+    ) -> list[CharacterDataOutput]:
         """
         Get example character information for a given job type
         """
@@ -520,14 +520,14 @@ class InterviewConfigurationService:
             )
 
             prompt = f"""
-            You are provided with the job description. 
+            You are provided with the job description.
             Your goal is to generate structured job details in JSON format.
-            
+
             The job description is the following:
             {job_description}
-            
+
             {job_title_instruction}
-            
+
             Generate a comprehensive job details structure with:
             - job_title: {f"'{frontend_job_title}'" if frontend_job_title else "The job title extracted from the description"}
             - job_description: A detailed, professional job description
@@ -535,7 +535,7 @@ class InterviewConfigurationService:
             - job_qualifications: List of required qualifications and experience
             - company_name: Company name
             - company_description: A professional company description
-            
+
             Return only valid JSON without markdown formatting.
             """
 
@@ -565,7 +565,7 @@ class InterviewConfigurationService:
             main_logger.error(f"Error generating job details: {e}")
             return None
 
-    async def _generate_panelist_profile(self, character_data) -> Optional[Dict[str, Any]]:
+    async def _generate_panelist_profile(self, character_data) -> Optional[dict[str, Any]]:
         """
         Generate panelist profile using the same method as data_uploader.py
 
@@ -609,7 +609,7 @@ class InterviewConfigurationService:
             return None
 
     async def _generate_panelist_image(
-        self, character_data, panelist_profile: Dict[str, Any]
+        self, character_data, panelist_profile: dict[str, Any]
     ) -> Optional[str]:
         """
         Generate panelist image using the same method as data_uploader.py
@@ -748,7 +748,7 @@ class InterviewConfigurationService:
     async def _store_candidate_data(
         self,
         user_id: str,
-        candidate_info: Dict[str, str],
+        candidate_info: dict[str, str],
         company_id: str,
         job_name: str,
         resume_url: str,
@@ -825,7 +825,7 @@ class InterviewConfigurationService:
             main_logger.error(f"Error loading template config for job type '{job_type}': {e}")
             return None
 
-    async def _load_examples(self, job_type: str) -> Optional[List[BaseInterviewConfiguration]]:
+    async def _load_examples(self, job_type: str) -> Optional[list[BaseInterviewConfiguration]]:
         """
         Load example configuration based on job type
         """

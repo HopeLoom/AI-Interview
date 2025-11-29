@@ -1,7 +1,7 @@
 import abc
 import typing
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -46,14 +46,14 @@ class BaseEvaluationConfiguration(SystemSettings):
 
 class PromptInput(BaseModel):
     topic_time_remaining: float = 0
-    remaining_subtopics: List[str] = Field(default_factory=list)
+    remaining_subtopics: list[str] = Field(default_factory=list)
     response_type: BaseEvaluationPromptStrategy.RESPONSE_TYPE = (
         BaseEvaluationPromptStrategy.RESPONSE_TYPE.EVALUATION
     )
-    conversation_history_for_current_subtopic: List[MasterChatMessage] = Field(default_factory=list)
-    last_completed_conversation_history: List[MasterChatMessage] = Field(default_factory=list)
-    conversation_summary_for_current_topic: List[str] = Field(default_factory=list)
-    conversation_summary_for_completed_topics: List[str] = Field(default_factory=list)
+    conversation_history_for_current_subtopic: list[MasterChatMessage] = Field(default_factory=list)
+    last_completed_conversation_history: list[MasterChatMessage] = Field(default_factory=list)
+    conversation_summary_for_current_topic: list[str] = Field(default_factory=list)
+    conversation_summary_for_completed_topics: list[str] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     message: Any = None
     activity_analysis: Any = None
@@ -64,21 +64,21 @@ class PromptInput(BaseModel):
 
 
 class SubqueryGeneratorInputMessage(BaseModel):
-    panelists: List[Profile] = Field(default_factory=list)
+    panelists: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
 
 
 class SubqueryGeneratorOutputMessage(BaseModel):
-    subqueries: List[str] = Field(default_factory=list)
+    subqueries: list[str] = Field(default_factory=list)
 
 
 class SubqueryDataExtractionInputMessage(BaseModel):
-    subqueries: List[str] = Field(default_factory=list)
+    subqueries: list[str] = Field(default_factory=list)
 
 
 class SubqueryDataExtractionOutputMessage(BaseModel):
-    subquery_names: List[str] = Field(default_factory=list)
-    subquery_result: List[str] = Field(default_factory=list)
+    subquery_names: list[str] = Field(default_factory=list)
+    subquery_result: list[str] = Field(default_factory=list)
 
 
 class CodeSummaryVisualizationInputMessage(BaseModel):
@@ -89,13 +89,13 @@ class CodeSummaryVisualizationInputMessage(BaseModel):
 
 
 class CriteriaVisualizationInputMessage(BaseModel):
-    criteria_score_list: List[CriteriaSpecificScoring] = Field(default_factory=list)
+    criteria_score_list: list[CriteriaSpecificScoring] = Field(default_factory=list)
 
 
 class PanelistFeedbackVisualizationInputMessage(BaseModel):
-    panelist_feedback: List[str] = Field(default_factory=list)
-    panelist_names: List[str] = Field(default_factory=list)
-    panelist_occupations: List[str] = Field(default_factory=list)
+    panelist_feedback: list[str] = Field(default_factory=list)
+    panelist_names: list[str] = Field(default_factory=list)
+    panelist_occupations: list[str] = Field(default_factory=list)
 
 
 class SummaryEvaluationOutput(BaseModel):
@@ -132,7 +132,7 @@ class BaseEvaluation(Configurable[BaseEvaluationConfiguration], ABC):
         perplexity_provider: ChatModelProvider,
         prompt_strategy: BaseEvaluationPromptStrategy,
     ):
-        super(BaseEvaluation, self).__init__()
+        super().__init__()
 
         self.config: EvaluationSettings = evaluation_config.settings
         self.llm_provider = llm_provider

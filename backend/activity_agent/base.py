@@ -1,7 +1,7 @@
 import abc
 import typing
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from interview_details_agent.base import ActivityDetailsOutputMessage
 from pydantic import BaseModel, Field
@@ -92,7 +92,7 @@ class PromptInput(BaseModel):
         default="", description="Activity code from candidate"
     )
     starter_code: str = Field(default="", description="Starter code")
-    activity_progress_history: List[str] = Field(
+    activity_progress_history: list[str] = Field(
         default_factory=list, description="Activity progress history"
     )
     activity_progress_analysis: ActivityProgressAnalysisOutputMessage = Field(
@@ -123,7 +123,7 @@ class BaseActivity(Configurable[BaseActivityConfiguration], ABC):
         groq_provider: ChatModelProvider,
         prompt_strategy: BaseActivityPromptStrategy,
     ):
-        super(BaseActivity, self).__init__()
+        super().__init__()
 
         self.config: ActivitySettings = activity_config.settings
         self.llm_provider = llm_provider
@@ -199,13 +199,11 @@ class BaseActivity(Configurable[BaseActivityConfiguration], ABC):
                 return False
             if not hasattr(self, "groq_provider"):
                 return False
-            if not hasattr(self, "prompt_strategy"):
-                return False
-            return True
+            return hasattr(self, "prompt_strategy")
         except Exception:
             return False
 
-    def get_config_summary(self) -> Dict[str, Any]:
+    def get_config_summary(self) -> dict[str, Any]:
         """Get a summary of the configuration"""
         return {
             "activity_name": self.config.activity_name

@@ -1,4 +1,3 @@
-from typing import List
 
 from core.database.base import DatabaseInterface
 from master_agent.base import (
@@ -85,7 +84,7 @@ class CommonPrompts:
                 """
 
         elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-            rules_prompt = """  
+            rules_prompt = """
 1 **Initiating the topic:** The discussion should be primarily led by the Product Manager (PM).
 2 **PM’s Focus Areas:**
    - The PM should take the lead when discussing:
@@ -108,7 +107,7 @@ class CommonPrompts:
         topic_data: InterviewTopicData,
         subtopic_data: SubTopicData,
         current_section: str,
-        subtopic_sections: List[str],
+        subtopic_sections: list[str],
     ) -> str:
         if topic_data.name == TOPICS_HR_ROUND.INTRODUCTION_ROLE_FIT.value:
             if subtopic_data.name == SUBTOPICS_HR_ROUND.INTRODUCTIONS_INTERVIEW_FORMAT.value:
@@ -234,7 +233,7 @@ class CommonPrompts:
  1.1 Has any of the panel members asked the candidate about their past work experience or related?
  1.2 Has atleast one followup question been asked by the panelist to their question?
  1.3 If total of three questions (similar or different) have been asked by the panelists, this section is complete.
- 1.4 If panelist has thanked the candidate, then this section is marked as complete 
+ 1.4 If panelist has thanked the candidate, then this section is marked as complete
                     """
 
         return rules_prompt
@@ -270,7 +269,7 @@ While limited communication may occur, the evaluation should center on how effec
 When answering any of the questions, you must consider the following:
 "1. When looking at the efficiency of the code, you must consider code within the functions written by candidate. Also, linear time complexity as part of preprocessing is efficient but functions must avoid using such methods. \n"
 "2. When considering evaluation on the grounds of structured level, do not consider comments, error handling or edge cases being handled by the candidate"
-"3. Ensure for each of the questions, do not consider edge cases, error handling and starter code in answering the question until and unless the question explcitly says so"  
+"3. Ensure for each of the questions, do not consider edge cases, error handling and starter code in answering the question until and unless the question explcitly says so"
 
 Answer the following questions to evaluate the candidate's performance for each of the criterions:
 
@@ -279,7 +278,7 @@ Q1. Did the candidate implement a correct and functional solution beyond the pro
 Q2. Does the candidate's code (excluding started code) produce the correct output for expected inputs? Ignore edge cases and syntax errors.
 Q3. Was the candidate’s approach logically sound with respect to the problem statement, disregarding edge cases?
 Q4. Did the candidate address all relevant edge cases in their solution beyond the starter code?
-Q5. Does the candidate’s code (excluding starter code) follow the python language’s syntax rules? Ignore logic/edge cases. 
+Q5. Does the candidate’s code (excluding starter code) follow the python language’s syntax rules? Ignore logic/edge cases.
 Q6. Did the candidate demonstrate a solid understanding of the problem’s requirements and constraints through their code (excluding edge cases and starter code)?
 Q7. Was the overall structure and strategy of the candidate’s solution well-organized? Ignore logic/edge cases
 Q8. Did the candidate arrive at an optimal solution in terms of time and space complexity, ignoring syntax issues and edge case handling?

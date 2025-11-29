@@ -14,4 +14,4 @@ class ChatPrompt(BaseModel):
     messages: list[ChatMessage]
 
     def raw(self):
-        return [m for m in self.messages]
+        return list(self.messages)

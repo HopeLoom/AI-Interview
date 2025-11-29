@@ -1,4 +1,3 @@
-from typing import Tuple
 
 from interview_details_agent.base import ActivityDetailsOutputMessage, BaseInterviewConfiguration
 
@@ -60,7 +59,7 @@ class PanelistCommonPrompts:
             "- Ensure your response aligns with the current section while maintaining awareness of prior discussions.\n"
         )
 
-    def get_role_specific_prompt(self, role_name: str) -> Tuple[str, str]:
+    def get_role_specific_prompt(self, role_name: str) -> tuple[str, str]:
         if "engineer" in role_name:
             role_prompt = """
 As the Machine Learning Engineer, you represent the perspective of an MLE.
@@ -69,8 +68,8 @@ As the Machine Learning Engineer, you represent the perspective of an MLE.
 1 **Machine Learning Expertise**
 2 **Software & Systems Thinking**
 3 **Data-Driven Decision Making**
-4 **Collaboration with Product & Engineering** 
-5 **Adaptability & Innovation** 
+4 **Collaboration with Product & Engineering**
+5 **Adaptability & Innovation**
 
 **Guidelines for Maintaining Your Role:**
 - Always maintain the **perspective of an ML Engineer**—whether discussing technical depth, team collaboration, or strategic decision-making.
@@ -90,7 +89,7 @@ Your role is to retrieve relevant ML knowledge when necessary to support structu
 4 **Business & Product Impact of ML** – How ML solutions align with real-world constraints, product goals, and user needs.
 
 **Guidelines for Using Retrieved Knowledge:**
-- If a technical concept is **misunderstood** by the candidate, provide a clear but neutral explanation before moving forward. 
+- If a technical concept is **misunderstood** by the candidate, provide a clear but neutral explanation before moving forward.
 - If the candidate discusses **trade-offs or decision-making**, use domain knowledge to assess the soundness of their reasoning.
 - If the candidate’s answer **lacks depth**, retrieve relevant knowledge to ask follow-up questions that push them to elaborate.
             """
@@ -128,7 +127,7 @@ Your role is to retrieve relevant ML knowledge when necessary to support structu
 1 **Company Culture & Work Environment** – Understanding how a candidate’s working style aligns with the organization’s culture.
 2 **Communication & Soft Skills Evaluation** – Assessing verbal clarity, confidence, and engagement in discussions.
 3 **Collaboration & Teamwork Best Practices** – Evaluating past experiences where candidates demonstrated effective teamwork or leadership.
-4 **Career Growth & Employee Development** – Ensuring the candidate’s aspirations align with potential growth within the company. 
+4 **Career Growth & Employee Development** – Ensuring the candidate’s aspirations align with potential growth within the company.
 5 **Workplace Adaptability & Conflict Resolution** – Understanding how candidates handle challenges in professional environments.
 
 **When Retrieving HR Knowledge:**
@@ -151,7 +150,7 @@ As the Product Manager, you represent the perspective of a PM responsible for **
 1 **Product Vision & Strategy**
 3 **Decision-Making & Trade-Offs**
 4 **Data-Driven Mindset**
-5 **Behaviorial Aspect** 
+5 **Behaviorial Aspect**
 
 **Guidelines for Maintaining Your Role:**
 - Always maintain the **perspective of a PM**, ensuring alignment between technical and business considerations.
@@ -220,7 +219,7 @@ At this stage, your role is to understand the candidate’s motivations for chan
                         prompt = """
 ### **Stage: Structuring Your Thought Process (Reasoning Step)**
 You are about to introduce yourself to the candidate. Before doing so, you must consider the appropriate structure of your introduction.
-                            
+
 **Your Thought Process Should Include:**
 - What key details should I share about your **name, role, and background**?
 - If the other panelist has not introduced themselves, I must prompt them after my introduction.
@@ -235,7 +234,7 @@ You are about to introduce yourself to the candidate. Before doing so, you must 
 ### **Stage: Retrieving Context for Introduction (If Needed)**
 You are introducing yourself to the candidate. While this does not require technical expertise, you may need to retrieve context "
 about your role, company, or relevant industry experience to make the introduction more meaningful.
-                            
+
 **Your Goal:**
 - Ensure that you mention any **relevant experience** that aligns with the candidate’s role.
 - Retrieve a brief description of your role in the company, if necessary.
@@ -288,7 +287,7 @@ Retrieve precise domain knowledge that is **necessary** to explain the interview
                         prompt = f"""
 ### **Stage 1: Structuring Your Thought Process (Reasoning Step)**
 You are about to introduce the technical problem to the candidate. Before speaking, you must structure your explanation.
-                            
+
 - **Technical Problem Details:**
 1. Scenario: {self.activity_details.scenario}
 2. Data Available: {self.activity_details.data_available}
@@ -347,7 +346,7 @@ Since this is a problem solving phase, I shouldn't be asking any questions. Inst
 Candidate is expected to solve the problem after which there will be a discussion around the problem
 I shall not ask them to explain their thought process or any other question that leads to any kind of discussion. My goal is to make sure they understand the problem and they begin coding the solution
 They are allowed to ask clarification questions to me and I will answer them based on the technical problem details
-  
+
 **Analysis of the Candidate’s Approach in solving the problem is mentioned here:**
 1. Performance summary: {activity_progress.candidate_performance_summary}
 2. Percentage of question solved: {activity_progress.percentage_of_question_solved}
@@ -385,7 +384,7 @@ Retrieve precise domain knowledge that is **necessary** to clarify the candidate
 
 The domain knowledge should be bound to the technical problem which includes: Scenario, data available, starter code given to them and the task for the candidate
 Do not assume or add any additional information to the problem
-                            
+
 **Guidelines:**
 1 **Extract only the required knowledge**—avoid unnecessary details.
 2 **Ensure relevance**—connect the retrieved knowledge directly to the candidate’s question.
@@ -406,27 +405,27 @@ You are conducting a deep dive into the candidate’s problem-solving approach b
 3. Task for the Candidate: {self.activity_details.task_for_the_candidate}
 4. Starter Code provided to the candidate which also contains the sample data they considered while coding:** {self.starter_code_data}
 5. Time for coding round with clarifications: 15 minutes
-                            
+
 **Analysis of the Candidate’s Approach in solving the problem is mentioned here:**
 1. Performance summary: {activity_progress.candidate_performance_summary}
 2. Amount of question solved (between 0 - 1): {activity_progress.percentage_of_question_solved}
 #3. Things left to be solved: {activity_progress.things_left_to_do_with_respect_to_question}
-                            
+
 **Your Thought Process Should Consider:**
 Has the candidate solved the problem fully, partially or were unable to solve? If the amount of question solve is less than 0.2, then they were unable to solve the question. If the amount was between 0.2-0.5, then they partially solved the problem. Anything above 0.5 means that they have atleast solved one function
 If I have already asked a question to the candidate in this topic, then ensure there is atleast one followup question to the candidate's response either by me or the other panelist
 Ask a completely different question after the followup question or connect the next question with the question just asked
 If the other panelist just asked a question which has not been answered by the candidate, then I should just let the candidate answer that question rather than asking a new one?
 Should I address anything that the candidate or the panelist has said in their last response?
-                      
+
 If the candidate Fully Solved the Problem. then generate a question based on one of these points:
-1. Candidates thought process with respect to the coded solution. 
+1. Candidates thought process with respect to the coded solution.
 2. How candidate came up with the logic?
 3. What other alternative approaches did the candidate consider before reaching to the solution
 
 If candidate partially Solved the Problem, then frame the question based on one of these points:
 1. Candidate's thought process with respect to the coded solution.
-2. Missing functionality in candidate's provided code solution with regards to the problem statement 
+2. Missing functionality in candidate's provided code solution with regards to the problem statement
 3. What other alternative approaches did candidate consider before reaching to the solution
 
 If the candidate were unable to solve the problem, then ask question based on one of these points:
@@ -461,7 +460,7 @@ Your reasoning has determined that domain knowledge is necessary to properly fra
 2. Percentage of question solved: {activity_progress.percentage_of_question_solved}
 3. Things left to be solved: {activity_progress.things_left_to_do_with_respect_to_question}
 Retrieve precise domain knowledge that is **necessary** to frame a question that deepens the discussion **without hinting at the solution**.
-                            
+
 **Guidelines:**
 1 **Extract only the required knowledge**—avoid unnecessary technical deep dives.
 2 **Ensure relevance**—connect the retrieved knowledge directly to the candidate’s problem-solving approach.
@@ -475,7 +474,7 @@ Retrieve precise domain knowledge that is **necessary** to frame a question that
 ### **Stage 1: Structuring Your Thought Process (Reasoning Step)**
 You are about to evaluate the candidate’s understanding of machine learning and data science concepts.
 Your goal is to ask targeted questions that assess their fundamental and advanced knowledge while maintaining a structured discussion.
-                            
+
 If I have already asked a question to the candidate in this topic, then ensure there is atleast one followup question to the candidate's response either by me or the other panelist
 Ask a completely different question after the followup question
 Should I address anything that candidate or panelist said in their last response?
@@ -492,7 +491,7 @@ Example questions could be something like if the job requires extenstive knowled
 2. When deciding between different models for building video recommendation systems, how do you determine the final model?
 3. How do you ensure the model generalized well to new data?
 4. How does attention mechanism work in LLM models?
-                            
+
 Do not ask any question related to their past experiences or projects since we already have another section for that
 Ask questions only on the ML/data science concepts relevant to the job details. Do not ask any questions related to previous experience
 
@@ -523,25 +522,25 @@ Retrieve precise domain knowledge that is **necessary** to frame a meaningful qu
 ### **Stage 1: Structuring Your Thought Process (Reasoning Step)**
 You are about to evaluate the candidate’s broader expertise by exploring their past experiences and applied knowledge.
 Your goal is to ask structured questions that assess their **real-world problem-solving ability, technical expertise, and impact**.
-                            
+
 If you have already asked three unique questions with followups being separate in this topic, then ensure you thank the candidate for participating and don't ask any more questions
 if the discussion is still ongoing, then consider the following:
 If you have already asked a question, then ensure there is atleast one followup question to the candidate's response
 Ask a completely different question after the followup question
 Should I address anything that they said in their last response?
-                            
+
 Generate questions based on the job role that the candidate is applying to. The job details are described as follows:
 Job description:{self.job_details.job_description}
 Job title:{self.job_details.job_title}
 Job requirements:{self.job_details.job_requirements}
 Job qualifications:{self.job_details.job_qualifications}
-                            
+
 Example questions could be something on the lines of the following. Use these questions as references only but generate something different:
 1. Tell me about a past project which involved collaboration with stakeholders from different departments.
 2. Have you ever been in a situation which resulted in a conflicting argument situation
-3. Do you prefer taking responsibilites and working alone or in a team? 
+3. Do you prefer taking responsibilites and working alone or in a team?
 4. How do you ensure time management and prioritization of tasks?
-                            
+
 Also, consider the following:
 - Should I end the topic based on the advice I have received. If yes, then since this is the last topic, i should thank the candidate and end the interview
 - If I have decided to end this topic, I should not ask any more questions. Instead just thank the candidate
@@ -618,7 +617,7 @@ Since this section is about introductions and role fit, you should focus on **co
                 if "engineer" in speaker_occupation:
                     prompt += """
 ### **Engineer Panelist Guidelines (Coding Round):**
-You must only evaluate candidate's code and not the starter code provided to them 
+You must only evaluate candidate's code and not the starter code provided to them
 - Did the candidate follow a clear and structured approach to solving the problem in their solution apart from the starter code?
 - Were they able to make progress or complete the problem in a reasonable amount of time?
 - Was the solution optimal in terms of time and space complexity, or did it have noticeable inefficiencies or flaws?

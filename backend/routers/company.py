@@ -6,7 +6,7 @@ Handles company authentication, profile management, and dashboard data.
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from globals import main_logger
@@ -127,7 +127,7 @@ class DashboardData(BaseModel):
     completed_interviews: int
     pending_interviews: int
     average_score: float
-    recent_interviews: List[CandidateResponse]
+    recent_interviews: list[CandidateResponse]
     active_jobs: int
     total_evaluations: int
 
@@ -139,7 +139,7 @@ class CompanyDashboardResponse(BaseModel):
 
 class CompanyCandidatesResponse(BaseModel):
     success: bool
-    candidates: List[CandidateResponse]
+    candidates: list[CandidateResponse]
     total: int
 
 
@@ -155,7 +155,6 @@ async def company_login(credentials: CompanyLoginRequest):
     """
     try:
         email = credentials.email
-        password = credentials.password
 
         # Try to get from database first
         try:
@@ -294,7 +293,7 @@ async def validate_company_session():
 
 
 @router.post("/logout")
-async def company_logout(payload: Dict[str, Any]):
+async def company_logout(payload: dict[str, Any]):
     """Placeholder logout endpoint"""
     token = payload.get("token")
     main_logger.info(f"Company logout requested for token: {token}")
@@ -694,7 +693,7 @@ async def get_company_interview_configurations(
 # ============================================================================
 
 
-def _extract_configuration_metadata(configuration: Dict[str, Any]) -> Dict[str, Any]:
+def _extract_configuration_metadata(configuration: dict[str, Any]) -> dict[str, Any]:
     """Helper to normalize configuration metadata for responses"""
     simulation_config = configuration.get("simulation_config") or {}
     interview_data = (

@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Any, Dict
+from typing import Any
 
 import httpx
 
@@ -14,7 +14,7 @@ class OPENAI(VoiceBase):
 
     async def _text_to_speech(
         self, websocket_connection_manager, user_id, text, voice_name
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         if not self.config.api_key:
             self.main_logger.error("Missing OpenAI API key")
             return {"user_id": user_id, "status": False}
@@ -66,15 +66,15 @@ class OPENAI(VoiceBase):
                                     WebSocketMessageTypeToClient.AUDIO_CHUNKS.value,
                                 )
                         except Exception as e:
-                            self.main_logger.error(f"Error processing audio chunk: {e}")
+                            self.main_logger.exception(f"Error processing audio chunk: {e}")
                             return {"user_id": user_id, "status": False}
 
         except httpx.RequestError as e:
-            self.main_logger.error(f"Request error in text to speech: {e}")
+            self.main_logger.exception(f"Request error in text to speech: {e}")
             return {"user_id": user_id, "status": False}
 
         except Exception as e:
-            self.main_logger.error(f"Unexpected error in text to speech: {e}")
+            self.main_logger.exception(f"Unexpected error in text to speech: {e}")
             return {"user_id": user_id, "status": False}
 
         # Send completion message
@@ -94,5 +94,5 @@ class OPENAI(VoiceBase):
 
         return {"user_id": user_id, "status": False}
 
-    async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
+    async def _speech_to_text(self, audio_data: str, user_id: str) -> dict[str, Any]:
         return {"user_id": user_id, "status": False}

@@ -4,6 +4,7 @@ Master agent has to launch multiple agents including panelists, actvity while al
 """
 
 import asyncio
+import contextlib
 import datetime
 import json
 import random
@@ -11,7 +12,7 @@ from asyncio import Queue
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, List, Optional, cast
+from typing import Any, Optional, cast
 
 from candidate_agent.configurator import create_candidate_instance
 from interview_details_agent.base import (
@@ -139,9 +140,9 @@ class Master(BaseMaster):
         self.interview_topic_tracker.load_interview_configuration(self.logger)
 
         # instances part of the interview
-        self.panelist_instances: List[Panelist] = []
-        self.panelist_tasks: List[asyncio.Task] = []
-        self.panelist_data_for_frontend: List[PanelData] = []
+        self.panelist_instances: list[Panelist] = []
+        self.panelist_tasks: list[asyncio.Task] = []
+        self.panelist_data_for_frontend: list[PanelData] = []
         self.activity_instance: Optional[Activity] = None
         self.websocket_connection_manager = None
         self.simulation_introduction_output_message: SimulationIntroductionOutputMessage = (
@@ -151,7 +152,7 @@ class Master(BaseMaster):
 
         # voice configuration
         self.master_voice_gender: str = "male"
-        self.selected_voice_ids: List = []
+        self.selected_voice_ids: list = []
         self._set_image_config()
         self.speech_service_provider = SpeechServiceProvider(
             config=SpeechConfig(
@@ -590,7 +591,7 @@ class Master(BaseMaster):
         summary = self.prompt_strategy.parse_summary_content(response)
         return summary
 
-    def convert_saved_conversation_to_list(self, conversation_history: List[MasterChatMessage]):
+    def convert_saved_conversation_to_list(self, conversation_history: list[MasterChatMessage]):
         conversation_history_strings = [
             f"Speaker:{message.speaker}, dialog:{message.content}"
             for message in conversation_history
@@ -1188,7 +1189,7 @@ class Master(BaseMaster):
             user_response = interview_data_message["message"]
             activity_data = interview_data_message["activity_data"]
 
-            topic, subtopic, section_name, is_interview_round_changed = (
+            topic, subtopic, _section_name, is_interview_round_changed = (
                 self.interview_topic_tracker.get_topic_subtopic_for_discussion(
                     self.current_interview_round
                 )
@@ -1454,14 +1455,12 @@ class Master(BaseMaster):
                     # If task is taking too long, cancel it
                     self.logger.warning("Processing task taking too long, cancelling")
                     self.processing_task.cancel()
-                    try:
+                    with contextlib.suppress(asyncio.CancelledError):
                         await self.processing_task
-                    except asyncio.CancelledError:
-                        pass
                 except asyncio.CancelledError:
                     self.logger.info("Processing task was cancelled externally")
                 except Exception as e:
-                    self.logger.error(f"Processing task failed: {e}")
+                    self.logger.exception(f"Processing task failed: {e}")
 
                 # Add error handling callback
                 def handle_task_exception(task):
@@ -1471,7 +1470,7 @@ class Master(BaseMaster):
                     except asyncio.CancelledError:
                         self.logger.info("Processing task was cancelled")
                     except Exception as e:
-                        self.logger.error(f"Processing task failed: {e}")
+                        self.logger.exception(f"Processing task failed: {e}")
 
                 self.processing_task.add_done_callback(handle_task_exception)
             else:
@@ -1479,7 +1478,7 @@ class Master(BaseMaster):
                 self.processing_task = asyncio.create_task(self.process_and_send_message())
 
         except Exception as e:
-            self.logger.error(f"Error managing processing task: {e}")
+            self.logger.exception(f"Error managing processing task: {e}")
 
     def is_ready_for_next_message(self) -> bool:
         return (
@@ -1604,10 +1603,10 @@ class Master(BaseMaster):
 
                         # we are waiting for response from the panelist.
                         elif (
-                            self.waiting_for_response_from_panelist == True
-                        ) and self.is_audio_playback_completed == True:
+                            self.waiting_for_response_from_panelist
+                        ) and self.is_audio_playback_completed:
                             # This will contain messages from the panelists
-                            if self.receiving_message_queue.empty() == False:
+                            if not self.receiving_message_queue.empty():
                                 self.logger.info("Received message from panelist")
                                 try:
                                     response: CommunicationMessage = (
@@ -1741,7 +1740,7 @@ class Master(BaseMaster):
             raise
 
         except Exception as e:
-            self.logger.error(f"Error in main loop of master agent: {e}")
+            self.logger.exception(f"Error in main loop of master agent: {e}")
             await self._send_message_to_frontend(
                 "There was an error.", WebSocketMessageTypeToClient.ERROR.value
             )

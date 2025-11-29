@@ -3,7 +3,7 @@ import datetime
 import logging
 from pathlib import Path
 from queue import Queue
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from candidate_agent.base import BaseCandidate, BaseCandidateConfiguration
 
@@ -54,12 +54,12 @@ class Candidate(BaseCandidate):
             self.logger.info("Sending response from candidate")
             self.sending_message_queue.put(response)
         except Exception as e:
-            self.logger.error(f"Error sending response: {e}")
+            self.logger.exception(f"Error sending response: {e}")
 
     def get_candidate_profile(self) -> Profile:
         return self.config_data.profile
 
-    def get_conversation_history(self) -> List[Any]:
+    def get_conversation_history(self) -> list[Any]:
         return self.simple_memory.get_all()
 
     def get_last_conversation_message(self) -> Optional[Any]:
@@ -70,9 +70,9 @@ class Candidate(BaseCandidate):
             message = ChatMessage(role=ChatMessage.Role.USER, content=candidate_input)
             self.simple_memory.remember(message)
         except Exception as e:
-            self.logger.error(f"Error updating conversation history: {e}")
+            self.logger.exception(f"Error updating conversation history: {e}")
 
-    def get_panelist_info(self, panelist_profile_list: List[Profile]) -> List[Profile]:
+    def get_panelist_info(self, panelist_profile_list: list[Profile]) -> list[Profile]:
         return panelist_profile_list
 
     def parse_process_decision_model(
@@ -84,14 +84,14 @@ class Candidate(BaseCandidate):
             self.simple_memory.remember(chatmessage)
             return output
         except Exception as e:
-            self.logger.error(f"Error parsing decision model: {e}")
+            self.logger.exception(f"Error parsing decision model: {e}")
             raise
 
     def update_candidate_input_list(self, candidate_input: str) -> None:
         try:
             self.candidate_input_tracker.append(candidate_input)
         except Exception as e:
-            self.logger.error(f"Error updating candidate input: {e}")
+            self.logger.exception(f"Error updating candidate input: {e}")
 
     async def process_message(self, message: Any) -> None:
         """Process incoming messages"""
@@ -99,7 +99,7 @@ class Candidate(BaseCandidate):
             self.logger.info(f"Processing message: {message}")
             # Add your message processing logic here
         except Exception as e:
-            self.logger.error(f"Error processing message: {e}")
+            self.logger.exception(f"Error processing message: {e}")
 
     async def run(self) -> None:
         self.candidate_start_time = datetime.datetime.now()
@@ -112,6 +112,6 @@ class Candidate(BaseCandidate):
             except asyncio.QueueEmpty:
                 pass
             except Exception as e:
-                self.logger.error(f"Error in main loop: {e}")
+                self.logger.exception(f"Error in main loop: {e}")
 
             await asyncio.sleep(0.1)

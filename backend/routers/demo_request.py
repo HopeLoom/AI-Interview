@@ -64,5 +64,5 @@ async def handle_demo_request(data: DemoRequest, logger):
 
         return {"message": "Demo request received"}
     except Exception as e:
-        logger.error(f"Email sending failed: {e}")
+        logger.exception(f"Email sending failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to send email")

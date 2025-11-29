@@ -3,7 +3,7 @@ Data models for interview configuration system.
 These models handle communication between frontend and backend.
 """
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 from interview_details_agent.base import JobDetails
 from pydantic import BaseModel, Field
@@ -33,7 +33,7 @@ class FrontendResumeData(BaseModel):
     """Resume data as sent from frontend"""
 
     file_count: Optional[int] = 0
-    resume_file_ids: Optional[List[str]] = []
+    resume_file_ids: Optional[list[str]] = []
 
 
 class FrontendConfigurationInput(BaseModel):
@@ -49,7 +49,7 @@ class BulkResumeUploadRequest(BaseModel):
 
     company_id: str
     job_name: str
-    resumes: List[ResumeUploadData]
+    resumes: list[ResumeUploadData]
     generate_auth_codes: bool = True
 
 
@@ -69,9 +69,9 @@ class BulkCandidateCreationResponse(BaseModel):
     """Response after bulk candidate creation"""
 
     success: bool
-    candidates: List[CandidateCreationResponse]
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
+    candidates: list[CandidateCreationResponse]
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class AuthenticationCodeData(BaseModel):
@@ -91,8 +91,8 @@ class TemplateConfigurationUpdate(BaseModel):
     company_name: str
     job_title: str
     job_description: str
-    job_requirements: List[str]
-    job_qualifications: List[str]
+    job_requirements: list[str]
+    job_qualifications: list[str]
 
 
 class ConfigurationGenerationResponse(BaseModel):
@@ -101,21 +101,21 @@ class ConfigurationGenerationResponse(BaseModel):
     success: bool
     configuration_id: str = ""
     invitation_code: str = ""  # Short code for candidates to join (e.g., "ABC123")
-    simulation_config: Optional[Dict] = None
-    generated_question: Optional[Dict] = None
-    generated_characters: Optional[List[Dict]] = None
-    candidate_profile: Optional[Dict] = None
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
+    simulation_config: Optional[dict] = None
+    generated_question: Optional[dict] = None
+    generated_characters: Optional[list[dict]] = None
+    candidate_profile: Optional[dict] = None
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class ConfigurationValidationResult(BaseModel):
     """Result of configuration validation"""
 
     is_valid: bool
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
-    suggestions: List[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    suggestions: list[str] = Field(default_factory=list)
     estimated_duration: float = 0.0  # Total estimated interview duration
 
 
@@ -126,7 +126,7 @@ class RoundConfiguration(BaseModel):
     name: str
     description: str
     duration: int
-    topics: List[str] = Field(default_factory=list)
+    topics: list[str] = Field(default_factory=list)
 
 
 class ConfigurationTemplate(BaseModel):
@@ -137,7 +137,7 @@ class ConfigurationTemplate(BaseModel):
     description: str
     category: str = "general"  # e.g., "ml_engineer", "frontend", etc.
     job_details: JobDetails
-    rounds: List[RoundConfiguration]
+    rounds: list[RoundConfiguration]
     created_by: str = "system"
     is_public: bool = True
 
@@ -175,7 +175,7 @@ class CandidateData(BaseModel):
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
     portfolio_url: Optional[str] = None
-    skills: List[str] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
     experience_years: Optional[int] = None
     education: Optional[str] = None
     current_role: Optional[str] = None
@@ -190,12 +190,12 @@ class JobPostingData(BaseModel):
     company_id: str
     title: str
     description: str
-    requirements: List[str] = Field(default_factory=list)
+    requirements: list[str] = Field(default_factory=list)
     location: Optional[str] = None
     job_type: Optional[str] = None  # full-time, part-time, contract
     experience_level: Optional[str] = None  # junior, mid, senior
     salary_range: Optional[str] = None
-    benefits: List[str] = Field(default_factory=list)
+    benefits: list[str] = Field(default_factory=list)
     status: str = "active"  # active, closed, draft
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -224,8 +224,8 @@ class CompanyDashboardData(BaseModel):
     active_job_postings: int = 0
     total_candidates: int = 0
     total_applications: int = 0
-    recent_applications: List[Dict] = Field(default_factory=list)
-    upcoming_interviews: List[Dict] = Field(default_factory=list)
+    recent_applications: list[dict] = Field(default_factory=list)
+    upcoming_interviews: list[dict] = Field(default_factory=list)
 
 
 class JobPostingSummary(BaseModel):
@@ -247,7 +247,7 @@ class CandidateSummary(BaseModel):
     id: str
     name: str
     email: str
-    applied_jobs: List[str] = Field(default_factory=list)
+    applied_jobs: list[str] = Field(default_factory=list)
     total_applications: int = 0
     interview_status: Optional[str] = None
     last_activity: Optional[str] = None

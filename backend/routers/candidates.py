@@ -3,7 +3,7 @@ Candidates router for managing candidate operations.
 Handles candidate profiles, practice sessions, skills, and interview history.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from globals import main_logger
@@ -40,7 +40,7 @@ async def list_candidates(db_service: InterviewConfigurationDatabase = Depends(g
 
 @router.post("/login")
 async def candidate_login(
-    credentials: Dict[str, str],
+    credentials: dict[str, str],
     db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
@@ -164,7 +164,7 @@ async def get_candidate(
 @router.put("/{candidate_id}")
 async def update_candidate(
     candidate_id: str,
-    update_data: Dict[str, Any],
+    update_data: dict[str, Any],
     db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
@@ -362,7 +362,7 @@ async def get_candidate_skills(
 @router.post("/{candidate_id}/skills")
 async def add_candidate_skill(
     candidate_id: str,
-    skill_data: Dict[str, Any],
+    skill_data: dict[str, Any],
     db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """

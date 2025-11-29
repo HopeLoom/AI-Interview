@@ -6,7 +6,7 @@ and candidates can have multiple interviews.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from firebase_admin import firestore
 
@@ -32,7 +32,7 @@ class InterviewConfigurationDatabase:
         return datetime.utcnow()
 
     # Company Management
-    async def create_company(self, company_data: Dict[str, Any]) -> str:
+    async def create_company(self, company_data: dict[str, Any]) -> str:
         """Create a new company user"""
         company_id = self._generate_id()
         company_data.update(
@@ -48,13 +48,13 @@ class InterviewConfigurationDatabase:
         doc_ref.set(company_data)
         return company_id
 
-    async def get_company(self, company_id: str) -> Optional[Dict[str, Any]]:
+    async def get_company(self, company_id: str) -> Optional[dict[str, Any]]:
         """Get company by ID"""
         doc_ref = self.db.collection("companies").document(company_id)
         doc = doc_ref.get()
         return doc.to_dict() if doc.exists else None
 
-    async def get_company_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+    async def get_company_by_email(self, email: str) -> Optional[dict[str, Any]]:
         """Get company by contact email"""
         query = self.db.collection("companies").where("contact_email", "==", email).limit(1)
         docs = query.stream()
@@ -62,7 +62,7 @@ class InterviewConfigurationDatabase:
             return doc.to_dict()
         return None
 
-    async def update_company(self, company_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_company(self, company_id: str, update_data: dict[str, Any]) -> bool:
         """Update company information"""
         try:
             update_data["updatedAt"] = self._get_timestamp()
@@ -152,7 +152,7 @@ class InterviewConfigurationDatabase:
             )
 
     # Job Posting Management
-    async def create_job_posting(self, company_id: str, job_data: Dict[str, Any]) -> str:
+    async def create_job_posting(self, company_id: str, job_data: dict[str, Any]) -> str:
         """Create a new job posting for a company"""
         job_id = self._generate_id()
         job_data.update(
@@ -169,19 +169,19 @@ class InterviewConfigurationDatabase:
         doc_ref.set(job_data)
         return job_id
 
-    async def get_job_posting(self, job_id: str) -> Optional[Dict[str, Any]]:
+    async def get_job_posting(self, job_id: str) -> Optional[dict[str, Any]]:
         """Get job posting by ID"""
         doc_ref = self.db.collection("job_postings").document(job_id)
         doc = doc_ref.get()
         return doc.to_dict() if doc.exists else None
 
-    async def get_job_postings_by_company(self, company_id: str) -> List[Dict[str, Any]]:
+    async def get_job_postings_by_company(self, company_id: str) -> list[dict[str, Any]]:
         """Get all job postings for a specific company"""
         query = self.db.collection("job_postings").where("companyId", "==", company_id)
         docs = query.stream()
         return [doc.to_dict() for doc in docs]
 
-    async def get_job_postings_summary_by_company(self, company_id: str) -> List[JobPostingSummary]:
+    async def get_job_postings_summary_by_company(self, company_id: str) -> list[JobPostingSummary]:
         """Get job posting summaries for company dashboard"""
         try:
             job_postings = await self.get_job_postings_by_company(company_id)
@@ -220,7 +220,7 @@ class InterviewConfigurationDatabase:
             print(f"Error getting job postings summary: {e}")
             return []
 
-    async def update_job_posting(self, job_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_job_posting(self, job_id: str, update_data: dict[str, Any]) -> bool:
         """Update job posting"""
         try:
             update_data["updatedAt"] = self._get_timestamp()
@@ -248,7 +248,7 @@ class InterviewConfigurationDatabase:
         level: Optional[str] = None,
         type: Optional[str] = None,
         status: str = "active",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search job postings with filters"""
         query = self.db.collection("job_postings").where("status", "==", status)
 
@@ -265,7 +265,7 @@ class InterviewConfigurationDatabase:
         return [doc.to_dict() for doc in docs]
 
     # Candidate Management
-    async def create_candidate(self, candidate_data: Dict[str, Any]) -> str:
+    async def create_candidate(self, candidate_data: dict[str, Any]) -> str:
         """Create a new candidate user"""
         candidate_id = self._generate_id()
         candidate_data.update(
@@ -281,18 +281,18 @@ class InterviewConfigurationDatabase:
         doc_ref.set(candidate_data)
         return candidate_id
 
-    async def get_candidate(self, candidate_id: str) -> Optional[Dict[str, Any]]:
+    async def get_candidate(self, candidate_id: str) -> Optional[dict[str, Any]]:
         """Get candidate by ID"""
         doc_ref = self.db.collection("candidates").document(candidate_id)
         doc = doc_ref.get()
         return doc.to_dict() if doc.exists else None
 
-    async def get_all_candidates(self) -> List[Dict[str, Any]]:
+    async def get_all_candidates(self) -> list[dict[str, Any]]:
         """Get all candidates"""
         docs = self.db.collection("candidates").stream()
         return [doc.to_dict() for doc in docs]
 
-    async def get_candidate_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+    async def get_candidate_by_email(self, email: str) -> Optional[dict[str, Any]]:
         """Get candidate by email"""
         query = self.db.collection("candidates").where("email", "==", email).limit(1)
         docs = query.stream()
@@ -300,7 +300,7 @@ class InterviewConfigurationDatabase:
             return doc.to_dict()
         return None
 
-    async def update_candidate(self, candidate_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_candidate(self, candidate_id: str, update_data: dict[str, Any]) -> bool:
         """Update candidate information"""
         try:
             update_data["updatedAt"] = self._get_timestamp()
@@ -311,7 +311,7 @@ class InterviewConfigurationDatabase:
             print(f"Error updating candidate: {e}")
             return False
 
-    async def get_candidate_practice_sessions(self, candidate_id: str) -> List[Dict[str, Any]]:
+    async def get_candidate_practice_sessions(self, candidate_id: str) -> list[dict[str, Any]]:
         """Get candidate practice sessions"""
         candidate = await self.get_candidate(candidate_id)
         if not candidate:
@@ -319,7 +319,7 @@ class InterviewConfigurationDatabase:
         sessions = candidate.get("practice_sessions", [])
         return sessions if isinstance(sessions, list) else []
 
-    async def get_candidates_summary_by_company(self, company_id: str) -> List[CandidateSummary]:
+    async def get_candidates_summary_by_company(self, company_id: str) -> list[CandidateSummary]:
         """Get candidate summaries for company dashboard"""
         try:
             # Get all job postings for the company
@@ -366,7 +366,7 @@ class InterviewConfigurationDatabase:
             return []
 
     # Interview Session Management
-    async def create_interview_session(self, session_data: Dict[str, Any]) -> str:
+    async def create_interview_session(self, session_data: dict[str, Any]) -> str:
         """Create a new interview session"""
         session_id = self._generate_id()
         session_data.update(
@@ -384,19 +384,19 @@ class InterviewConfigurationDatabase:
         doc_ref.set(session_data)
         return session_id
 
-    async def get_interview_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+    async def get_interview_session(self, session_id: str) -> Optional[dict[str, Any]]:
         """Get interview session by ID"""
         doc_ref = self.db.collection("interview_sessions").document(session_id)
         doc = doc_ref.get()
         return doc.to_dict() if doc.exists else None
 
-    async def get_interview_sessions_by_candidate(self, candidate_id: str) -> List[Dict[str, Any]]:
+    async def get_interview_sessions_by_candidate(self, candidate_id: str) -> list[dict[str, Any]]:
         """Get all interview sessions for a specific candidate"""
         query = self.db.collection("interview_sessions").where("candidateId", "==", candidate_id)
         docs = query.stream()
         return [doc.to_dict() for doc in docs]
 
-    async def get_interview_sessions_by_job(self, job_posting_id: str) -> List[Dict[str, Any]]:
+    async def get_interview_sessions_by_job(self, job_posting_id: str) -> list[dict[str, Any]]:
         """Get all interview sessions for a specific job posting"""
         query = self.db.collection("interview_sessions").where("jobPostingId", "==", job_posting_id)
         docs = query.stream()
@@ -404,9 +404,9 @@ class InterviewConfigurationDatabase:
 
     async def get_interview_sessions_by_configuration(
         self, configuration_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all interview sessions for a specific configuration"""
-        sessions: Dict[str, Dict[str, Any]] = {}
+        sessions: dict[str, dict[str, Any]] = {}
 
         # Firestore field names may vary based on ingestion source
         field_candidates = ["configurationId", "configuration_id"]
@@ -444,7 +444,7 @@ class InterviewConfigurationDatabase:
 
         return list(sessions.values())
 
-    async def update_interview_session(self, session_id: str, update_data: Dict[str, Any]) -> bool:
+    async def update_interview_session(self, session_id: str, update_data: dict[str, Any]) -> bool:
         """Update interview session"""
         try:
             update_data["updatedAt"] = self._get_timestamp()
@@ -455,7 +455,7 @@ class InterviewConfigurationDatabase:
             print(f"Error updating interview session: {e}")
             return False
 
-    async def get_session_evaluation(self, session_id: str) -> Optional[Dict[str, Any]]:
+    async def get_session_evaluation(self, session_id: str) -> Optional[dict[str, Any]]:
         """Get evaluation document for a specific interview session"""
         try:
             session_doc = self.db.collection("interview_sessions").document(session_id).get()
@@ -509,7 +509,7 @@ class InterviewConfigurationDatabase:
             return None
 
     # Interview Configuration Management
-    async def create_interview_configuration(self, config_data: Dict[str, Any]) -> str:
+    async def create_interview_configuration(self, config_data: dict[str, Any]) -> str:
         """Create a new interview configuration"""
         # Use the config_id from config_data if provided, otherwise generate new one
         config_id = (
@@ -528,7 +528,7 @@ class InterviewConfigurationDatabase:
         doc_ref.set(config_data)
         return config_id
 
-    async def get_interview_configuration(self, config_id: str) -> Optional[Dict[str, Any]]:
+    async def get_interview_configuration(self, config_id: str) -> Optional[dict[str, Any]]:
         """Get interview configuration by ID"""
         doc_ref = self.db.collection("interview_configurations").document(config_id)
         doc = doc_ref.get()
@@ -536,7 +536,7 @@ class InterviewConfigurationDatabase:
 
     async def get_interview_configurations_by_company(
         self, company_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all interview configurations for a specific company"""
         query = self.db.collection("interview_configurations").where("companyId", "==", company_id)
         docs = query.stream()
@@ -544,7 +544,7 @@ class InterviewConfigurationDatabase:
 
     async def get_interview_configurations_by_job(
         self, job_posting_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all interview configurations for a specific job posting"""
         query = self.db.collection("interview_configurations").where(
             "jobPostingId", "==", job_posting_id
@@ -553,7 +553,7 @@ class InterviewConfigurationDatabase:
         return [doc.to_dict() for doc in docs]
 
     async def update_interview_configuration(
-        self, config_id: str, update_data: Dict[str, Any]
+        self, config_id: str, update_data: dict[str, Any]
     ) -> bool:
         """Update interview configuration"""
         try:
@@ -566,7 +566,7 @@ class InterviewConfigurationDatabase:
             return False
 
     # Candidate Application Management
-    async def create_candidate_application(self, application_data: Dict[str, Any]) -> str:
+    async def create_candidate_application(self, application_data: dict[str, Any]) -> str:
         """Create a new candidate application for a job"""
         application_id = self._generate_id()
         application_data.update(
@@ -582,7 +582,7 @@ class InterviewConfigurationDatabase:
         doc_ref.set(application_data)
         return application_id
 
-    async def get_candidate_applications_by_job(self, job_posting_id: str) -> List[Dict[str, Any]]:
+    async def get_candidate_applications_by_job(self, job_posting_id: str) -> list[dict[str, Any]]:
         """Get all applications for a specific job posting"""
         query = self.db.collection("candidate_applications").where(
             "jobPostingId", "==", job_posting_id
@@ -592,7 +592,7 @@ class InterviewConfigurationDatabase:
 
     async def get_candidate_applications_by_candidate(
         self, candidate_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all applications by a specific candidate"""
         query = self.db.collection("candidate_applications").where(
             "candidateId", "==", candidate_id
@@ -611,7 +611,7 @@ class InterviewConfigurationDatabase:
             return False
 
     # Template Management
-    async def get_public_templates(self, category: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_public_templates(self, category: Optional[str] = None) -> list[dict[str, Any]]:
         """Get public interview configuration templates"""
         query = self.db.collection("interview_configurations").where("isPublic", "==", True)
         if category:
@@ -620,7 +620,7 @@ class InterviewConfigurationDatabase:
         docs = query.stream()
         return [doc.to_dict() for doc in docs]
 
-    async def save_as_template(self, config_id: str, template_data: Dict[str, Any]) -> bool:
+    async def save_as_template(self, config_id: str, template_data: dict[str, Any]) -> bool:
         """Save an interview configuration as a reusable template"""
         try:
             template_data.update({"isTemplate": True, "updatedAt": self._get_timestamp()})
@@ -634,10 +634,10 @@ class InterviewConfigurationDatabase:
     # Search and Filter Functions
     async def search_candidates(
         self,
-        skills: Optional[List[str]] = None,
+        skills: Optional[list[str]] = None,
         location: Optional[str] = None,
         experience_min: Optional[int] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search candidates with filters"""
         query = self.db.collection("candidates")
 
@@ -665,7 +665,7 @@ class InterviewConfigurationDatabase:
     # Join By Code Functions
     async def get_interview_configuration_by_invitation_code(
         self, invitation_code: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get interview configuration by invitation code"""
         try:
             # Query for configuration with matching invitation code
@@ -686,7 +686,7 @@ class InterviewConfigurationDatabase:
             print(f"Error getting configuration by invitation code: {e}")
             return None
 
-    async def validate_invitation_code(self, invitation_code: str) -> Optional[Dict[str, Any]]:
+    async def validate_invitation_code(self, invitation_code: str) -> Optional[dict[str, Any]]:
         """
         Validate invitation code and return configuration with company details
         Returns dict with: configuration, company, job_posting (if exists)
@@ -717,7 +717,7 @@ class InterviewConfigurationDatabase:
 
     async def create_interview_session_from_code(
         self, invitation_code: str, candidate_id: str, candidate_email: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """
         Create an interview session for a candidate using invitation code
         Returns session data with configuration and company details

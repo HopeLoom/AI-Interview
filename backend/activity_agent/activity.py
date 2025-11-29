@@ -87,7 +87,7 @@ class Activity(BaseActivity):
         self.lock = asyncio.Lock()
         self.data_dir = Path(__file__).parent.parent / "data" / user_id
 
-        if is_evaluating == False:
+        if not is_evaluating:
             # check if any previous file is present, if yes then delete
             data_path = Path(self.data_dir)
             for file_pattern in [
@@ -163,11 +163,11 @@ class Activity(BaseActivity):
             return ActivityProgressAnalysisOutputMessage.model_validate(json_data)
 
         except json.JSONDecodeError as e:
-            self.logger.error(f"Failed to parse JSON response: {e}")
+            self.logger.exception(f"Failed to parse JSON response: {e}")
             return ActivityProgressAnalysisOutputMessage()
 
         except Exception as e:
-            self.logger.error(f"Error processing activity progress: {e}")
+            self.logger.exception(f"Error processing activity progress: {e}")
             return ActivityProgressAnalysisOutputMessage()
 
     def parse_and_process_response_activity_progress_with_respect_to_question(
@@ -179,7 +179,7 @@ class Activity(BaseActivity):
         self.logger.info(
             f"json_data inside activity progress with respect to question is: {json_data}"
         )
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return ActivityProgressWithRespectToQuestionOutputMessage()
         output = ActivityProgressWithRespectToQuestionOutputMessage.model_validate(json_data)
         return output
@@ -191,7 +191,7 @@ class Activity(BaseActivity):
             return ActivityProgressAnalysisSummaryForPanelistOutputMessage()
         json_data = json.loads(response.content)
         self.logger.info(f"json_data inside activity progress summary for panelist is: {json_data}")
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return ActivityProgressAnalysisSummaryForPanelistOutputMessage()
         output = ActivityProgressAnalysisSummaryForPanelistOutputMessage.model_validate(json_data)
         return output
@@ -336,7 +336,7 @@ class Activity(BaseActivity):
                 {"code": self.activity_code_from_candidate},
             )
         except Exception as e:
-            self.logger.error(f"Failed to save activity data: {e}")
+            self.logger.exception(f"Failed to save activity data: {e}")
 
     def _has_candidate_made_changes(self) -> bool:
         """Check if candidate has made changes to the code"""
@@ -359,7 +359,7 @@ class Activity(BaseActivity):
             )
 
         except Exception as e:
-            self.logger.error(f"Error in analysis pipeline: {e}")
+            self.logger.exception(f"Error in analysis pipeline: {e}")
         finally:
             self.is_processing = False
 
@@ -382,7 +382,7 @@ class Activity(BaseActivity):
                 else self.recent_progress,
             )
         except Exception as e:
-            self.logger.error(f"Failed to save no progress state: {e}")
+            self.logger.exception(f"Failed to save no progress state: {e}")
 
     async def process_system_message(self, message: SystemMessageStructure):
         if message.system_message_type == SystemMessageType.END:
@@ -417,7 +417,7 @@ class Activity(BaseActivity):
                 # self.logger.info("Activity agent received no message from master agent")
                 pass
             except Exception as e:
-                self.logger.error(f"Error in main loop of activity agent: {e}")
+                self.logger.exception(f"Error in main loop of activity agent: {e}")
 
             await asyncio.sleep(0.1)
 

@@ -3,7 +3,7 @@ Job Postings router for managing job postings and related operations.
 Handles job creation, updates, applications, and search.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from globals import main_logger
@@ -93,7 +93,7 @@ async def get_job_posting(
 @router.put("/{job_id}")
 async def update_job_posting(
     job_id: str,
-    update_data: Dict[str, Any],
+    update_data: dict[str, Any],
     db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """

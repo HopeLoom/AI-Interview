@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from interview_details_agent.base import InterviewRoundDetails, JobDetails
 
@@ -59,7 +58,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
 
-    def convert_conversation_type(self, conversation_history: List[MasterChatMessage]):
+    def convert_conversation_type(self, conversation_history: list[MasterChatMessage]):
         if conversation_history is None:
             return []
         conversation_history_strings = [
@@ -120,7 +119,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> QuestionSpecificEvaluationOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return QuestionSpecificEvaluationOutputMessage()
         evaluation = QuestionSpecificEvaluationOutputMessage.model_validate(json_data)
         return evaluation
@@ -129,7 +128,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> SubqueryGeneratorOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return SubqueryGeneratorOutputMessage()
         return SubqueryGeneratorOutputMessage.model_validate(json_data)
 
@@ -137,13 +136,13 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> SubqueryDataExtractionOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return SubqueryDataExtractionOutputMessage()
         return SubqueryDataExtractionOutputMessage.model_validate(json_data)
 
     def parse_response_evaluation_summary_content(self, response: AssistantChatMessage) -> str:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "summary" not in json_data.keys():
+        if "summary" not in json_data:
             return ""
         return json_data["summary"]
 
@@ -151,7 +150,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> CodeAnalysisVisualSummary:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return CodeAnalysisVisualSummary()
         print(f"Code analysis visual summary json data: {json_data}")
         parsed_dimensions = [
@@ -172,7 +171,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> PanelistFeedbackVisualSummaryList:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return PanelistFeedbackVisualSummaryList()
         return PanelistFeedbackVisualSummaryList.model_validate(json_data)
 
@@ -180,7 +179,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> OverallVisualSummary:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return OverallVisualSummary()
         return OverallVisualSummary.model_validate(json_data)
 
@@ -188,7 +187,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
         self, response: AssistantChatMessage
     ) -> CriteriaScoreVisualSummaryList:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if "error" in json_data.keys():
+        if "error" in json_data:
             return CriteriaScoreVisualSummaryList()
         return CriteriaScoreVisualSummaryList.model_validate(json_data)
 
@@ -314,7 +313,7 @@ Summary needs to be generated for the hiring manager and will be presented on th
 The following is the criteria specific scoring and reasoning generated already:
 {criteria_scoring_list}
 Using the above information, generate a visual summary and return output in JSON format in the following structure:
-{criteria_score_visual_summary.model_dump_json()} 
+{criteria_score_visual_summary.model_dump_json()}
 Criteria and score will remain the same as provided.The main thing to focus on are the reasoning points and topics covered which must be precise and to the point
 Topics covered must be the high level topics that a hiring manager can look at and understand what the discussion was about
 Only generate upto 3 to 5 bullet points for each criteria and make sure they are not too long
@@ -337,7 +336,7 @@ Your task:
 - Use professional tone, but make it easy to scan quickly.
 - Add light emojis where appropriate (e.g., ✅ Strength, ⚠️ Concern, 💬 Communication, 💡 Insight, 🚧 Needs Improvement).
 - Group similar points and eliminate redundancy.
-- Do not rewrite the whole text — summarize key takeaways.  
+- Do not rewrite the whole text — summarize key takeaways.
 Return JSON in the following format:
 {output.model_dump_json()}
 Make sure key insights is a list of strings
@@ -353,9 +352,9 @@ Make sure key insights is a list of strings
             last_completed_conversation_history
         )
         conversation_history = "\n".join(converted_conversation_history)
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [
+        [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
         ]
         candidate_profile: Profile = message.candidate_profile
@@ -415,7 +414,7 @@ Do not miss important details. This summary will be read by the hiring manager, 
 
     def _generate_evaluation_verification_prompt(self, prompt_input: PromptInput) -> str:
         message: EvaluationInputMessage = prompt_input.message
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
         interview_occupation = [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
@@ -458,7 +457,7 @@ Do not miss important details. This summary will be read by the hiring manager, 
         if interview_round == InterviewRound.ROUND_TWO:
             base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
-                
+
 ### **Interview Context:**
 - **Current Interview Round Description:** {interview_round_description}.
 - **Candidate Name:** {candidate_name}.
@@ -466,7 +465,7 @@ You are a hiring manager responsible for evaluating a candidate in a technical i
 - **Job Description for which candidate is interviewing:** {self.job_details.job_description}.
 - **Job Title for which candidate is interviewing:** {self.job_details.job_title}.
 - **Current Discussion Topic:** {subtopic_data.description}.
-                
+
 ### **Evaluation Process:**
 - The discussion on the current topic has now concluded, and it's time to evaluate the candidate ({candidate_name}).
 - Assess the candidate based on the following **criteria**: {evaluation_criteria}.
@@ -479,14 +478,14 @@ The previous evaluation is mentioned here: {evaluation_output.model_dump_json()}
         else:
             base_prompt = f"""
 You are a hiring manager responsible for monitoring and evaluating an interview between the HR Manager and the candidate.
-                
+
 ### **Interview Context:**
 - **Current Interview Round:** {interview_round_description}.
 - **Candidate Name:** {candidate_name}.
 - **HR Manager Name:** {interviewer_names[0]}.
 - **Job Role Under Evaluation:** {self.job_details.model_dump_json()}.
 - **Current Discussion Topic:** {subtopic_data.model_dump_json()}.
-                
+
 ### **Evaluation Process:**
 - The discussion on the current topic has now concluded, and it's time to evaluate the candidate ({candidate_name}).
 - Assess the candidate based on the following **criteria**: {evaluation_criteria}.
@@ -546,7 +545,7 @@ Now, using the data, proceed with your assessment and consider the following inf
 
     def _generate_evaluation_prompt(self, prompt_input: PromptInput) -> str:
         message: EvaluationInputMessage = prompt_input.message
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
         interview_occupation = [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
@@ -588,7 +587,7 @@ Now, using the data, proceed with your assessment and consider the following inf
         if interview_round == InterviewRound.ROUND_TWO:
             base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
-                
+
 ### **Interview Context:**
 - **Current Interview Round Description:** {interview_round_description}.
 - **Candidate Name:** {candidate_name}.
@@ -599,7 +598,7 @@ You are a hiring manager responsible for evaluating a candidate in a technical i
 - **Job requirements for which candidate is interviewing:** {self.job_details.job_requirements}.
 - **Job qualifications for which candidate is interviewing:** {self.job_details.job_qualifications}.
 - **Current Discussion Topic:** {subtopic_data.description}.
-                
+
 ### **Evaluation Process:**
 - The discussion on the current topic has now concluded, and it's time to evaluate the candidate ({candidate_name}).
 - Assess the candidate based on the following **criteria**: {evaluation_criteria}.
@@ -610,7 +609,7 @@ You are a hiring manager responsible for evaluating a candidate in a technical i
         else:
             base_prompt = f"""
 You are a hiring manager responsible for monitoring and evaluating an interview between the HR Manager and the candidate.
-                
+
 ### **Interview Context:**
 - **Current Interview Round:** {interview_round_description}.
 - **Candidate Name:** {candidate_name}.
@@ -621,12 +620,12 @@ You are a hiring manager responsible for monitoring and evaluating an interview 
 - **Job requirements for which candidate is interviewing:** {self.job_details.job_requirements}.
 - **Job qualifications for which candidate is interviewing:** {self.job_details.job_qualifications}.
 - **Current Discussion Topic:** {subtopic_data.model_dump_json()}.
-                
+
 ### **Evaluation Process:**
 - The discussion on the current topic has now concluded, and it's time to evaluate the candidate ({candidate_name}).
 - Assess the candidate based on the following **criteria**: {evaluation_criteria}.
 - You will be provided with the **interview transcript** containing the conversation between the candidate and the HR Manager.
-                
+
 ### **What You Must Do:**
 - Carefully analyze the transcript and evaluate the candidate’s **responses, engagement, and overall interaction**.
 - Ensure the evaluation is **objective, structured, and aligned** with the provided criteria.
@@ -655,7 +654,7 @@ Respond in JSON format using the structure defined here: {output_message.model_d
 - If a question cannot be evaluated due to insufficient information, leave its value at the default which is NA.
 - Question number starts from 1 and goes up to the number of questions provided to you
 - Make sure you specify the question number starting from 1 and not 0
-            
+
 ### **Evaluation Philosophy:**
 - Your assessment must be **strictly grounded in the candidate's responses**. Do **not** infer intent, skill, or depth beyond what was explicitly demonstrated.
 - Maintain a **fair, objective, and consistent** evaluation across candidates.

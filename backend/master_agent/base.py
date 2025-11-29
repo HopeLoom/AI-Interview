@@ -2,7 +2,7 @@ import abc
 import enum
 import typing
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 from interview_details_agent.base import (
     BaseInterviewConfiguration,
@@ -144,11 +144,11 @@ class PanelData(BaseModel):
 
 class SimulationIntroductionOutputMessage(BaseModel):
     introduction: str = ""
-    panelists: List[PanelData] = Field(default_factory=list)
+    panelists: list[PanelData] = Field(default_factory=list)
 
 
 class SimulationIntroductionInputMessage(BaseModel):
-    panelists: List[Profile] = Field(default_factory=list)
+    panelists: list[Profile] = Field(default_factory=list)
 
 
 class ActivityDataToClient(BaseModel):
@@ -166,14 +166,14 @@ class ConvertedSpeechToClient(BaseModel):
 
 class InterviewStartDataToClient(BaseModel):
     round: InterviewRound = InterviewRound.ROUND_ONE
-    participants: List[PanelData] = Field(default_factory=list)
+    participants: list[PanelData] = Field(default_factory=list)
     message: str = ""
     voice_name: str = ""
 
 
 class InstructionDataToClient(BaseModel):
     introduction: str = ""
-    panelists: List[PanelData] = Field(default_factory=list)
+    panelists: list[PanelData] = Field(default_factory=list)
     role: str = ""
     company: str = ""
     interview_type: str = ""
@@ -275,8 +275,8 @@ class ConfigurationGeneratedToClient(BaseModel):
     success: bool = True
     configuration_id: str = ""
     simulation_config: Optional[dict] = None
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 # this is used in the interview round check prompt
@@ -291,7 +291,7 @@ class TopicSectionCompletionInputMessage(BaseModel):
     topic_data: InterviewTopicData = InterviewTopicData()
     subtopic_data: SubTopicData = SubTopicData()
     section: str = ""
-    panelists: List[Profile] = Field(default_factory=list)
+    panelists: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     topic_just_got_completed: bool = False
 
@@ -346,18 +346,18 @@ class MasterMessageStructure(BaseModel):
     speaker: Optional[Profile] = Field(default_factory=Profile)
     current_interview_round: InterviewRound = InterviewRound.ROUND_ONE
     activity_code_from_candidate: str = ""
-    conversation_history_for_current_subtopic: List[MasterChatMessage] = Field(default_factory=list)
-    conversation_summary_for_current_topic: List[str] = Field(default_factory=list)
-    conversation_summary_for_completed_topics: List[str] = Field(default_factory=list)
-    last_completed_conversation_history: List[MasterChatMessage] = Field(default_factory=list)
+    conversation_history_for_current_subtopic: list[MasterChatMessage] = Field(default_factory=list)
+    conversation_summary_for_current_topic: list[str] = Field(default_factory=list)
+    conversation_summary_for_completed_topics: list[str] = Field(default_factory=list)
+    last_completed_conversation_history: list[MasterChatMessage] = Field(default_factory=list)
     panelist_thoughts: dict = Field(default_factory=dict)
-    panelist_profiles: List[Profile] = Field(default_factory=list)
+    panelist_profiles: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     topic: InterviewTopicData = InterviewTopicData()
     sub_topic: SubTopicData = SubTopicData()
     current_section: str = ""
-    evaluation_criteria: List[str] = Field(default_factory=list)
-    remaining_topics: List[str] = Field(default_factory=list)
+    evaluation_criteria: list[str] = Field(default_factory=list)
+    remaining_topics: list[str] = Field(default_factory=list)
     remaining_time: float = 0
     topic_completion_message: TopicSectionCompletionOutputMessage = (
         TopicSectionCompletionOutputMessage()
@@ -370,7 +370,7 @@ class MasterMessageStructure(BaseModel):
 
 # this is the message which is communicated from slave agents to main instance
 class SlaveMessageStructure(BaseModel):
-    message: List[str] = Field(default_factory=list)
+    message: list[str] = Field(default_factory=list)
     speaker: str = ""
     voice_name: str = ""
     activity_analysis: str = ""
@@ -422,7 +422,7 @@ class BaseMasterConfiguration(SystemSettings):
 # speaker determination
 class SpeakerDeterminationInputMessage(BaseModel):
     interview_round: InterviewRound = InterviewRound.ROUND_ONE
-    panelists: List[Profile] = Field(default_factory=list)
+    panelists: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     current_topic: InterviewTopicData = InterviewTopicData()
     current_subtopic: SubTopicData = SubTopicData()
@@ -436,7 +436,7 @@ class SpeakerDeterminationInputMessage(BaseModel):
 
 # rules and regulations
 class RulesAndRegulationsInputMessage(BaseModel):
-    panelists_profile: List[Profile] = Field(default_factory=list)
+    panelists_profile: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     interview_round: InterviewRound = InterviewRound.ROUND_ONE
     topic: InterviewTopicData = InterviewTopicData()
@@ -449,17 +449,17 @@ class RulesAndRegulationsMessage(BaseModel):
 
 
 class RulesAndRegulationsOutputMessage(BaseModel):
-    data: List[RulesAndRegulationsMessage] = Field(default_factory=list)
+    data: list[RulesAndRegulationsMessage] = Field(default_factory=list)
 
 
 # evaluation message
 class EvaluationInputMessage(BaseModel):
-    panelists: List[Profile] = Field(default_factory=list)
+    panelists: list[Profile] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     topic_data: InterviewTopicData = InterviewTopicData()
     subtopic_data: SubTopicData = SubTopicData()
     interview_round: InterviewRound = InterviewRound.ROUND_ONE
-    evaluation_criteria: List[str] = Field(default_factory=list)
+    evaluation_criteria: list[str] = Field(default_factory=list)
     subqueries_data: Any = None
 
 
@@ -467,7 +467,7 @@ class CriteriaSpecificScoring(BaseModel):
     criteria: str = ""
     score: float = 0
     reason: str = ""
-    key_phrases_from_conversation: List[str] = Field(default_factory=list)
+    key_phrases_from_conversation: list[str] = Field(default_factory=list)
 
 
 class QuestionSpecificScoring(BaseModel):
@@ -478,18 +478,18 @@ class QuestionSpecificScoring(BaseModel):
 
 class QuestionCriteriaSpecificScoring(BaseModel):
     criteria: str = ""
-    question_specific_scoring: List[QuestionSpecificScoring] = Field(default_factory=list)
-    key_phrases_from_conversation: List[str] = Field(default_factory=list)
+    question_specific_scoring: list[QuestionSpecificScoring] = Field(default_factory=list)
+    key_phrases_from_conversation: list[str] = Field(default_factory=list)
 
 
 class QuestionSpecificEvaluationOutputMessage(BaseModel):
-    question_criteria_specific_scoring: List[QuestionCriteriaSpecificScoring] = Field(
+    question_criteria_specific_scoring: list[QuestionCriteriaSpecificScoring] = Field(
         default_factory=list
     )
 
 
 class OldEvaluationMessage(BaseModel):
-    criteria_specific_scoring: List[CriteriaSpecificScoring] = Field(default_factory=list)
+    criteria_specific_scoring: list[CriteriaSpecificScoring] = Field(default_factory=list)
 
 
 class EvaluationMessageToFrontEnd(BaseModel):
@@ -504,21 +504,21 @@ class EvaluationMessageToFrontEnd(BaseModel):
     activity_analysis: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
         ActivityProgressAnalysisSummaryForPanelistOutputMessage()
     )
-    transcript: List[MasterChatMessage] = Field(default_factory=list)
-    panelist_feedback: List[str] = Field(default_factory=list)
-    panelist_names: List[str] = Field(default_factory=list)
-    panelist_occupations: List[str] = Field(default_factory=list)
+    transcript: list[MasterChatMessage] = Field(default_factory=list)
+    panelist_feedback: list[str] = Field(default_factory=list)
+    panelist_names: list[str] = Field(default_factory=list)
+    panelist_occupations: list[str] = Field(default_factory=list)
 
 
 class CriteriaScoreVisualSummary(BaseModel):
     criteria: str = ""
     score: float = 0
-    reason_bullets: List[str] = Field(default_factory=list)
-    topics_covered: List[str] = Field(default_factory=list)
+    reason_bullets: list[str] = Field(default_factory=list)
+    topics_covered: list[str] = Field(default_factory=list)
 
 
 class CriteriaScoreVisualSummaryList(BaseModel):
-    criteria_score_list: List[CriteriaScoreVisualSummary] = Field(default_factory=list)
+    criteria_score_list: list[CriteriaScoreVisualSummary] = Field(default_factory=list)
 
 
 class CodeDimensions(str, enum.Enum):
@@ -544,24 +544,24 @@ class CodeDimensionSummary(BaseModel):
 
 
 class CodeAnalysisVisualSummary(BaseModel):
-    code_overall_summary: List[str] = Field(default_factory=list)
-    code_dimension_summary: List[CodeDimensionSummary] = Field(default_factory=list)
+    code_overall_summary: list[str] = Field(default_factory=list)
+    code_dimension_summary: list[CodeDimensionSummary] = Field(default_factory=list)
     completion_percentage: float = 0
 
 
 class PanelistFeedbackVisualSummary(BaseModel):
     name: str = ""
     role: str = ""
-    summary_bullets: List[str] = Field(default_factory=list)
+    summary_bullets: list[str] = Field(default_factory=list)
 
 
 class PanelistFeedbackVisualSummaryList(BaseModel):
-    panelist_feedback: List[PanelistFeedbackVisualSummary] = Field(default_factory=list)
+    panelist_feedback: list[PanelistFeedbackVisualSummary] = Field(default_factory=list)
 
 
 class OverallVisualSummary(BaseModel):
     score_label: str = ""
-    key_insights: List[str] = Field(default_factory=list)
+    key_insights: list[str] = Field(default_factory=list)
 
 
 class CandidateEvaluationVisualisationReport(BaseModel):
@@ -570,24 +570,24 @@ class CandidateEvaluationVisualisationReport(BaseModel):
     candidate_profile_image: str = ""
     overall_score: float = 0
     overall_visual_summary: OverallVisualSummary = OverallVisualSummary()
-    criteria_scores: List[CriteriaScoreVisualSummary] = Field(default_factory=list)
+    criteria_scores: list[CriteriaScoreVisualSummary] = Field(default_factory=list)
     code_submission: CodeSubmissionVisualSummary = CodeSubmissionVisualSummary()
     code_analysis: CodeAnalysisVisualSummary = CodeAnalysisVisualSummary()
-    panelist_feedback: List[PanelistFeedbackVisualSummary] = Field(default_factory=list)
-    transcript: List[MasterChatMessage] = Field(default_factory=list)
+    panelist_feedback: list[PanelistFeedbackVisualSummary] = Field(default_factory=list)
+    transcript: list[MasterChatMessage] = Field(default_factory=list)
     candidate_profile: Background = Background()
 
 
 class PromptInput(BaseModel):
     topic_time_remaining: float = 0
-    remaining_subtopics: List[str] = Field(default_factory=list)
+    remaining_subtopics: list[str] = Field(default_factory=list)
     response_type: BaseMasterPromptStrategy.RESPONSE_TYPE = (
         BaseMasterPromptStrategy.RESPONSE_TYPE.INTRO
     )
-    conversation_history_for_current_subtopic: List[MasterChatMessage] = Field(default_factory=list)
-    last_completed_conversation_history: List[MasterChatMessage] = Field(default_factory=list)
-    conversation_summary_for_current_topic: List[str] = Field(default_factory=list)
-    conversation_summary_for_completed_topics: List[str] = Field(default_factory=list)
+    conversation_history_for_current_subtopic: list[MasterChatMessage] = Field(default_factory=list)
+    last_completed_conversation_history: list[MasterChatMessage] = Field(default_factory=list)
+    conversation_summary_for_current_topic: list[str] = Field(default_factory=list)
+    conversation_summary_for_completed_topics: list[str] = Field(default_factory=list)
     candidate_profile: Profile = Profile()
     message: Any = None
     activity_analysis: Any = None
@@ -603,7 +603,7 @@ class InterviewDetails(BaseModel):
     company: str = ""
     duration: int = 0
     interviewType: str = ""
-    expectations: List[str] = Field(default_factory=list)
+    expectations: list[str] = Field(default_factory=list)
 
 
 class Configurable(abc.ABC, Generic[S]):
@@ -631,7 +631,7 @@ class BaseMaster(Configurable[BaseMasterConfiguration], ABC):
         deepseek_provider: ChatModelProvider,
         prompt_strategy: BaseMasterPromptStrategy,
     ):
-        super(BaseMaster, self).__init__()
+        super().__init__()
 
         self.settings = master_config.settings
         self.interview_config = master_config.interview_data
@@ -769,7 +769,7 @@ class BaseMaster(Configurable[BaseMasterConfiguration], ABC):
     @abstractmethod
     def parse_and_process_response_summarized_conversation(
         self, response: ChatModelResponse, prompt: ChatPrompt
-    ) -> List[str]:
+    ) -> list[str]:
         """Parse summarized conversation response"""
         pass
 
@@ -790,7 +790,7 @@ class BaseMaster(Configurable[BaseMasterConfiguration], ABC):
     @abstractmethod
     def parse_and_process_response_rules_regulation(
         self, response: ChatModelResponse, prompt: ChatPrompt
-    ) -> List[RulesAndRegulationsMessage]:
+    ) -> list[RulesAndRegulationsMessage]:
         """Parse rules and regulations response"""
         pass
 

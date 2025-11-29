@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from interview_details_agent.base import InterviewRoundDetails, JobDetails
 
@@ -55,7 +54,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
 
-    def convert_conversation_type(self, conversation_history: List[MasterChatMessage]):
+    def convert_conversation_type(self, conversation_history: list[MasterChatMessage]):
         conversation_history_strings = [
             f"Speaker:{message.speaker}, dialog:{message.content}"
             for message in conversation_history
@@ -97,7 +96,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     def parse_response_summarized_conversation_content(self, response: AssistantChatMessage) -> str:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "summary" not in json_data.keys():
+            if "summary" not in json_data:
                 return "No summary provided"
             return json_data["summary"]
         else:
@@ -108,7 +107,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     ) -> SimulationIntroductionOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "error" in json_data.keys():
+            if "error" in json_data:
                 return SimulationIntroductionOutputMessage()
             introduction = SimulationIntroductionOutputMessage.model_validate(json_data)
             return introduction
@@ -120,7 +119,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     ) -> SpeakerDeterminationOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "error" in json_data.keys():
+            if "error" in json_data:
                 return SpeakerDeterminationOutputMessage()
             speakerDetermination = SpeakerDeterminationOutputMessage.model_validate(json_data)
             return speakerDetermination
@@ -132,7 +131,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     ) -> ConversationalAdviceOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "error" in json_data.keys():
+            if "error" in json_data:
                 return ConversationalAdviceOutputMessage()
             conversationalAdvice = ConversationalAdviceOutputMessage.model_validate(json_data)
             return conversationalAdvice
@@ -144,7 +143,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     ) -> RulesAndRegulationsOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "error" in json_data.keys():
+            if "error" in json_data:
                 return RulesAndRegulationsOutputMessage()
             rulesAndRegulations = RulesAndRegulationsOutputMessage.model_validate(json_data)
             return rulesAndRegulations
@@ -156,7 +155,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     ) -> TopicSectionCompletionOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "error" in json_data.keys():
+            if "error" in json_data:
                 return TopicSectionCompletionOutputMessage()
             output = TopicSectionCompletionOutputMessage.model_validate(json_data)
             return output
@@ -166,7 +165,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
     def parse_summary_content(self, response: AssistantChatMessage) -> str:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if "summary" not in json_data.keys():
+            if "summary" not in json_data:
                 return "No summary provided"
             # "we need to make sure summary is a string. If its a list, then we need to convert it to a string"
             if isinstance(json_data["summary"], list):
@@ -218,7 +217,7 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
         base_prompt = f"""
 ### **Candidate Interview Introduction Generation**
 You are responsible for generating an introduction for a candidate about the **prescreening interview** they are about to participate in.\n\n
-            
+
 **Context:**
 - The candidate has **just logged in** and needs to understand what to expect from the interview software.
 - The interview is for the **following job:**
@@ -234,7 +233,7 @@ You are responsible for generating an introduction for a candidate about the **p
 3 **Ensure consistency** between the panelist data you generate and the provided panelist details.
 4 The `avatar` field should be left **empty**, as the system will populate it with the image path later.
 5. Panelists are AI agents and they will be conducting the interview. Mention that they are AI agents in the introduction.
-            
+
 **Example Introduction Message:**
 Welcome to the prescreening interview for the **Machine Learning Engineer** position at **XYZ**.
 This interview process consists of a **technical interview** to ensure you are a good fit for the role.
@@ -251,7 +250,7 @@ Good luck!
         subtopic: SubTopicData = message.current_subtopic
         topic: InterviewTopicData = message.current_topic
         current_section = message.current_section
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
         interview_occupation = [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
@@ -325,7 +324,7 @@ You must decide who speaks next amongst the candidate and interviewers to ensure
 2. If the interviewer has asked a question, then most likely candidate will be the next speaker. However, if the question is meant for the other panelist, then let them answer it.
 3 **Context Awareness:** Consider the current discussion focus provided to you.
 4 **Prevent Stagnation:** Ensure the conversation progresses smoothly without unnecessary repetition or stagnation.
-5 **Last Speaker Analysis:** Check the **last message in the conversation history** to determine the next logical speaker. 
+5 **Last Speaker Analysis:** Check the **last message in the conversation history** to determine the next logical speaker.
 Choose a different speaker everytime until and unless there is a reference to someone in the last message. Make sure you allow that person to speak who is referenced
 6 **Conversation History Matters:** Use the context from the **current topic and past topics** to make an informed decision.
 7 **Balanced Participation:** Prevent one-sided discussions and ensure both panelists and the candidate have appropriate speaking opportunities.
@@ -334,12 +333,12 @@ Choose a different speaker everytime until and unless there is a reference to so
 ### **Rules for Topic & Section Progression:**
 
 9 **Assess why the current section is still being discussed:** {topic_completion_output.model_dump_json()}.
-10 **Topic Completion Handling:** If the **current topic just got completed**, indicated here: {topic_just_got_completed}, 
+10 **Topic Completion Handling:** If the **current topic just got completed**, indicated here: {topic_just_got_completed},
 then the next speaker should be a panelist to introduce the next topic.
 11 **Section Initiation:** If a new section is starting, **ignore the last message** and determine the next speaker based on the rules for the current topic.
 
 ### **Candidate-Specific Guidelines:**
-12 **The candidate must never start a new topic**—a panelist must always introduce it. 
+12 **The candidate must never start a new topic**—a panelist must always introduce it.
 However, during the **Problem Solving section (coding phase),** the candidate can take the lead but interviewer must be selected if candidate is asking a question or stating anything.
 
 ### **Time-Based Considerations:**
@@ -420,13 +419,12 @@ Additionally, follow the topic specific rules provided here:
         interview_round: InterviewRound = message.interview_round
         current_section = message.section
         subtopic_sections = subtopic_data.sections
-        remaining_subtopics = prompt_input.remaining_subtopics
         topic_time_remaining = prompt_input.topic_time_remaining
         topic_just_got_completed = message.topic_just_got_completed
 
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [
+        [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
         ]
         candidate_profile: Profile = message.candidate_profile
@@ -546,7 +544,7 @@ Do not judge/evaluate candidate's responses. We must follow the topic structure 
 
     def _generate_evaluation_verification_prompt(self, prompt_input: PromptInput) -> str:
         message: EvaluationInputMessage = prompt_input.message
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
         interview_occupation = [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
@@ -678,7 +676,7 @@ Now, using the data, proceed with your assessment and consider the following inf
 
     def _generate_evaluation_prompt(self, prompt_input: PromptInput) -> str:
         message: EvaluationInputMessage = prompt_input.message
-        panelists: List[Profile] = message.panelists
+        panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
         interview_occupation = [
             f"{profile.background.current_occupation.occupation}" for profile in panelists
@@ -814,16 +812,11 @@ Now, using the following data, proceed with your assessment:
 
         message: ConversationalAdviceInputMessage = prompt_input.message
         next_speaker: Profile = message.next_speaker
-        topic_data: InterviewTopicData = message.topic_data
         subtopic_data: SubTopicData = message.subtopic_data
         interview_round: InterviewRound = message.interview_round
         topic_just_got_completed = message.topic_just_got_completed
         current_section = message.section
-        subtopic_sections = subtopic_data.sections
         remaining_subtopics = prompt_input.remaining_subtopics
-        speaker_determination_output: SpeakerDeterminationOutputMessage = (
-            message.speaker_determination_output
-        )
         topic_completion_output: TopicSectionCompletionOutputMessage = (
             message.topic_completion_output
         )
@@ -1033,11 +1026,7 @@ You are an agent responsible for summarizing multiple rounds of conversation bet
     # Not using this right now
     def _generate_rules_and_regulations_prompt(self, prompt_details: PromptInput) -> str:
         message: RulesAndRegulationsInputMessage = prompt_details.message
-        panelist_profiles: List[Profile] = message.panelists_profile
-        candidate_profile = message.candidate_profile
-        interview_round: InterviewRound = message.interview_round
-        topic: InterviewTopicData = message.topic
-        subtopic: SubTopicData = message.subtopic
+        panelist_profiles: list[Profile] = message.panelists_profile
 
         panelist_background_info = [
             f"background_info for panelists with name: {profile.background.name}, {profile.background}"
@@ -1109,10 +1098,7 @@ While npc_name denotes the character name, reason contains one line of reason as
         # content: str
         # role: str
         try:
-            if response.content is not None:
-                json_data = json.loads(response.content)
-            else:
-                json_data = {}
+            json_data = json.loads(response.content) if response.content is not None else {}
         except json.JSONDecodeError:
             json_data = {}
 

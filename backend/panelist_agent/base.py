@@ -2,7 +2,7 @@ import abc
 import enum
 import typing
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -122,13 +122,13 @@ class ResponseWithReasoningOutputMessage(BaseModel):
     are_my_questions_too_repetitive: bool = Field(
         default=False, description="Repetitive questions flag"
     )
-    areas_to_cover_in_next_response: List[str] = Field(
+    areas_to_cover_in_next_response: list[str] = Field(
         default_factory=list, description="Areas to cover"
     )
-    facts_corresponding_to_areas_to_cover_in_next_response: List[str] = Field(
+    facts_corresponding_to_areas_to_cover_in_next_response: list[str] = Field(
         default_factory=list, description="Facts for areas"
     )
-    areas_already_covered: List[str] = Field(
+    areas_already_covered: list[str] = Field(
         default_factory=list, description="Already covered areas"
     )
     response: str = Field(default="", description="Generated response")
@@ -150,13 +150,13 @@ class ReasoningOutputMessage(BaseModel):
     are_my_questions_too_repetitive: bool = Field(
         default=False, description="Repetitive questions flag"
     )
-    areas_to_cover_in_next_response: List[str] = Field(
+    areas_to_cover_in_next_response: list[str] = Field(
         default_factory=list, description="Areas to cover"
     )
-    facts_corresponding_to_areas_to_cover_in_next_response: List[str] = Field(
+    facts_corresponding_to_areas_to_cover_in_next_response: list[str] = Field(
         default_factory=list, description="Facts for areas"
     )
-    areas_already_covered: List[str] = Field(
+    areas_already_covered: list[str] = Field(
         default_factory=list, description="Already covered areas"
     )
     is_domain_knowledge_access_needed: bool = Field(
@@ -173,7 +173,7 @@ class CriteriaSpecificScoring(BaseModel):
     criteria: str = Field(default="", description="Evaluation criteria")
     score: float = Field(default=DEFAULT_SCORE, ge=0, le=100, description="Criteria score")
     reason: str = Field(default="", description="Scoring reason")
-    key_phrases_from_conversation: List[str] = Field(
+    key_phrases_from_conversation: list[str] = Field(
         default_factory=list, description="Key phrases from conversation"
     )
 
@@ -204,7 +204,7 @@ class PromptInput(BaseModel):
     domain_knowledge: DomainKnowledgeOutputMessage = Field(
         default_factory=DomainKnowledgeOutputMessage, description="Domain knowledge"
     )
-    reflection_history: List[ReflectionChatMessage] = Field(
+    reflection_history: list[ReflectionChatMessage] = Field(
         default_factory=list, description="Reflection history"
     )
 
@@ -229,7 +229,7 @@ class BasePanelist(Configurable[BasePanelistConfiguration], ABC):
         deepseek_provider: ChatModelProvider,
         prompt_strategy: BasePanelistPromptStrategy,
     ):
-        super(BasePanelist, self).__init__()
+        super().__init__()
 
         self.settings = config.settings
         self.llm_provider = llm_provider
@@ -351,9 +351,7 @@ class BasePanelist(Configurable[BasePanelistConfiguration], ABC):
                 return False
             if not hasattr(self, "llm_provider"):
                 return False
-            if not hasattr(self, "prompt_strategy"):
-                return False
-            return True
+            return hasattr(self, "prompt_strategy")
         except Exception:
             return False
 

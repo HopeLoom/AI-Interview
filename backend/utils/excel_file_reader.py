@@ -9,19 +9,11 @@ def read_spreadsheet(file_path):
 
         df["Categories"] = df["Categories"].fillna(method="ffill")
 
-        # Print the cleaned DataFrame
-        # print("Cleaned DataFrame:")
-        # print(df)
-
         # Create a mapping from the 'Category' column to the rest of the DataFrame
         category_mapping = (
             df.groupby("Categories").apply(lambda x: x.to_dict(orient="records")).to_dict()
         )
 
-        # Print the contents of the DataFrame
-        # print(df)
-
-        # Optionally, return the DataFrame if you need to use it further
         return df, category_mapping
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -32,8 +24,6 @@ file_path = "rejection_senstivity_part.xlsx"
 
 # Call the function to read and print the spreadsheet contents
 spreadsheet_data, category_mapping = read_spreadsheet(file_path)
-# read the column names
-# print(spreadsheet_data.columns)
 print(category_mapping)
 
 for key, values in category_mapping.items():
@@ -56,9 +46,3 @@ triggers = spreadsheet_data["Triggers"]
 emotional_response = spreadsheet_data["Emotional Response"]
 # get emotinalresponse when trigger is equal to 'Critisism'
 emotional_response = spreadsheet_data.loc[triggers == "Criticism", "Emotional Response"]
-# print (emotional_response)
-# categories = categories.dropna()
-# print (categories)
-
-# print (triggers)
-# print (emotional_response)

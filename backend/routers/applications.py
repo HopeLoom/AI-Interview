@@ -3,7 +3,7 @@ Applications router for managing candidate applications to job postings.
 Handles application submission, status updates, and retrieval.
 """
 
-from typing import Dict, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from globals import main_logger
@@ -114,7 +114,7 @@ async def get_application(
 @router.put("/{application_id}/status")
 async def update_application_status(
     application_id: str,
-    status_data: Dict[str, str],
+    status_data: dict[str, str],
     db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """

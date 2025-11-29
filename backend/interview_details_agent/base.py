@@ -1,7 +1,7 @@
 import abc
 import typing
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -28,22 +28,22 @@ class SubTopicData(BaseModel):
     name: str = ""
     time_limit: float = 0
     description: str = ""
-    sections: List[str] = Field(default_factory=list)
+    sections: list[str] = Field(default_factory=list)
 
 
 class InterviewTopicData(BaseModel):
     name: str = ""
     description: str = ""
     time_limit: float = 0
-    evaluation_criteria: List[str] = Field(default_factory=list)
-    subtopics: List[SubTopicData] = Field(default_factory=list)
+    evaluation_criteria: list[str] = Field(default_factory=list)
+    subtopics: list[SubTopicData] = Field(default_factory=list)
 
 
 class InterviewRoundData(BaseModel):
     description: str = ""
     objective: str = ""
-    metrics_covered: List[str] = Field(default_factory=list)
-    topic_info: List[InterviewTopicData] = []
+    metrics_covered: list[str] = Field(default_factory=list)
+    topic_info: list[InterviewTopicData] = []
 
 
 class CharacterData(BaseModel):
@@ -69,8 +69,8 @@ class InterviewRoundDetails(BaseModel):
 class JobDetails(BaseModel):
     job_description: str = ""
     job_title: str = ""
-    job_requirements: List[str] = Field(default_factory=list)
-    job_qualifications: List[str] = Field(default_factory=list)
+    job_requirements: list[str] = Field(default_factory=list)
+    job_qualifications: list[str] = Field(default_factory=list)
     company_name: str = ""
     company_description: str = ""
 
@@ -83,7 +83,7 @@ class CharacterDataInput(BaseModel):
 
 # use model to generate this
 class CharacterDataOutput(BaseModel):
-    data: List[CharacterData] = Field(default_factory=list)
+    data: list[CharacterData] = Field(default_factory=list)
     reason: str = ""
 
 
@@ -119,12 +119,12 @@ class BaseInterviewConfiguration(BaseModel):
 class PromptInput(BaseModel):
     job_details: JobDetails = JobDetails()
     interview_round_details: InterviewRoundDetails = InterviewRoundDetails()
-    example_character_data_output: List[CharacterDataOutput] = Field(default_factory=list)
-    example_activity_details_output: List[ActivityDetailsOutputMessage] = Field(
+    example_character_data_output: list[CharacterDataOutput] = Field(default_factory=list)
+    example_activity_details_output: list[ActivityDetailsOutputMessage] = Field(
         default_factory=list
     )
-    example_starter_code_output: List[StarterCodeData] = Field(default_factory=list)
-    example_job_details: List[JobDetails] = Field(default_factory=list)
+    example_starter_code_output: list[StarterCodeData] = Field(default_factory=list)
+    example_job_details: list[JobDetails] = Field(default_factory=list)
     generated_activity_details_output: ActivityDetailsOutputMessage = ActivityDetailsOutputMessage()
     message: Any = None
     response_type: BaseInterviewPromptStrategy.RESPONSE_TYPE = (
@@ -156,7 +156,7 @@ class BaseInterview(Configurable[BaseInterviewConfiguration], ABC):
         llm_provider: ChatModelProvider,
         prompt_strategy: BaseInterviewPromptStrategy,
     ):
-        super(BaseInterview, self).__init__()
+        super().__init__()
 
         self.config: InterviewSettings = interview_config.settings
         self.llm_provider = llm_provider

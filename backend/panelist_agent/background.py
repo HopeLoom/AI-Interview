@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -39,10 +38,10 @@ class Background(BaseModel):
     age: int = 0
     bio: str = ""
     current_occupation: CurrentOccupation = CurrentOccupation()
-    education: List[Education] = Field(default_factory=list)
-    experience: List[Experience] = Field(default_factory=list)
-    skills: List[Skills] = Field(default_factory=list)
-    projects: List[Projects] = Field(default_factory=list)
+    education: list[Education] = Field(default_factory=list)
+    experience: list[Experience] = Field(default_factory=list)
+    skills: list[Skills] = Field(default_factory=list)
+    projects: list[Projects] = Field(default_factory=list)
 
     @staticmethod
     def save():

@@ -89,7 +89,7 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
                 prompt_tokens=0,
                 total_tokens=0
             )
-           
+
         )
     """
     # _budget: ModelProviderBudget
@@ -117,10 +117,7 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
         return tiktoken.encoding_for_model(model_name)
 
     def count_tokens(self, text, model_name):
-        if model_name.startswith("deepseek"):
-            encoding_model_name = "gpt-4"
-        else:
-            encoding_model_name = "gpt-3.5-turbo"
+        encoding_model_name = "gpt-4" if model_name.startswith("deepseek") else "gpt-3.5-turbo"
         encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
 
@@ -130,11 +127,9 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
 
         if model_name.startswith("gpt-3"):
             tokens_per_message = 4
-            tokens_per_names = -1
             encoding_model = "gpt-3.5-turbo"
         elif model_name.startswith("gpt-4"):
             tokens_per_message = 3
-            tokens_per_names = 1
             encoding_model = "gpt-4"
 
         else:
@@ -168,13 +163,9 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
         **kwargs,
     ):
         print("model_name: ", model_name)
-        if is_json_mode:
-            response_format = {"type": "json_object"}
-        else:
-            response_format = None
+        response_format = {"type": "json_object"} if is_json_mode else None
 
         total_cost = 0
-        attempts = 0
 
         # combine model_name and response_format into keyword arguments
 

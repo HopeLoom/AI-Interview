@@ -2,7 +2,7 @@ import abc
 import asyncio
 import base64
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -44,7 +44,7 @@ class VoiceBase:
                     error=result.get("error"),
                 )
             except Exception as e:
-                self.main_logger.error(f"Speech to text error: {e}")
+                self.main_logger.exception(f"Speech to text error: {e}")
                 return SpeechResult(user_id=user_id, status=False, error=str(e))
 
     async def say_from_text(
@@ -60,7 +60,7 @@ class VoiceBase:
                     user_id=user_id, status=result.get("status", False), error=result.get("error")
                 )
             except Exception as e:
-                self.main_logger.error(f"Text to speech error: {e}")
+                self.main_logger.exception(f"Text to speech error: {e}")
                 return SpeechResult(user_id=user_id, status=False, error=str(e))
 
     async def _send_audio_chunk(
@@ -81,7 +81,7 @@ class VoiceBase:
             )
             return True
         except Exception as e:
-            self.main_logger.error(f"Error sending audio chunk: {e}")
+            self.main_logger.exception(f"Error sending audio chunk: {e}")
             return False
 
     async def _send_completion_message(self, websocket_connection_manager, user_id: str) -> bool:
@@ -98,7 +98,7 @@ class VoiceBase:
             )
             return True
         except Exception as e:
-            self.main_logger.error(f"Error sending completion message: {e}")
+            self.main_logger.exception(f"Error sending completion message: {e}")
             return False
 
     @abc.abstractmethod
@@ -106,11 +106,11 @@ class VoiceBase:
         pass
 
     @abc.abstractmethod
-    async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
+    async def _speech_to_text(self, audio_data: str, user_id: str) -> dict[str, Any]:
         pass
 
     @abc.abstractmethod
     async def _text_to_speech(
         self, websocket_connection_manager, user_id: str, text: str, voice_name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         pass

@@ -1,6 +1,7 @@
 import json
+from collections import defaultdict
 from pathlib import Path
-from typing import Any, DefaultDict, List, Optional, Tuple
+from typing import Any, Optional
 
 from interview_details_agent.base import (
     BaseInterviewConfiguration,
@@ -18,7 +19,7 @@ from master_agent.base import InterviewRound, SubTopicData
 class SubTopicNode(BaseModel):
     subtopic_data: SubTopicData
     status: bool = Field(default=False, description="Completion status")
-    sections: DefaultDict[str, bool] = Field(
+    sections: defaultdict[str, bool] = Field(
         default_factory=dict, description="Section completion status"
     )
 
@@ -34,7 +35,7 @@ class SubTopicNode(BaseModel):
     def get_section_status(self, section_name: str) -> bool:
         return self.sections.get(section_name, False)
 
-    def get_section_names(self) -> List[str]:
+    def get_section_names(self) -> list[str]:
         return list(self.sections.keys())
 
 
@@ -91,7 +92,7 @@ class TopicNode(BaseModel):
 
 
 class InterviewRoundDataGraph(BaseModel):
-    interview_round_topic_data_graph: dict[str, List[TopicNode]] = {}
+    interview_round_topic_data_graph: dict[str, list[TopicNode]] = {}
     _topic_name_index: dict[str, dict[str, TopicNode]] = {}  # Cache for topic lookups
 
     def __init__(self, **data):
@@ -126,13 +127,13 @@ class InterviewRoundDataGraph(BaseModel):
 
     def get_next_topic_node(self, interview_round):
         for topic_node in self.interview_round_topic_data_graph[interview_round]:
-            if topic_node.status == False:
+            if not topic_node.status:
                 return topic_node
         return None
 
     def get_next_subtopic_node(self, topic_node):
-        for subtopic_node_name, subtopic_node in topic_node.subtopic_nodes.items():
-            if subtopic_node.status == False:
+        for _subtopic_node_name, subtopic_node in topic_node.subtopic_nodes.items():
+            if not subtopic_node.status:
                 return subtopic_node
         return None
 
@@ -141,21 +142,21 @@ class InterviewRoundDataGraph(BaseModel):
             if topic_node.get_topic_name() == topic_name:
                 subtopics = []
                 for subtopic_name, subtopic_node in topic_node.subtopic_nodes.items():
-                    if subtopic_node.status == False:
+                    if not subtopic_node.status:
                         subtopics.append(subtopic_name)
                 return subtopics
         return None
 
     def get_next_section(self, subtopic_node):
         for section_name, section_status in subtopic_node.sections.items():
-            if section_status == False:
+            if not section_status:
                 return section_name
         return None
 
     def get_last_completed_topic_node(self, interview_round):
         last_topic_node = None
         for topic_node in self.interview_round_topic_data_graph[interview_round]:
-            if topic_node.status == False:
+            if not topic_node.status:
                 break
             last_topic_node = topic_node
         return last_topic_node
@@ -164,8 +165,8 @@ class InterviewRoundDataGraph(BaseModel):
         last_subtopic_node = None
         for topic_node in self.interview_round_topic_data_graph[interview_round]:
             if topic_node.get_topic_name() == topic_name:
-                for subtopic_node_name, subtopic_node in topic_node.subtopic_nodes.items():
-                    if subtopic_node.status == False:
+                for _subtopic_node_name, subtopic_node in topic_node.subtopic_nodes.items():
+                    if not subtopic_node.status:
                         break
                     last_subtopic_node = subtopic_node
                 break
@@ -184,8 +185,8 @@ class InterviewTopicTracker(BaseModel):
     interview_data: BaseInterviewConfiguration = BaseInterviewConfiguration()
     interview_round_data_graph: InterviewRoundDataGraph = InterviewRoundDataGraph()
     memory_graph: MemoryGraph = MemoryGraph()
-    interview_round1_metrics_covered: List[str] = []
-    interview_round2_metrics_covered: List[str] = []
+    interview_round1_metrics_covered: list[str] = []
+    interview_round2_metrics_covered: list[str] = []
 
     # mainly loading the interview details which contains the different interview rounds, topics and subtopics
     def load_interview_configuration(self, logger):
@@ -205,7 +206,7 @@ class InterviewTopicTracker(BaseModel):
         self.memory_graph.create_interview_round_node(InterviewRound.ROUND_ONE)
         self.memory_graph.create_interview_round_node(InterviewRound.ROUND_TWO)
 
-        topic_list_round_1: List[InterviewTopicData] = interview_round1_data.topic_info
+        topic_list_round_1: list[InterviewTopicData] = interview_round1_data.topic_info
         # fill the round 1 topic tracker with the topic and subtopics
         for topic in topic_list_round_1:
             topic_node = self.interview_round_data_graph.create_topic_node(topic)
@@ -214,7 +215,7 @@ class InterviewTopicTracker(BaseModel):
             topic_memory_node = self.memory_graph.create_topic_node(topic.name, sub_topic_names)
             self.memory_graph.add_topic_node(InterviewRound.ROUND_ONE, topic_memory_node)
 
-        topic_list_round_2: List[InterviewTopicData] = interview_round2_data.topic_info
+        topic_list_round_2: list[InterviewTopicData] = interview_round2_data.topic_info
         # fill the round 2 topic tracker with the topic and subtopics
         for topic in topic_list_round_2:
             logger.info(f"topic name:{topic.name}")
@@ -242,7 +243,7 @@ class InterviewTopicTracker(BaseModel):
     # this function is used to get the topic and subtopic for the current interview round
     def get_topic_subtopic_for_discussion(
         self, interview_round: InterviewRound
-    ) -> Tuple[Optional[InterviewTopicData], Optional[SubTopicData], Optional[str], bool]:
+    ) -> tuple[Optional[InterviewTopicData], Optional[SubTopicData], Optional[str], bool]:
         """Get topic and subtopic for discussion with error handling"""
         try:
             is_interview_round_changed = False
@@ -296,7 +297,7 @@ class InterviewTopicTracker(BaseModel):
         last_topic_node = self.interview_round_data_graph.get_last_completed_topic_node(
             interview_round
         )
-        if last_topic_node == None:
+        if last_topic_node is None:
             return None
         return last_topic_node.topic_data.name
 
@@ -321,7 +322,7 @@ class InterviewTopicTracker(BaseModel):
         last_subtopic_node = self.interview_round_data_graph.get_last_completed_subtopic_node(
             interview_round, topic_name
         )
-        if last_subtopic_node == None:
+        if last_subtopic_node is None:
             return None
         return last_subtopic_node.subtopic_data.name
 
@@ -345,7 +346,7 @@ class InterviewTopicTracker(BaseModel):
             interview_round
         ]:
             if topic_node.get_topic_name() == topic_name:
-                for subtopic_node_name, subtopic_node in topic_node.subtopic_nodes.items():
+                for subtopic_node_name, _subtopic_node in topic_node.subtopic_nodes.items():
                     topic_node.update_subtopic_status(subtopic_node_name)
 
                 topic_node.status = True
@@ -372,7 +373,7 @@ class InterviewTopicTracker(BaseModel):
             interview_round, topic_name
         )
 
-    def get_metrics_covered_for_current_interview_round(self, current_interview_round) -> List[str]:
+    def get_metrics_covered_for_current_interview_round(self, current_interview_round) -> list[str]:
         if current_interview_round == InterviewRound.ROUND_ONE:
             return self.interview_round1_metrics_covered
         elif current_interview_round == InterviewRound.ROUND_TWO:
@@ -415,7 +416,7 @@ class InterviewTopicTracker(BaseModel):
         for topic_node in self.interview_round_data_graph.interview_round_topic_data_graph[
             current_interview_round
         ]:
-            if topic_node.get_topic_status() == True:
+            if topic_node.get_topic_status():
                 completed_topics.append(topic_node.get_topic_name())
 
         # get the summary of all the completed topics
@@ -449,13 +450,13 @@ class InterviewTopicTracker(BaseModel):
         )
 
     def add_subtopic_summary_to_memory(
-        self, current_interview_round, topic_name, subtopic_name, item: List[str]
+        self, current_interview_round, topic_name, subtopic_name, item: list[str]
     ):
         self.memory_graph.add_subtopic_summary_to_memory(
             current_interview_round, topic_name, subtopic_name, item
         )
 
-    def add_topic_summary_to_memory(self, current_interview_round, topic_name, item: List[str]):
+    def add_topic_summary_to_memory(self, current_interview_round, topic_name, item: list[str]):
         self.memory_graph.add_topic_summary_to_memory(current_interview_round, topic_name, item)
 
     def update_multiple_sections(
@@ -463,7 +464,7 @@ class InterviewTopicTracker(BaseModel):
         interview_round: InterviewRound,
         topic_name: str,
         subtopic_name: str,
-        section_names: List[str],
+        section_names: list[str],
     ) -> None:
         """Update multiple sections at once"""
         topic_node = self.interview_round_data_graph.get_topic_node_by_name(

@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from discussion.base import (
     ActivityCodeInputMessage,
@@ -152,7 +151,7 @@ class DiscussionPromptStrategy(BaseDiscussionPromptStrategy):
         job_details = interview_config.job_details
 
         character_data = prompt_details.character_data
-        previous_feedback: List[FeedbackOutput] = prompt_details.previous_feedback
+        previous_feedback: list[FeedbackOutput] = prompt_details.previous_feedback
 
         return (
             f"You are acting as one of the interviewers in the panel with information about your character mentioned here: {character_data}.\n"

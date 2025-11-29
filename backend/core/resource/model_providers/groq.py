@@ -124,7 +124,7 @@ class GroqProvider(Configurable[GROQAISettings], ChatModelProvider):
                 prompt_tokens=0,
                 total_tokens=0
             )
-           
+
         )
     """
     # _budget: ModelProviderBudget
@@ -150,10 +150,7 @@ class GroqProvider(Configurable[GROQAISettings], ChatModelProvider):
         return tiktoken.encoding_for_model(model_name)
 
     def count_tokens(self, text, model_name):
-        if model_name.startswith("gpt-4"):
-            encoding_model_name = "gpt-4"
-        else:
-            encoding_model_name = "gpt-3.5-turbo"
+        encoding_model_name = "gpt-4" if model_name.startswith("gpt-4") else "gpt-3.5-turbo"
         encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
 
@@ -193,13 +190,9 @@ class GroqProvider(Configurable[GROQAISettings], ChatModelProvider):
         is_json_mode: bool = True,
         **kwargs,
     ):
-        if is_json_mode:
-            response_format = {"type": "json_object"}
-        else:
-            response_format = None
+        response_format = {"type": "json_object"} if is_json_mode else None
 
         total_cost = 0
-        attempts = 0
 
         # combine model_name and response_format into keyword arguments
 

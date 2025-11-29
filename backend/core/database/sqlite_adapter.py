@@ -6,7 +6,7 @@ Implements the DatabaseInterface for SQLite backend - ideal for local developmen
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import aiosqlite
 
@@ -223,9 +223,9 @@ class SQLiteAdapter(DatabaseInterface):
             async with self._get_connection() as conn:
                 await conn.execute(
                     """
-                    INSERT INTO users (user_id, name, email, company_name, location, 
-                                     resume_url, starter_code_url, profile_json_url, 
-                                     simulation_config_json_url, panelist_profiles, 
+                    INSERT INTO users (user_id, name, email, company_name, location,
+                                     resume_url, starter_code_url, profile_json_url,
+                                     simulation_config_json_url, panelist_profiles,
                                      panelist_images, role, organization_id)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -256,7 +256,7 @@ class SQLiteAdapter(DatabaseInterface):
             self.log_error(f"Error creating user {user_profile.user_id}: {e}")
             return False
 
-    async def update_user(self, user_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_user(self, user_id: str, updates: dict[str, Any]) -> bool:
         """Update user profile"""
         try:
             if not updates:
@@ -299,7 +299,7 @@ class SQLiteAdapter(DatabaseInterface):
             self.log_error(f"Error deleting user {user_id}: {e}")
             return False
 
-    async def get_all_users_data(self) -> List[UserProfile]:
+    async def get_all_users_data(self) -> list[UserProfile]:
         """Get all user profiles"""
         try:
             async with self._get_connection() as conn:
@@ -387,7 +387,7 @@ class SQLiteAdapter(DatabaseInterface):
             self.log_error(f"Error getting session data for {user_id}/{session_id}: {e}")
             return None
 
-    async def update_session(self, user_id: str, session_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_session(self, user_id: str, session_id: str, updates: dict[str, Any]) -> bool:
         """Update session data"""
         try:
             if not updates:
@@ -422,9 +422,9 @@ class SQLiteAdapter(DatabaseInterface):
             async with self._get_connection() as conn:
                 cursor = await conn.execute(
                     """
-                    SELECT session_id FROM sessions 
-                    WHERE user_id = ? 
-                    ORDER BY start_time DESC 
+                    SELECT session_id FROM sessions
+                    WHERE user_id = ?
+                    ORDER BY start_time DESC
                     LIMIT 1
                 """,
                     (user_id,),
@@ -437,7 +437,7 @@ class SQLiteAdapter(DatabaseInterface):
 
     async def get_all_session_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get all data for a session"""
         if not session_id:
             session_id = self.session_id
@@ -451,8 +451,8 @@ class SQLiteAdapter(DatabaseInterface):
                 # Get interview transcripts
                 cursor = await conn.execute(
                     """
-                    SELECT speaker, dialog, timestamp FROM interview_transcripts 
-                    WHERE user_id = ? AND session_id = ? 
+                    SELECT speaker, dialog, timestamp FROM interview_transcripts
+                    WHERE user_id = ? AND session_id = ?
                     ORDER BY timestamp
                 """,
                     (user_id, session_id),
@@ -465,8 +465,8 @@ class SQLiteAdapter(DatabaseInterface):
                 # Get evaluation outputs
                 cursor = await conn.execute(
                     """
-                    SELECT evaluation_type, evaluation_data FROM evaluation_outputs 
-                    WHERE user_id = ? AND session_id = ? 
+                    SELECT evaluation_type, evaluation_data FROM evaluation_outputs
+                    WHERE user_id = ? AND session_id = ?
                     ORDER BY timestamp
                 """,
                     (user_id, session_id),
@@ -481,8 +481,8 @@ class SQLiteAdapter(DatabaseInterface):
                 # Get JSON data
                 cursor = await conn.execute(
                     """
-                    SELECT data_name, data_content FROM json_data 
-                    WHERE user_id = ? AND session_id = ? 
+                    SELECT data_name, data_content FROM json_data
+                    WHERE user_id = ? AND session_id = ?
                     ORDER BY timestamp
                 """,
                     (user_id, session_id),
@@ -557,13 +557,13 @@ class SQLiteAdapter(DatabaseInterface):
 
     async def get_final_evaluation_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final evaluation output from database"""
         try:
             async with self._get_connection() as conn:
                 cursor = await conn.execute(
                     """
-                    SELECT evaluation_data FROM evaluation_outputs 
+                    SELECT evaluation_data FROM evaluation_outputs
                     WHERE user_id = ? AND session_id = ? AND evaluation_type = ?
                     ORDER BY timestamp DESC LIMIT 1
                 """,
@@ -577,7 +577,7 @@ class SQLiteAdapter(DatabaseInterface):
 
     # Configuration Management
     async def store_simulation_config(
-        self, config_id: str, config_data: Dict[str, Any], user_id: Optional[str] = None
+        self, config_id: str, config_data: dict[str, Any], user_id: Optional[str] = None
     ) -> bool:
         """Store simulation configuration"""
         try:
@@ -605,7 +605,7 @@ class SQLiteAdapter(DatabaseInterface):
             self.log_error(f"Error storing simulation config {config_id}: {e}")
             return False
 
-    async def get_simulation_config(self, config_id: str) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config(self, config_id: str) -> Optional[dict[str, Any]]:
         """Get simulation configuration"""
         try:
             async with self._get_connection() as conn:
@@ -621,15 +621,15 @@ class SQLiteAdapter(DatabaseInterface):
             self.log_error(f"Error getting simulation config {config_id}: {e}")
             return None
 
-    async def list_simulation_configs(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def list_simulation_configs(self, user_id: Optional[str] = None) -> list[dict[str, Any]]:
         """List simulation configurations"""
         try:
             async with self._get_connection() as conn:
                 if user_id:
                     cursor = await conn.execute(
                         """
-                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at 
-                        FROM simulation_configs 
+                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at
+                        FROM simulation_configs
                         WHERE user_id = ? OR is_public = 1
                         ORDER BY updated_at DESC
                     """,
@@ -637,8 +637,8 @@ class SQLiteAdapter(DatabaseInterface):
                     )
                 else:
                     cursor = await conn.execute("""
-                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at 
-                        FROM simulation_configs 
+                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at
+                        FROM simulation_configs
                         WHERE is_public = 1 OR is_template = 1
                         ORDER BY updated_at DESC
                     """)
@@ -743,7 +743,7 @@ class SQLiteAdapter(DatabaseInterface):
 
     # Generic Data Operations
     async def add_json_data_output_to_database(
-        self, user_id: str, session_id: str, name: str, json_data: Dict[str, Any]
+        self, user_id: str, session_id: str, name: str, json_data: dict[str, Any]
     ):
         """Add JSON data to database"""
         try:
@@ -762,13 +762,13 @@ class SQLiteAdapter(DatabaseInterface):
 
     async def get_json_data_output_from_database(
         self, name: str, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get JSON data from database"""
         try:
             async with self._get_connection() as conn:
                 cursor = await conn.execute(
                     """
-                    SELECT data_content FROM json_data 
+                    SELECT data_content FROM json_data
                     WHERE user_id = ? AND session_id = ? AND data_name = ?
                     ORDER BY timestamp DESC LIMIT 1
                 """,

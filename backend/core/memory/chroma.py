@@ -1,4 +1,3 @@
-from typing import List
 
 import chromadb
 
@@ -40,7 +39,7 @@ class ChromaStorageConnector(StorageConnector):
         return ids, chroma_filters
 
     # Separate our the passage data into the different fields
-    def format_records(self, records: List[Passage]):
+    def format_records(self, records: list[Passage]):
         recs = []
         ids = []
         documents = []
@@ -105,7 +104,7 @@ class ChromaStorageConnector(StorageConnector):
         self.client.delete_collection(self.collection.name)
 
     def query(self, query: str, query_vec, top_k: int, filters: dict):
-        ids, chroma_filters = self.get_filters()
+        _ids, chroma_filters = self.get_filters()
         results = self.collection.query(
             query_embeddings=[query_vec],
             n_results=top_k,
@@ -115,7 +114,7 @@ class ChromaStorageConnector(StorageConnector):
         return results
 
     def query_text(self, query: str, top_k: int, filters: dict):
-        ids, chroma_filters = self.get_filters()
+        _ids, chroma_filters = self.get_filters()
         results = self.collection.query(
             query_texts=[query], n_results=top_k, include=self.include, where=chroma_filters
         )

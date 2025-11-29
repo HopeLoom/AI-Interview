@@ -1,5 +1,5 @@
 import json
-from typing import List, cast
+from typing import cast
 
 from interview_details_agent.base import BaseInterviewConfiguration, JobDetails
 
@@ -70,21 +70,21 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
 
-    def convert_simulation_type(self, simulation_history: List[MasterChatMessage]) -> List[str]:
+    def convert_simulation_type(self, simulation_history: list[MasterChatMessage]) -> list[str]:
         conversation_history = [
             f"Speaker:{message.speaker}, dialog:{message.content}\n"
             for message in simulation_history
         ]
         return conversation_history
 
-    def convert_reflection_type(self, reflection_history: List[ReflectionChatMessage]) -> str:
+    def convert_reflection_type(self, reflection_history: list[ReflectionChatMessage]) -> str:
         reflection_strings = [
             f"{message.character_name}: {message.reflection}" for message in reflection_history
         ]
         reflection_history_string = "\n".join(reflection_strings)
         return reflection_history_string
 
-    def convert_reasoning_type(self, reasoning_history: List[ReasoningChatMessage]) -> str:
+    def convert_reasoning_type(self, reasoning_history: list[ReasoningChatMessage]) -> str:
         reasoning_strings = [
             f"{message.interview_thoughts_for_myself}" for message in reasoning_history
         ]
@@ -95,7 +95,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return ResponseOutputMessage()
                 decision_output = ResponseOutputMessage.model_validate(json_data)
             else:
@@ -110,7 +110,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return ReasoningOutputMessage()
                 think_output = ReasoningOutputMessage.model_validate(json_data)
             else:
@@ -124,7 +124,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return EvaluationOutputMessage()
                 feedback_output = EvaluationOutputMessage.model_validate(json_data)
             else:
@@ -138,7 +138,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return ReflectionOutputMessage()
                 reflection_output = ReflectionOutputMessage.model_validate(json_data)
             else:
@@ -152,7 +152,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return DomainKnowledgeOutputMessage()
                 domain_knowledge_output = DomainKnowledgeOutputMessage.model_validate(json_data)
             else:
@@ -166,7 +166,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         try:
             if response.content is not None:
                 json_data = json.loads(response.content)
-                if "error" in json_data.keys():
+                if "error" in json_data:
                     return ResponseWithReasoningOutputMessage()
                 decision_output = ResponseWithReasoningOutputMessage.model_validate(json_data)
             else:
@@ -239,15 +239,11 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         speaker: Profile = cast(Profile, master_message.speaker)
         speaker_occupation = speaker.background.current_occupation.occupation.lower()
         remaining_topics = master_message.remaining_topics
-        remaining_time = master_message.remaining_time
         topic_completion = master_message.topic_completion_message
-        speaker_determination_reason = (
-            master_message.speaker_determination_message.reason_for_selecting_next_speaker
-        )
         advice_for_speaker = master_message.advice.advice_for_speaker
         should_wrap_up_current_topic = master_message.advice.should_wrap_up_current_topic
         should_end_interview = master_message.advice.should_end_the_interview
-        role_prompt, domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
+        role_prompt, _domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
             speaker_occupation.lower()
         )
 
@@ -277,7 +273,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
             "You are currently conducting an interview with a candidate.\n"
         )
 
-        candidate_experience: List[Experience] = candidate_profile.background.experience
+        candidate_experience: list[Experience] = candidate_profile.background.experience
 
         candidate_experience_data = []
         for experience in candidate_experience:
@@ -443,15 +439,11 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         speaker: Profile = cast(Profile, master_message.speaker)
         speaker_occupation = speaker.background.current_occupation.occupation.lower()
         remaining_topics = master_message.remaining_topics
-        remaining_time = master_message.remaining_time
         topic_completion = master_message.topic_completion_message
-        speaker_determination_reason = (
-            master_message.speaker_determination_message.reason_for_selecting_next_speaker
-        )
         advice_for_speaker = master_message.advice.advice_for_speaker
         should_wrap_up_current_topic = master_message.advice.should_wrap_up_current_topic
         should_end_interview = master_message.advice.should_end_the_interview
-        role_prompt, domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
+        role_prompt, _domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
             speaker_occupation.lower()
         )
 
@@ -481,7 +473,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
             "You are currently conducting an interview with a candidate.\n"
         )
 
-        candidate_experience: List[Experience] = candidate_profile.background.experience
+        candidate_experience: list[Experience] = candidate_profile.background.experience
 
         candidate_experience_data = []
         for experience in candidate_experience:
@@ -668,7 +660,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         else:
             interview_round_details = self.interview_round_two_details
 
-        candidate_experience: List[Experience] = candidate_profile.background.experience
+        candidate_experience: list[Experience] = candidate_profile.background.experience
 
         candidate_experience_data = []
         for experience in candidate_experience:
@@ -803,13 +795,13 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         subtopic: SubTopicData = master_message.sub_topic
         current_section = master_message.current_section
 
-        role_prompt, domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
+        role_prompt, _domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
             speaker_occupation.lower()
         )
 
         response_output = ResponseOutputMessage()
 
-        candidate_experience: List[Experience] = candidate_profile.background.experience
+        candidate_experience: list[Experience] = candidate_profile.background.experience
 
         candidate_experience_data = []
         for experience in candidate_experience:
@@ -846,7 +838,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
 
             background_prompt += f"You have also other panelist member in the interview. Their name is mentioned here: {other_panelist_names} and their occupation is mentioned here: {other_panelist_occupations}.\n"
 
-        if think_output.is_domain_knowledge_access_needed == False:
+        if not think_output.is_domain_knowledge_access_needed:
             domain_knowledge_output = DomainKnowledgeOutputMessage()
             domain_knowledge_output.topic = "No domain knowledge is needed for this response."
 
@@ -896,14 +888,10 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
             )
 
             if (
-                topic.name
-                == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
-                or topic.name == TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value
+                topic.name in (TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value, TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value)
             ):
                 if (
-                    subtopic.name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value
-                    or subtopic.name == SUBTOPICS_TECHNICAL_ROUND.PROBLEM_SOLVING.value
-                    or subtopic.name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value
+                    subtopic.name in (SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value, SUBTOPICS_TECHNICAL_ROUND.PROBLEM_SOLVING.value, SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value)
                 ):
                     output_prompt += (
                         "- **Technical Problem Details presented to the candidate:**\n"
@@ -982,21 +970,20 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         self,
         candidate_profile,
         input_message: CommunicationMessage,
-        reflection_history: List[ReflectionChatMessage],
+        reflection_history: list[ReflectionChatMessage],
     ):
         reflection_output = ReflectionOutputMessage()
         reflection_history_string = self.convert_reflection_type(reflection_history)
 
         master_message: MasterMessageStructure = cast(MasterMessageStructure, input_message.content)
         interview_round = master_message.current_interview_round
-        topic: InterviewTopicData = master_message.topic
         subtopic: SubTopicData = master_message.sub_topic
 
         name = self.my_profile.background.name
         my_occupation = self.my_profile.background.current_occupation.occupation.lower()
         name = self.my_profile.background.name
 
-        role_prompt, domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
+        role_prompt, _domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
             my_occupation.lower()
         )
 
@@ -1046,13 +1033,13 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
             additional_prompt += "Conversation has not started yet\n"
 
         reflection_prompt = f"""
-"You are one of the panelists conducting an interview with your name being: {name}. Your profile is mentioned here: {self.my_profile.model_dump_json()} 
+"You are one of the panelists conducting an interview with your name being: {name}. Your profile is mentioned here: {self.my_profile.model_dump_json()}
 "The interview is about the job description mentioned here: {self.job_details.job_description}.
 "The job responsibilities are mentioned here: {self.job_details.job_requirements}.
 "The job qualifications are mentioned here: {self.job_details.job_qualifications}.
 "The current interview round is mentioned here: {interview_round}.
 "The current topic being discussed is mentioned here: {subtopic.model_dump_json()}.
-"You goal is to reflect on the interview process and the candidate getting interviewed. 
+"You goal is to reflect on the interview process and the candidate getting interviewed.
 "You will be provided with the interview transcript consisting of the panelists including yourself and the candidate in the interiew.
 "Reflection is more about how you feel interview is going, your opinions about the candidate and the interview process.
         """
@@ -1081,14 +1068,12 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
     ):
         master_message: MasterMessageStructure = cast(MasterMessageStructure, input_message)
 
-        speaker: Profile = cast(Profile, master_message.speaker)
+        cast(Profile, master_message.speaker)
         topic: InterviewTopicData = master_message.topic
         subtopic: SubTopicData = master_message.sub_topic
         interview_round = master_message.current_interview_round
-        current_section = master_message.current_section
 
         name = self.my_profile.background.name
-        evaluation_criteria = master_message.evaluation_criteria
 
         evaluationOutput = EvaluationOutputMessage()
         evaluationOutput.feedback_to_the_hiring_manager_about_candidate = ""
@@ -1098,16 +1083,16 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
         my_occupation = self.my_profile.background.current_occupation.occupation.lower()
         name = self.my_profile.background.name
 
-        role_prompt, domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
+        role_prompt, _domain_prompt = self.panelist_common_prompts.get_role_specific_prompt(
             my_occupation.lower()
         )
 
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_details = self.interview_round_one_details
+            pass
         else:
-            interview_round_details = self.interview_round_two_details
+            pass
 
-        candidate_experience: List[Experience] = candidate_profile.background.experience
+        candidate_experience: list[Experience] = candidate_profile.background.experience
 
         candidate_experience_data = []
         for experience in candidate_experience:
@@ -1206,7 +1191,7 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
 
         return overall_prompt
 
-    def _add_conversation_history(self, conversation_history: List[str]) -> List[str]:
+    def _add_conversation_history(self, conversation_history: list[str]) -> list[str]:
         if not conversation_history:
             return [
                 "There is no conversation history between the candidate and the interviewer yet."

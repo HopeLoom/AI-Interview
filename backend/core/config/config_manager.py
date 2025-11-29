@@ -7,7 +7,7 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import yaml
 from pydantic import BaseModel, Field, validator
@@ -81,7 +81,7 @@ class EmailConfig(BaseModel):
     provider: str = "sendgrid"  # sendgrid, smtp
     api_key: Optional[str] = None
     from_email: str
-    recipients: List[str] = []
+    recipients: list[str] = []
 
     # SMTP specific
     smtp_host: Optional[str] = None
@@ -109,7 +109,7 @@ class SecurityConfig(BaseModel):
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_expiration_hours: int = 24
-    cors_origins: List[str] = []
+    cors_origins: list[str] = []
     rate_limit_per_minute: int = 60
     max_file_size_mb: int = 50
 
@@ -130,10 +130,10 @@ class ApplicationConfig(BaseModel):
     speech: SpeechConfig
 
     # LLM providers
-    llm_providers: List[LLMProviderConfig] = []
+    llm_providers: list[LLMProviderConfig] = []
 
     # Feature flags
-    features: Dict[str, bool] = {
+    features: dict[str, bool] = {
         "enable_practice_mode": True,
         "enable_company_mode": True,
         "enable_video_recording": True,
@@ -163,7 +163,7 @@ class ConfigManager:
         # Check both ENVIRONMENT and STAGE variables, prioritize explicit parameter
         self.environment = environment or os.getenv("ENVIRONMENT") or os.getenv("STAGE", "staging")
         self._config: Optional[ApplicationConfig] = None
-        self._config_cache: Dict[str, Any] = {}
+        self._config_cache: dict[str, Any] = {}
 
         # Load environment-specific .env file
         self._load_env_file()
@@ -244,7 +244,7 @@ class ConfigManager:
         except Exception as e:
             raise ValueError(f"Failed to load configuration: {e}")
 
-    def _deep_merge(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    def _deep_merge(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
         """Deep merge two dictionaries"""
         result = base.copy()
         for key, value in override.items():
@@ -254,7 +254,7 @@ class ConfigManager:
                 result[key] = value
         return result
 
-    def _apply_env_overrides(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_env_overrides(self, config: dict[str, Any]) -> dict[str, Any]:
         """Apply environment variable overrides to configuration"""
         # Map of environment variables to config paths
         env_mappings = {
@@ -347,7 +347,7 @@ class ConfigManager:
                 return provider
         return None
 
-    def get_enabled_llm_providers(self) -> List[LLMProviderConfig]:
+    def get_enabled_llm_providers(self) -> list[LLMProviderConfig]:
         """Get all enabled LLM providers"""
         config = self.get_config()
         return [provider for provider in config.llm_providers if provider.enabled]

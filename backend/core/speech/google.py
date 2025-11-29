@@ -1,7 +1,7 @@
 import base64
 import os
 import tempfile
-from typing import Any, Dict
+from typing import Any
 
 from google.cloud import speech
 
@@ -15,10 +15,10 @@ class GoogleSpeechToText(VoiceBase):
 
     async def _text_to_speech(
         self, websocket_connection_manager, user_id, text, voice_name
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return {"user_id": user_id, "status": False}
 
-    async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
+    async def _speech_to_text(self, audio_data: str, user_id: str) -> dict[str, Any]:
         audio_bytes = base64.b64decode(audio_data)
         # Save to temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_audio:

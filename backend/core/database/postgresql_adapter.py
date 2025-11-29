@@ -5,7 +5,7 @@ Implements the DatabaseInterface for PostgreSQL backend.
 
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import asyncpg
 from asyncpg import Connection, Pool
@@ -216,9 +216,9 @@ class PostgreSQLAdapter(DatabaseInterface):
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     """
-                    INSERT INTO users (user_id, name, email, company_name, location, 
-                                     resume_url, starter_code_url, profile_json_url, 
-                                     simulation_config_json_url, panelist_profiles, 
+                    INSERT INTO users (user_id, name, email, company_name, location,
+                                     resume_url, starter_code_url, profile_json_url,
+                                     simulation_config_json_url, panelist_profiles,
                                      panelist_images, role, organization_id)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 """,
@@ -246,7 +246,7 @@ class PostgreSQLAdapter(DatabaseInterface):
             self.log_error(f"Error creating user {user_profile.user_id}: {e}")
             return False
 
-    async def update_user(self, user_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_user(self, user_id: str, updates: dict[str, Any]) -> bool:
         """Update user profile"""
         try:
             if not updates:
@@ -291,7 +291,7 @@ class PostgreSQLAdapter(DatabaseInterface):
             self.log_error(f"Error deleting user {user_id}: {e}")
             return False
 
-    async def get_all_users_data(self) -> List[UserProfile]:
+    async def get_all_users_data(self) -> list[UserProfile]:
         """Get all user profiles"""
         try:
             async with self.pool.acquire() as conn:
@@ -372,7 +372,7 @@ class PostgreSQLAdapter(DatabaseInterface):
             self.log_error(f"Error getting session data for {user_id}/{session_id}: {e}")
             return None
 
-    async def update_session(self, user_id: str, session_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_session(self, user_id: str, session_id: str, updates: dict[str, Any]) -> bool:
         """Update session data"""
         try:
             if not updates:
@@ -406,9 +406,9 @@ class PostgreSQLAdapter(DatabaseInterface):
             async with self.pool.acquire() as conn:
                 result = await conn.fetchrow(
                     """
-                    SELECT session_id FROM sessions 
-                    WHERE user_id = $1 
-                    ORDER BY start_time DESC 
+                    SELECT session_id FROM sessions
+                    WHERE user_id = $1
+                    ORDER BY start_time DESC
                     LIMIT 1
                 """,
                     user_id,
@@ -420,7 +420,7 @@ class PostgreSQLAdapter(DatabaseInterface):
 
     async def get_all_session_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get all data for a session"""
         if not session_id:
             session_id = self.session_id
@@ -434,8 +434,8 @@ class PostgreSQLAdapter(DatabaseInterface):
                 # Get interview transcripts
                 transcripts = await conn.fetch(
                     """
-                    SELECT speaker, dialog, timestamp FROM interview_transcripts 
-                    WHERE user_id = $1 AND session_id = $2 
+                    SELECT speaker, dialog, timestamp FROM interview_transcripts
+                    WHERE user_id = $1 AND session_id = $2
                     ORDER BY timestamp
                 """,
                     user_id,
@@ -449,8 +449,8 @@ class PostgreSQLAdapter(DatabaseInterface):
                 # Get evaluation outputs
                 evaluations = await conn.fetch(
                     """
-                    SELECT evaluation_type, evaluation_data FROM evaluation_outputs 
-                    WHERE user_id = $1 AND session_id = $2 
+                    SELECT evaluation_type, evaluation_data FROM evaluation_outputs
+                    WHERE user_id = $1 AND session_id = $2
                     ORDER BY timestamp
                 """,
                     user_id,
@@ -465,8 +465,8 @@ class PostgreSQLAdapter(DatabaseInterface):
                 # Get JSON data
                 json_data = await conn.fetch(
                     """
-                    SELECT data_name, data_content FROM json_data 
-                    WHERE user_id = $1 AND session_id = $2 
+                    SELECT data_name, data_content FROM json_data
+                    WHERE user_id = $1 AND session_id = $2
                     ORDER BY timestamp
                 """,
                     user_id,
@@ -542,13 +542,13 @@ class PostgreSQLAdapter(DatabaseInterface):
 
     async def get_final_evaluation_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final evaluation output from database"""
         try:
             async with self.pool.acquire() as conn:
                 result = await conn.fetchrow(
                     """
-                    SELECT evaluation_data FROM evaluation_outputs 
+                    SELECT evaluation_data FROM evaluation_outputs
                     WHERE user_id = $1 AND session_id = $2 AND evaluation_type = $3
                     ORDER BY timestamp DESC LIMIT 1
                 """,
@@ -563,7 +563,7 @@ class PostgreSQLAdapter(DatabaseInterface):
 
     # Configuration Management
     async def store_simulation_config(
-        self, config_id: str, config_data: Dict[str, Any], user_id: Optional[str] = None
+        self, config_id: str, config_data: dict[str, Any], user_id: Optional[str] = None
     ) -> bool:
         """Store simulation configuration"""
         try:
@@ -575,7 +575,7 @@ class PostgreSQLAdapter(DatabaseInterface):
                     """
                     INSERT INTO simulation_configs (config_id, user_id, config_name, config_data)
                     VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (config_id) 
+                    ON CONFLICT (config_id)
                     DO UPDATE SET config_data = $4, updated_at = CURRENT_TIMESTAMP
                 """,
                     config_id,
@@ -589,7 +589,7 @@ class PostgreSQLAdapter(DatabaseInterface):
             self.log_error(f"Error storing simulation config {config_id}: {e}")
             return False
 
-    async def get_simulation_config(self, config_id: str) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config(self, config_id: str) -> Optional[dict[str, Any]]:
         """Get simulation configuration"""
         try:
             async with self.pool.acquire() as conn:
@@ -604,15 +604,15 @@ class PostgreSQLAdapter(DatabaseInterface):
             self.log_error(f"Error getting simulation config {config_id}: {e}")
             return None
 
-    async def list_simulation_configs(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def list_simulation_configs(self, user_id: Optional[str] = None) -> list[dict[str, Any]]:
         """List simulation configurations"""
         try:
             async with self.pool.acquire() as conn:
                 if user_id:
                     results = await conn.fetch(
                         """
-                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at 
-                        FROM simulation_configs 
+                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at
+                        FROM simulation_configs
                         WHERE user_id = $1 OR is_public = TRUE
                         ORDER BY updated_at DESC
                     """,
@@ -620,8 +620,8 @@ class PostgreSQLAdapter(DatabaseInterface):
                     )
                 else:
                     results = await conn.fetch("""
-                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at 
-                        FROM simulation_configs 
+                        SELECT config_id, config_name, is_template, is_public, created_at, updated_at
+                        FROM simulation_configs
                         WHERE is_public = TRUE OR is_template = TRUE
                         ORDER BY updated_at DESC
                     """)
@@ -718,7 +718,7 @@ class PostgreSQLAdapter(DatabaseInterface):
 
     # Generic Data Operations
     async def add_json_data_output_to_database(
-        self, user_id: str, session_id: str, name: str, json_data: Dict[str, Any]
+        self, user_id: str, session_id: str, name: str, json_data: dict[str, Any]
     ):
         """Add JSON data to database"""
         try:
@@ -739,13 +739,13 @@ class PostgreSQLAdapter(DatabaseInterface):
 
     async def get_json_data_output_from_database(
         self, name: str, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get JSON data from database"""
         try:
             async with self.pool.acquire() as conn:
                 result = await conn.fetchrow(
                     """
-                    SELECT data_content FROM json_data 
+                    SELECT data_content FROM json_data
                     WHERE user_id = $1 AND session_id = $2 AND data_name = $3
                     ORDER BY timestamp DESC LIMIT 1
                 """,

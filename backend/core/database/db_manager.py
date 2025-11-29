@@ -20,7 +20,7 @@ class DatabaseManager:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(DatabaseManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     async def initialize(self, logger=None):
@@ -34,7 +34,7 @@ class DatabaseManager:
                     logger.info(f"Database initialized: {config.database.type}")
             except Exception as e:
                 if logger:
-                    logger.error(f"Failed to initialize database: {e}")
+                    logger.exception(f"Failed to initialize database: {e}")
                 # Fallback to Firebase for backward compatibility
                 from core.config.config_manager import DatabaseConfig
                 from core.database.firebase_adapter import FirebaseAdapter

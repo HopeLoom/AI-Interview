@@ -2,7 +2,7 @@ import base64
 import binascii
 import os
 import tempfile
-from typing import Any, Dict
+from typing import Any
 
 from groq import Groq
 from pydantic import BaseModel
@@ -27,7 +27,7 @@ class GroqSpeechToText(VoiceBase):
 
         self.client = Groq(api_key=api_key)
 
-    async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
+    async def _speech_to_text(self, audio_data: str, user_id: str) -> dict[str, Any]:
         """Process base64-encoded audio data using Groq's transcription API.
 
         Returns:
@@ -73,9 +73,9 @@ class GroqSpeechToText(VoiceBase):
                 try:
                     os.unlink(temp_audio_path)
                 except Exception as cleanup_error:
-                    self.main_logger.error(f"Error cleaning up temp file: {cleanup_error}")
+                    self.main_logger.exception(f"Error cleaning up temp file: {cleanup_error}")
 
     async def _text_to_speech(
         self, websocket_connection_manager, settings, user_id, text, voice_name
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return {"result": "Not implemented", "user_id": user_id, "status": False}

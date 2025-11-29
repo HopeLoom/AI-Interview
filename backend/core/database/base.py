@@ -6,7 +6,7 @@ Provides a unified interface for different database backends (Firebase, PostgreS
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class DatabaseType(Enum):
@@ -32,8 +32,8 @@ class UserProfile:
     starter_code_url: Optional[str] = None
     profile_json_url: Optional[str] = None
     simulation_config_json_url: Optional[str] = None
-    panelist_profiles: Optional[List[str]] = None
-    panelist_images: Optional[List[str]] = None
+    panelist_profiles: Optional[list[str]] = None
+    panelist_images: Optional[list[str]] = None
     created_at: Optional[str] = None
     role: Optional[str] = "candidate"  # candidate, company_admin, super_admin
     organization_id: Optional[str] = None
@@ -65,7 +65,7 @@ class SessionData:
     start_time: str
     status: str = "active"  # active, completed, terminated
     end_time: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = None
 
 
 class DatabaseInterface(ABC):
@@ -110,7 +110,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def update_user(self, user_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_user(self, user_id: str, updates: dict[str, Any]) -> bool:
         """Update user profile"""
         pass
 
@@ -120,7 +120,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_all_users_data(self) -> List[UserProfile]:
+    async def get_all_users_data(self) -> list[UserProfile]:
         """Get all user profiles"""
         pass
 
@@ -136,7 +136,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def update_session(self, user_id: str, session_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_session(self, user_id: str, session_id: str, updates: dict[str, Any]) -> bool:
         """Update session data"""
         pass
 
@@ -148,7 +148,7 @@ class DatabaseInterface(ABC):
     @abstractmethod
     async def get_all_session_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get all data for a session"""
         pass
 
@@ -173,25 +173,25 @@ class DatabaseInterface(ABC):
     @abstractmethod
     async def get_final_evaluation_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final evaluation output from database"""
         pass
 
     # Configuration Management
     @abstractmethod
     async def store_simulation_config(
-        self, config_id: str, config_data: Dict[str, Any], user_id: Optional[str] = None
+        self, config_id: str, config_data: dict[str, Any], user_id: Optional[str] = None
     ) -> bool:
         """Store simulation configuration"""
         pass
 
     @abstractmethod
-    async def get_simulation_config(self, config_id: str) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config(self, config_id: str) -> Optional[dict[str, Any]]:
         """Get simulation configuration"""
         pass
 
     @abstractmethod
-    async def list_simulation_configs(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def list_simulation_configs(self, user_id: Optional[str] = None) -> list[dict[str, Any]]:
         """List simulation configurations"""
         pass
 
@@ -216,7 +216,7 @@ class DatabaseInterface(ABC):
     # Generic Data Operations
     @abstractmethod
     async def add_json_data_output_to_database(
-        self, user_id: str, session_id: str, name: str, json_data: Dict[str, Any]
+        self, user_id: str, session_id: str, name: str, json_data: dict[str, Any]
     ):
         """Add JSON data to database"""
         pass
@@ -224,7 +224,7 @@ class DatabaseInterface(ABC):
     @abstractmethod
     async def get_json_data_output_from_database(
         self, name: str, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get JSON data from database"""
         pass
 
@@ -270,17 +270,17 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_profile_json_data(self) -> Optional[Dict[str, Any]]:
+    async def get_profile_json_data(self) -> Optional[dict[str, Any]]:
         """Get profile JSON data"""
         pass
 
     @abstractmethod
-    async def get_simulation_config_json_data(self) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config_json_data(self) -> Optional[dict[str, Any]]:
         """Get simulation config JSON data"""
         pass
 
     @abstractmethod
-    async def get_panelist_profile_json_data(self, panelist_name: str) -> Optional[Dict[str, Any]]:
+    async def get_panelist_profile_json_data(self, panelist_name: str) -> Optional[dict[str, Any]]:
         """Get panelist profile JSON data"""
         pass
 
@@ -288,21 +288,21 @@ class DatabaseInterface(ABC):
     @abstractmethod
     async def get_activity_progress_analysis_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get activity progress analysis output"""
         pass
 
     @abstractmethod
     async def get_metadata_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get metadata from database"""
         pass
 
     @abstractmethod
     async def get_final_visualisation_report_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final visualisation report from database"""
         pass
 
@@ -323,7 +323,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def update_company(self, company_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_company(self, company_id: str, updates: dict[str, Any]) -> bool:
         """Update company profile"""
         pass
 
@@ -333,7 +333,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def search_companies_by_name(self, name: str) -> List[CompanyProfile]:
+    async def search_companies_by_name(self, name: str) -> list[CompanyProfile]:
         """Search companies by name"""
         pass
 
@@ -343,7 +343,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_all_companies(self) -> List[CompanyProfile]:
+    async def get_all_companies(self) -> list[CompanyProfile]:
         """Get all companies"""
         pass
 
@@ -354,46 +354,46 @@ class DatabaseInterface(ABC):
 
     # Dashboard and Candidate Management
     @abstractmethod
-    async def get_candidates_by_company_name(self, company_name: str) -> List[UserProfile]:
+    async def get_candidates_by_company_name(self, company_name: str) -> list[UserProfile]:
         """Get all candidates for a specific company by company name"""
         pass
 
     @abstractmethod
-    async def get_candidates_by_company_id(self, company_id: str) -> List[UserProfile]:
+    async def get_candidates_by_company_id(self, company_id: str) -> list[UserProfile]:
         """Get all candidates for a specific company by company ID"""
         pass
 
     @abstractmethod
     async def get_candidate_evaluation_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get evaluation data for a specific candidate"""
         pass
 
     @abstractmethod
-    async def get_candidate_interview_sessions(self, user_id: str) -> List[SessionData]:
+    async def get_candidate_interview_sessions(self, user_id: str) -> list[SessionData]:
         """Get all interview sessions for a candidate"""
         pass
 
     @abstractmethod
-    async def get_company_dashboard_data(self, company_id: str) -> Dict[str, Any]:
+    async def get_company_dashboard_data(self, company_id: str) -> dict[str, Any]:
         """Get comprehensive dashboard data for a company"""
         pass
 
     @abstractmethod
-    async def get_candidates_with_evaluations(self, company_id: str) -> List[Dict[str, Any]]:
+    async def get_candidates_with_evaluations(self, company_id: str) -> list[dict[str, Any]]:
         """Get candidates with their evaluation data for a company"""
         pass
 
     @abstractmethod
-    async def get_company_interviews(self, company_id: str) -> List[Dict[str, Any]]:
+    async def get_company_interviews(self, company_id: str) -> list[dict[str, Any]]:
         """Get all interviews/job postings for a company"""
         pass
 
     @abstractmethod
     async def get_interview_candidates(
         self, company_id: str, interview_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get candidates for a specific interview/job posting"""
         pass
 

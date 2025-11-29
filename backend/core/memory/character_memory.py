@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import BaseModel
 
@@ -10,9 +9,9 @@ from core.resource.model_providers.schema import (
 
 
 class SimpleMemory(BaseModel):
-    conversation_memory: List[ChatMessage] = []
-    reflection_memory: List[ReflectionChatMessage] = []
-    reasoning_memory: List[ReasoningChatMessage] = []
+    conversation_memory: list[ChatMessage] = []
+    reflection_memory: list[ReflectionChatMessage] = []
+    reasoning_memory: list[ReasoningChatMessage] = []
 
     def add_to_memory(self, item: ChatMessage):
         self.conversation_memory.append(item)

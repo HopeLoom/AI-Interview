@@ -68,7 +68,7 @@ class BaseCandidate(Configurable[BaseCandidateConfiguration], ABC):
         llm_provider: ChatModelProvider,
         prompt_strategy: BaseCandidatePromptStrategy,
     ):
-        super(BaseCandidate, self).__init__()
+        super().__init__()
 
         self.config = user_config.settings
         self.llm_provider = llm_provider

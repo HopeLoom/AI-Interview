@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from interview_details_agent.base import (
     ActivityDetailsOutputMessage,
@@ -45,18 +44,18 @@ class InterviewGenerationPromptStrategy(BaseInterviewPromptStrategy):
         job_qualifications = job_details.job_qualifications
         company_name = job_details.company_name
         company_description = job_details.company_description
-        example_activity_details_output: List[ActivityDetailsOutputMessage] = (
+        example_activity_details_output: list[ActivityDetailsOutputMessage] = (
             prompt_input.example_activity_details_output
         )
-        example_job_details: List[JobDetails] = prompt_input.example_job_details
+        example_job_details: list[JobDetails] = prompt_input.example_job_details
         output = ActivityDetailsOutputMessage()
 
         prompt = f"""
 You are part of an interview simulation where candidate and panelists are involved.
 Candidate in this stage is supposed to perform an activity during the interview which is mainly related to coding.
-Coding activity is supposed to be relevant to the job they are applying. This information is contained in the job description, job requirements, job qualifications. 
+Coding activity is supposed to be relevant to the job they are applying. This information is contained in the job description, job requirements, job qualifications.
 Apart from the job specific information, which company the job is for is also relevant. This information is contained in the company name and description.
-                
+
 The following are some of such details:
 1. Job Title: {job_title}
 2. Job Description: {job_description}
@@ -74,7 +73,7 @@ When you generate coding activity scenario details, it should include the follow
 3. Data to be used for the activty (if applicable)
 
 Scenario description should be a high level description of the challenge that the team is currently facing in their day-day work.
-Task for the candidate should be a high level description of what the candidate is expected to do in the coding activity related to the scenario. 
+Task for the candidate should be a high level description of what the candidate is expected to do in the coding activity related to the scenario.
 This should be written in a form that one of the interviewers will read to the candidate.
 Since task requires a candidate to write code, we should make sure that the task description mentions that starter code will be provided to help them solve the task.
 If the task involves data, then the data to be used to solve the task should be mentioned here. Here we should only mention the data attributes and not the data itself.
@@ -104,17 +103,17 @@ Its important to understand different aspects when generating the scenario which
         # company_name = job_details.company_name
         # company_description = job_details.company_description
 
-        example_activity_details_output: List[ActivityDetailsOutputMessage] = (
+        example_activity_details_output: list[ActivityDetailsOutputMessage] = (
             prompt_input.example_activity_details_output
         )
-        example_starter_code_output: List[StarterCodeData] = (
+        example_starter_code_output: list[StarterCodeData] = (
             prompt_input.example_starter_code_output
         )
 
         prompt = f"""
 You are part of interview simulation engine responsible for generating details regarding the interview.
 Candidate in this stage is supposed to perform an activity during the interview which is mainly related to coding.
-Coding activity is supposed to be relevant to the job they are applying. This information is contained in the job description, job requirements, job qualifications. 
+Coding activity is supposed to be relevant to the job they are applying. This information is contained in the job description, job requirements, job qualifications.
 Apart from the job specific information, which company the job is for is also relevant. This information is contained in the company name and description.
 To generate the coding activity, there are multiple steps involved. The first step is to generate a realistic work scenario which the team they are interviewing is facing in their day-day work.
 In the second step, once the scenario is generated, the next step is to figure out starter code that will be provided to the candidate to help them solve the activity.
@@ -135,11 +134,11 @@ To help you with this task, here is an example of the starter code relevant to a
         character_data = CharacterData()
         character_data_output = CharacterDataOutput(data=[character_data])
 
-        example_character_data_output: List[CharacterDataOutput] = (
+        example_character_data_output: list[CharacterDataOutput] = (
             prompt_input.example_character_data_output
         )
-        example_job_details: List[JobDetails] = prompt_input.example_job_details
-        example_activity_output: List[ActivityDetailsOutputMessage] = (
+        example_job_details: list[JobDetails] = prompt_input.example_job_details
+        example_activity_output: list[ActivityDetailsOutputMessage] = (
             prompt_input.example_activity_details_output
         )
         generated_activity_data = prompt_input.generated_activity_details_output

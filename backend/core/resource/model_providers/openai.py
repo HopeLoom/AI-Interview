@@ -188,10 +188,7 @@ class OpenAIProvider(Configurable[OpenAISettings], ChatModelProvider, EmbeddingM
         **kwargs,
     ) -> ChatModelResponse:
         # Prepare response format
-        if is_json_mode:
-            response_format = {"type": "json_object"}
-        else:
-            response_format = None
+        response_format = {"type": "json_object"} if is_json_mode else None
         # Prepare API arguments
         api_kwargs = {"model": model_name, **kwargs}
         if response_format is not None:
@@ -210,7 +207,7 @@ class OpenAIProvider(Configurable[OpenAISettings], ChatModelProvider, EmbeddingM
             response = await self._create_chat_completion_with_retry(openai_messages, api_kwargs)
 
         # Make API call
-        response, cost, t_input, t_output = await self._create_chat_completion(
+        response, _cost, t_input, t_output = await self._create_chat_completion(
             openai_messages, api_kwargs
         )
 

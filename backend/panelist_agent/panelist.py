@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from typing import List, cast
+from typing import cast
 
 from interview_details_agent.base import BaseInterviewConfiguration
 
@@ -137,7 +137,7 @@ class Panelist(BasePanelist):
         self.logger.info(f"Sending response from {self.name}")
         self.sending_message_queue.put_nowait(response)
 
-    def get_info_of_other_panelists(self, npc_profile_list: List[Profile]):
+    def get_info_of_other_panelists(self, npc_profile_list: list[Profile]):
         filtered_list = [
             profile for profile in npc_profile_list if profile.background.name != self.name
         ]
@@ -248,7 +248,7 @@ class Panelist(BasePanelist):
                 json.dump(output.model_dump(), f, indent=4)
                 f.write("\n")
         except Exception as e:
-            self.logger.error(f"Error writing to file {data_path}: {e}")
+            self.logger.exception(f"Error writing to file {data_path}: {e}")
 
         return output
 
@@ -341,7 +341,7 @@ class Panelist(BasePanelist):
                 json.dump(output.model_dump(), f, indent=4)
                 f.write("\n")
         except Exception as e:
-            self.logger.error(f"Error writing to file {data_path}: {e}")
+            self.logger.exception(f"Error writing to file {data_path}: {e}")
 
         return output
 
@@ -472,7 +472,7 @@ class Panelist(BasePanelist):
 
     def get_overall_feedback(self):
         overall_feedback = ""
-        for key, value in self.evaluation_output_messages_topic_subtopic_mapping.items():
+        for _key, value in self.evaluation_output_messages_topic_subtopic_mapping.items():
             overall_feedback += value.feedback_to_the_hiring_manager_about_candidate + "\n"
 
         return overall_feedback
@@ -480,7 +480,7 @@ class Panelist(BasePanelist):
     def overall_score(self):
         total_score = 0
         counter = 0
-        for key, value in self.evaluation_output_messages_topic_subtopic_mapping.items():
+        for _key, value in self.evaluation_output_messages_topic_subtopic_mapping.items():
             if value.score > 0:
                 total_score += value.score
                 counter += 1
@@ -551,7 +551,7 @@ class Panelist(BasePanelist):
 
     def should_stop_agent(self) -> bool:
         """Check if the agent should stop running"""
-        if self.current_state == None:
+        if self.current_state is None:
             return False
         return self.current_state == SystemMessageType.END
 

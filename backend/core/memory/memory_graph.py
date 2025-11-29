@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,14 +12,14 @@ from core.resource.model_providers.schema import MasterChatMessage
 
 class SubTopicMemory(BaseModel):
     subtopic_name: str = Field(default="", description="Name of the subtopic")
-    conversation_memory: List[MasterChatMessage] = Field(default_factory=list)
-    summary: Optional[List[str]] = Field(default=None, description="Summary of the subtopic")
+    conversation_memory: list[MasterChatMessage] = Field(default_factory=list)
+    summary: Optional[list[str]] = Field(default=None, description="Summary of the subtopic")
 
     def add_to_memory(self, item: MasterChatMessage) -> None:
         """Add a message to conversation memory"""
         self.conversation_memory.append(item)
 
-    def add_summary(self, item: List[str]) -> None:
+    def add_summary(self, item: list[str]) -> None:
         """Add summary items"""
         if self.summary is None:
             self.summary = []
@@ -34,8 +34,8 @@ class SubTopicMemory(BaseModel):
 
 class TopicMemory(BaseModel):
     topic_name: str = Field(default="", description="Name of the topic")
-    summary: Optional[List[str]] = Field(default=None, description="Summary of the topic")
-    subtopics: Dict[str, SubTopicMemory] = Field(default_factory=dict)
+    summary: Optional[list[str]] = Field(default=None, description="Summary of the topic")
+    subtopics: dict[str, SubTopicMemory] = Field(default_factory=dict)
 
     def get_subtopic_memory_instance(self, subtopic_name: str) -> SubTopicMemory:
         """Get or create subtopic memory instance"""
@@ -43,14 +43,14 @@ class TopicMemory(BaseModel):
             self.subtopics[subtopic_name] = SubTopicMemory(subtopic_name=subtopic_name)
         return self.subtopics[subtopic_name]
 
-    def get_subtopic_summary(self, subtopic_name: str) -> List[str]:
+    def get_subtopic_summary(self, subtopic_name: str) -> list[str]:
         """Get subtopic summary safely"""
         subtopic = self.subtopics.get(subtopic_name)
         return subtopic.summary if subtopic and subtopic.summary else []
 
     def get_subtopic_conversation_memory(
         self, subtopic_name: str
-    ) -> Optional[List[MasterChatMessage]]:
+    ) -> Optional[list[MasterChatMessage]]:
         """Get subtopic conversation memory safely"""
         subtopic = self.subtopics.get(subtopic_name)
         return subtopic.conversation_memory if subtopic else None
@@ -63,7 +63,7 @@ class TopicMemory(BaseModel):
         """Add subtopic memory"""
         self.subtopics[subtopic_name].add_to_memory(item)
 
-    def add_subtopic_summary(self, subtopic_name, item: List[str]):
+    def add_subtopic_summary(self, subtopic_name, item: list[str]):
         """Add subtopic summary"""
         self.subtopics[subtopic_name].add_summary(item)
 
@@ -84,7 +84,7 @@ class TopicMemory(BaseModel):
 class TopicSubTopicGraph(BaseModel):
     """Topic subtopic graph"""
 
-    topic_subtopic_graph: Dict[str, TopicMemory] = defaultdict(TopicMemory)
+    topic_subtopic_graph: dict[str, TopicMemory] = defaultdict(TopicMemory)
 
     def get_all_keys(self):
         """Get all keys"""
@@ -102,11 +102,11 @@ class TopicSubTopicGraph(BaseModel):
         """Add subtopic memory to memory"""
         self.topic_subtopic_graph[topic_name].add_subtopic_memory(subtopic_name, item)
 
-    def add_to_subtopic_summary(self, topic_name, subtopic_name, item: List[str]):
+    def add_to_subtopic_summary(self, topic_name, subtopic_name, item: list[str]):
         """Add subtopic summary to memory"""
         self.topic_subtopic_graph[topic_name].add_subtopic_summary(subtopic_name, item)
 
-    def add_to_topic_summary(self, topic_name, item: List[str]):
+    def add_to_topic_summary(self, topic_name, item: list[str]):
         """Add topic summary to memory"""
         self.topic_subtopic_graph[topic_name].summary = item
 
@@ -155,7 +155,7 @@ class TopicSubTopicGraph(BaseModel):
 
 
 class MemoryGraph(BaseModel):
-    interview_round_topic_memory: Dict[str, List[TopicSubTopicGraph]] = Field(default_factory=dict)
+    interview_round_topic_memory: dict[str, list[TopicSubTopicGraph]] = Field(default_factory=dict)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -167,7 +167,7 @@ class MemoryGraph(BaseModel):
         topic_nodes = self.interview_round_topic_memory.get(interview_round, [])
         # Use list comprehension for better performance
         matching_nodes = [
-            node for node in topic_nodes if topic_name in node.topic_subtopic_graph.keys()
+            node for node in topic_nodes if topic_name in node.topic_subtopic_graph
         ]
         return matching_nodes[0] if matching_nodes else None
 
@@ -204,14 +204,14 @@ class MemoryGraph(BaseModel):
             return False
 
     def add_subtopic_summary_to_memory(
-        self, interview_round, topic_name, subtopic_name, item: List[str]
+        self, interview_round, topic_name, subtopic_name, item: list[str]
     ):
         topic_node = self.get_topic_node_from_name(interview_round, topic_name)
         if topic_node is None:
             return
         topic_node.add_to_subtopic_summary(topic_name, subtopic_name, item)
 
-    def add_topic_summary_to_memory(self, interview_round, topic_name, item: List[str]):
+    def add_topic_summary_to_memory(self, interview_round, topic_name, item: list[str]):
         """Add topic summary to memory"""
         topic_node = self.get_topic_node_from_name(interview_round, topic_name)
         if topic_node is None:
@@ -265,7 +265,7 @@ class MemoryGraph(BaseModel):
         interview_round: str,
         topic_name: str,
         subtopic_name: str,
-        items: List[MasterChatMessage],
+        items: list[MasterChatMessage],
     ) -> None:
         """Add multiple dialogs at once"""
         topic_node = self.get_topic_node_from_name(interview_round, topic_name)
@@ -276,7 +276,7 @@ class MemoryGraph(BaseModel):
             if subtopic_memory:
                 subtopic_memory.conversation_memory.extend(items)
 
-    def get_topic_statistics(self, interview_round: str, topic_name: str) -> Dict[str, Any]:
+    def get_topic_statistics(self, interview_round: str, topic_name: str) -> dict[str, Any]:
         """Get statistics for a topic"""
         topic_node = self.get_topic_node_from_name(interview_round, topic_name)
         if not topic_node:

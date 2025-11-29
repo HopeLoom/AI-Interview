@@ -124,7 +124,7 @@ The candidate is solving a coding question as part of the interview where the st
 2. Data Available: {self.activity_details.data_available}
 3. Task for the Candidate: {self.activity_details.task_for_the_candidate}
 4. Starter Code provided to the candidate:** {starter_code}
-5. Latest code written by the candidate: {code_data_from_candidate}         
+5. Latest code written by the candidate: {code_data_from_candidate}
 
 You have already generated a high-level summary of the candidate's progress, which can be found here:
 1. Code Interpretation: {code_intrepretation}
@@ -159,18 +159,12 @@ Output consists of the following:
         self, prompt_input: PromptInput
     ) -> str:
         output = ActivityProgressAnalysisSummaryForPanelistOutputMessage()
-        interview_round_two = self.interview_round_details.rounds["interview_round_2"].description
+        self.interview_round_details.rounds["interview_round_2"].description
 
-        code_interpretation: ActivityProgressAnalysisOutputMessage = (
-            prompt_input.activity_progress_analysis
-        )
         activity_progress_with_respect_to_question: ActivityProgressWithRespectToQuestionOutputMessage = prompt_input.activity_progress_with_respect_to_question
         starter_code = prompt_input.starter_code
         code_data_from_candidate = prompt_input.activity_code_from_candidate
 
-        code_intrepretation = code_interpretation.code_intrepretation
-        complexity_analysis = code_interpretation.complexity_analysis
-        logic_analysis = code_interpretation.logic_analysis
 
         code_intrepretation_with_respect_to_question = (
             activity_progress_with_respect_to_question.code_intrepretation_with_respect_to_question
@@ -190,7 +184,7 @@ You are a code monitoring agent assisting an interview panel in evaluating the c
 2. Data Available: {self.activity_details.data_available}
 3. Task for the Candidate: {self.activity_details.task_for_the_candidate}
 4. Starter Code provided to the candidate:** {starter_code}
-5. Latest code written by the candidate: {code_data_from_candidate}         
+5. Latest code written by the candidate: {code_data_from_candidate}
 
 You have already conducted analysis which includes:
 1. A progress evaluation, determining how the candidate is doing with respect to the question asked which is mentioned below:
@@ -207,7 +201,7 @@ Note that starter code is provided to the candidate so your summary must only ab
 Latest code wriiten by the candidate is provided to you and it contains code in addition to the starter code
 Respond in JSON format using the following structure: {output.model_dump_json()}.
 percentage_of_question_solved should be a float value between 0 and 1.
-things_left_to_do_with_respect_to_question should only contain information about the remaining things to do with respect to the question and starter code. Don't consider edge cases 
+things_left_to_do_with_respect_to_question should only contain information about the remaining things to do with respect to the question and starter code. Don't consider edge cases
 candidate_performance_summary should be a concise summary of the candidate's progress which should include the main jist of the code they have written.
 Ensure when computing the percentage of question solved, you consider the complexity of the function and the logic implemented.
 If the candidate has answered the question completely, then keep the remaining_things_to_do_with_respect_to_question as empty.

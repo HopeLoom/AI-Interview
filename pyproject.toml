@@ -38,7 +38,14 @@ ignore = [
     "PLR0915", # too many statements
     "PLR2004", # magic value used in comparison
     "TRY003",  # avoid specifying long messages outside the exception class
+    "TRY301",  # abstract raise to inner function (stylistic, often unnecessary)
+    "TRY300",  # consider moving statement to else block (stylistic)
+    "TRY401",  # redundant exception in logging.exception (logging.exception includes exception automatically)
+    "B904",    # raise exceptions with `raise ... from err` (stylistic, can be verbose)
+    "RUF001",  # unused noqa directive
     "NPY002",  # numpy-specific rules
+    "PTH123",  # Use Path.open() instead of open() (can be overly prescriptive)
+    "PLC0415", # import should be at top-level (sometimes necessary for conditional imports)
 ]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.

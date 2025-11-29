@@ -72,7 +72,7 @@ def remove_short_lines(text, min_length):
 def extract_text(pdf_path):
     pages = []
     with pdfplumber.open(pdf_path) as pdf:
-        for index, page in tqdm(enumerate(pdf.pages)):
+        for _index, page in tqdm(enumerate(pdf.pages)):
             # text += page.extract_text()
             pages.append(page.extract_text())
             # if index > 20:
@@ -370,7 +370,7 @@ if __name__ == "__main__":
                         cleaned_paragraphs.append(data)
 
             print ("Number of paragraphs:", len(cleaned_paragraphs))
-                    
+
             document_ids = list(map(lambda tup: f"id{tup[0]}", enumerate(cleaned_paragraphs)))
             collection.add(documents=cleaned_paragraphs, ids=document_ids)
             """

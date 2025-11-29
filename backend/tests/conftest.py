@@ -294,7 +294,7 @@ def pytest_runtest_setup(item):
     """Skip tests based on environment and available services."""
     # Skip PostgreSQL tests if not available
     if item.get_closest_marker("postgresql"):
-        if not os.getenv("TEST_POSTGRES_AVAILABLE", "").lower() == "true":
+        if os.getenv("TEST_POSTGRES_AVAILABLE", "").lower() != "true":
             pytest.skip("PostgreSQL not available for testing")
 
     # Skip Firebase tests if not available

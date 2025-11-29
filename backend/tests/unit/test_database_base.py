@@ -3,6 +3,7 @@ Unit tests for the database base classes and interfaces.
 """
 
 from datetime import datetime
+from typing import Optional
 
 import pytest
 
@@ -183,7 +184,7 @@ class MockDatabaseInterface(DatabaseInterface):
                 return session.session_id
         return None
 
-    async def get_all_session_data(self, user_id: str, session_id: str = None):
+    async def get_all_session_data(self, user_id: str, session_id: Optional[str] = None):
         return {}
 
     async def add_dialog_to_database(self, user_id: str, session_id: str, message):
@@ -199,7 +200,7 @@ class MockDatabaseInterface(DatabaseInterface):
         return None
 
     async def store_simulation_config(
-        self, config_id: str, config_data: dict, user_id: str = None
+        self, config_id: str, config_data: dict, user_id: Optional[str] = None
     ) -> bool:
         self._configs[config_id] = config_data
         return True
@@ -207,7 +208,7 @@ class MockDatabaseInterface(DatabaseInterface):
     async def get_simulation_config(self, config_id: str):
         return self._configs.get(config_id)
 
-    async def list_simulation_configs(self, user_id: str = None):
+    async def list_simulation_configs(self, user_id: Optional[str] = None):
         return [
             {"config_id": k, "config_name": v.get("job_details", {}).get("job_title", "Untitled")}
             for k, v in self._configs.items()

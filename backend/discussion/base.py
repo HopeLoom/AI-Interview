@@ -8,7 +8,7 @@ from resource.model_providers.schema import (
     ChatModelProvider,
     SystemSettings,
 )
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from activity.base import (
     ActivityCodeGenerationOutputMessage,
@@ -37,13 +37,13 @@ class FeedbackOutput(BaseModel):
 class FeedbackInput(BaseModel):
     activity_data: BaseActivityConfiguration = BaseActivityConfiguration()
     character_data: CharacterData = CharacterData()
-    previous_feedback: List[FeedbackOutput] = Field(default_factory=list)
+    previous_feedback: list[FeedbackOutput] = Field(default_factory=list)
     isCode: bool = False
 
 
 class ConsensusInput(BaseModel):
     activity_data: BaseActivityConfiguration = BaseActivityConfiguration()
-    feedbackData: List[str] = Field(default_factory=list)
+    feedbackData: list[str] = Field(default_factory=list)
 
 
 class ConsensusOutput(BaseModel):
@@ -93,7 +93,7 @@ class BaseDiscussion(Configurable[BaseDiscussionConfiguration], ABC):
         llm_provider: ChatModelProvider,
         prompt_strategy: DiscussionPromptStrategy,
     ):
-        super(BaseDiscussion, self).__init__()
+        super().__init__()
 
         self.config: DiscussionSettings = discussion_config.settings
         self.llm_provider = llm_provider

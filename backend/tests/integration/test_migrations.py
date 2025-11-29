@@ -406,7 +406,7 @@ class TestMigrationDataIntegrity:
             assert len(users_after_first) == 1
 
             # Second migration (should handle duplicates gracefully)
-            success2 = await migrator.migrate_users()
+            await migrator.migrate_users()
             # This might fail due to unique constraints, which is expected behavior
             # The important thing is it doesn't corrupt existing data
 

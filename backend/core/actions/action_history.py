@@ -80,9 +80,8 @@ class ActionHistory(BaseModel):
         self.index = len(self.actionInstances)
 
     def rewind(self, num_episodes):
-        if self.current_action:
-            if self.current_action and not self.current_action.result:
-                self.actionInstances.pop(self.index)
+        if self.current_action and self.current_action and not self.current_action.result:
+            self.actionInstances.pop(self.index)
 
         if num_episodes > 0:
             self.actionInstances = self.actionInstances[:-num_episodes]

@@ -1,5 +1,4 @@
 import asyncio
-from typing import List
 
 from core.speech.base import SpeechConfig, SpeechResult
 from core.speech.eleven_labs import ElevenLabsTTS
@@ -83,7 +82,7 @@ class SpeechServiceProvider:
 
         return provider_class(config, main_logger)
 
-    def get_available_voices(self, provider: str, gender: str, region: str) -> List[str]:
+    def get_available_voices(self, provider: str, gender: str, region: str) -> list[str]:
         """Get available voices for a provider based on gender and country"""
         if provider == "eleven_labs":
             if gender == "male":

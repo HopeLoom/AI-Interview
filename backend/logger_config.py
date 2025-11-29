@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Any, Dict
+from typing import Any
 
 from loguru import logger as base_logger
 
@@ -8,7 +8,7 @@ from loguru import logger as base_logger
 class LoggerManager:
     def __init__(self, base_log_dir: str = "logs"):
         self.base_log_dir = base_log_dir
-        self._user_loggers: Dict[str, Any] = {}
+        self._user_loggers: dict[str, Any] = {}
 
         # Reset existing handlers
         base_logger.remove()

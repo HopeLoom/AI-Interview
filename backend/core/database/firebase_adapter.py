@@ -5,7 +5,7 @@ Wraps the existing Firebase implementation to conform to the DatabaseInterface.
 
 import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ..database.database import FireBaseDataBase
 from .base import CompanyProfile, DatabaseInterface, SessionData, UserProfile
@@ -101,7 +101,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error creating user {user_profile.user_id}: {e}")
             return False
 
-    async def update_user(self, user_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_user(self, user_id: str, updates: dict[str, Any]) -> bool:
         """Update user profile"""
         try:
             if not updates:
@@ -131,7 +131,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error deleting user {user_id}: {e}")
             return False
 
-    async def get_all_users_data(self) -> List[UserProfile]:
+    async def get_all_users_data(self) -> list[UserProfile]:
         """Get all user profiles"""
         try:
             fb_users = self._firebase_db.get_all_users_data()
@@ -192,7 +192,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting session data for {user_id}/{session_id}: {e}")
             return None
 
-    async def update_session(self, user_id: str, session_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_session(self, user_id: str, session_id: str, updates: dict[str, Any]) -> bool:
         """Update session data"""
         try:
             if not updates:
@@ -218,7 +218,7 @@ class FirebaseAdapter(DatabaseInterface):
 
     async def get_all_session_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get all data for a session"""
         return self._firebase_db.get_all_session_data(user_id, session_id)
 
@@ -239,13 +239,13 @@ class FirebaseAdapter(DatabaseInterface):
 
     async def get_final_evaluation_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final evaluation output from database"""
         return self._firebase_db.get_final_evaluation_output_from_database(user_id, session_id)
 
     # Configuration Management
     async def store_simulation_config(
-        self, config_id: str, config_data: Dict[str, Any], user_id: Optional[str] = None
+        self, config_id: str, config_data: dict[str, Any], user_id: Optional[str] = None
     ) -> bool:
         """Store simulation configuration"""
         try:
@@ -270,7 +270,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error storing simulation config {config_id}: {e}")
             return False
 
-    async def get_simulation_config(self, config_id: str) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config(self, config_id: str) -> Optional[dict[str, Any]]:
         """Get simulation configuration"""
         try:
             config_ref = self._firebase_db.db.collection("simulation_configs").document(config_id)
@@ -283,7 +283,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting simulation config {config_id}: {e}")
             return None
 
-    async def list_simulation_configs(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def list_simulation_configs(self, user_id: Optional[str] = None) -> list[dict[str, Any]]:
         """List simulation configurations"""
         try:
             configs_ref = self._firebase_db.db.collection("simulation_configs")
@@ -350,14 +350,14 @@ class FirebaseAdapter(DatabaseInterface):
 
     # Generic Data Operations
     async def add_json_data_output_to_database(
-        self, user_id: str, session_id: str, name: str, json_data: Dict[str, Any]
+        self, user_id: str, session_id: str, name: str, json_data: dict[str, Any]
     ):
         """Add JSON data to database"""
         self._firebase_db.add_json_data_output_to_database(user_id, session_id, name, json_data)
 
     async def get_json_data_output_from_database(
         self, name: str, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get JSON data from database"""
         return self._firebase_db.get_json_data_output_from_database(name, user_id, session_id)
 
@@ -366,7 +366,7 @@ class FirebaseAdapter(DatabaseInterface):
         """Upload image to storage"""
         return self._firebase_db.upload_image(image_path, user_id, file_name)
 
-    async def upload_json(self, user_id: str, json_data: Dict[str, Any], file_name: str) -> str:
+    async def upload_json(self, user_id: str, json_data: dict[str, Any], file_name: str) -> str:
         """Upload JSON data to storage"""
         return self._firebase_db.upload_json(user_id, json_data, file_name)
 
@@ -399,22 +399,22 @@ class FirebaseAdapter(DatabaseInterface):
         """Get recent code data for user"""
         return self._firebase_db.get_recent_code_data(user_id)
 
-    async def get_profile_json_data(self) -> Optional[Dict[str, Any]]:
+    async def get_profile_json_data(self) -> Optional[dict[str, Any]]:
         """Get profile JSON data"""
         return self._firebase_db.get_profile_json_data()
 
-    async def get_simulation_config_json_data(self) -> Optional[Dict[str, Any]]:
+    async def get_simulation_config_json_data(self) -> Optional[dict[str, Any]]:
         """Get simulation config JSON data"""
         return self._firebase_db.get_simulation_config_json_data()
 
-    async def get_panelist_profile_json_data(self, panelist_name: str) -> Optional[Dict[str, Any]]:
+    async def get_panelist_profile_json_data(self, panelist_name: str) -> Optional[dict[str, Any]]:
         """Get panelist profile JSON data"""
         return self._firebase_db.get_panelist_profile_json_data(panelist_name)
 
     # Specialized Data Operations (DatabaseInterface implementation)
     async def get_activity_progress_analysis_output_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get activity progress analysis output"""
         return self._firebase_db.get_activity_progress_analysis_output_from_database(
             user_id, session_id
@@ -422,13 +422,13 @@ class FirebaseAdapter(DatabaseInterface):
 
     async def get_metadata_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get metadata from database"""
         return self._firebase_db.get_metadata_from_database(user_id, session_id)
 
     async def get_final_visualisation_report_from_database(
         self, user_id: str, session_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get final visualisation report from database"""
         return self._firebase_db.get_final_visualisation_report_from_database(user_id, session_id)
 
@@ -504,7 +504,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting company by email {email}: {e}")
             return None
 
-    async def update_company(self, company_id: str, updates: Dict[str, Any]) -> bool:
+    async def update_company(self, company_id: str, updates: dict[str, Any]) -> bool:
         """Update company profile"""
         try:
             if not updates:
@@ -525,7 +525,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error deleting company {company_id}: {e}")
             return False
 
-    async def search_companies_by_name(self, name: str) -> List[CompanyProfile]:
+    async def search_companies_by_name(self, name: str) -> list[CompanyProfile]:
         """Search companies by name"""
         try:
             companies_data = self._firebase_db.search_companies_by_name(name)
@@ -561,7 +561,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error checking email availability {email}: {e}")
             return False
 
-    async def get_all_companies(self) -> List[CompanyProfile]:
+    async def get_all_companies(self) -> list[CompanyProfile]:
         """Get all companies"""
         try:
             companies_data = self._firebase_db.get_all_companies()
@@ -598,7 +598,7 @@ class FirebaseAdapter(DatabaseInterface):
             return False
 
     # Dashboard and Candidate Management
-    async def get_candidates_by_company_name(self, company_name: str) -> List[UserProfile]:
+    async def get_candidates_by_company_name(self, company_name: str) -> list[UserProfile]:
         """Get all candidates for a specific company by company name"""
         try:
             candidates_data = self._firebase_db.get_candidates_by_company_name(company_name)
@@ -628,7 +628,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting candidates by company name {company_name}: {e}")
             return []
 
-    async def get_candidates_by_company_id(self, company_id: str) -> List[UserProfile]:
+    async def get_candidates_by_company_id(self, company_id: str) -> list[UserProfile]:
         """Get all candidates for a specific company by company ID"""
         try:
             candidates_data = self._firebase_db.get_candidates_by_company_id(company_id)
@@ -660,7 +660,7 @@ class FirebaseAdapter(DatabaseInterface):
 
     async def get_candidate_evaluation_data(
         self, user_id: str, session_id: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get evaluation data for a specific candidate"""
         try:
             return self._firebase_db.get_candidate_evaluation_data(user_id, session_id)
@@ -668,7 +668,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting evaluation data for candidate {user_id}: {e}")
             return None
 
-    async def get_candidate_interview_sessions(self, user_id: str) -> List[SessionData]:
+    async def get_candidate_interview_sessions(self, user_id: str) -> list[SessionData]:
         """Get all interview sessions for a candidate"""
         try:
             sessions_data = self._firebase_db.get_candidate_interview_sessions(user_id)
@@ -690,7 +690,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting interview sessions for candidate {user_id}: {e}")
             return []
 
-    async def get_company_dashboard_data(self, company_id: str) -> Dict[str, Any]:
+    async def get_company_dashboard_data(self, company_id: str) -> dict[str, Any]:
         """Get comprehensive dashboard data for a company"""
         try:
             return self._firebase_db.get_company_dashboard_data(company_id)
@@ -698,7 +698,7 @@ class FirebaseAdapter(DatabaseInterface):
             self.log_error(f"Error getting dashboard data for company {company_id}: {e}")
             return {}
 
-    async def get_candidates_with_evaluations(self, company_id: str) -> List[Dict[str, Any]]:
+    async def get_candidates_with_evaluations(self, company_id: str) -> list[dict[str, Any]]:
         """Get candidates with their evaluation data for a company"""
         try:
             return self._firebase_db.get_candidates_with_evaluations(company_id)
@@ -708,7 +708,7 @@ class FirebaseAdapter(DatabaseInterface):
             )
             return []
 
-    async def get_company_interviews(self, company_id: str) -> List[Dict[str, Any]]:
+    async def get_company_interviews(self, company_id: str) -> list[dict[str, Any]]:
         """Get all interviews/job postings for a company"""
         try:
             return await asyncio.to_thread(self._firebase_db.get_company_interviews, company_id)
@@ -718,7 +718,7 @@ class FirebaseAdapter(DatabaseInterface):
 
     async def get_interview_candidates(
         self, company_id: str, interview_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get candidates for a specific interview/job posting"""
         try:
             return await asyncio.to_thread(
@@ -729,6 +729,6 @@ class FirebaseAdapter(DatabaseInterface):
             return []
 
     # Additional Firebase-specific methods (kept for backward compatibility)
-    def get_all_video_urls(self, user_id: str, session_id: str) -> List[str]:
+    def get_all_video_urls(self, user_id: str, session_id: str) -> list[str]:
         """Get all video URLs (Firebase-specific)"""
         return self._firebase_db.get_all_video_urls(user_id, session_id)

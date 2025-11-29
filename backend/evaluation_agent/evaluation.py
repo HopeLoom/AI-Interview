@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 from queue import Queue
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from candidate_agent.candidate import Profile
 from interview_details_agent.base import BaseInterviewConfiguration, CharacterDataOutput
@@ -155,7 +155,7 @@ class Evaluation(BaseEvaluation):
             asyncio.run(self._load_candidate_profile())
 
         except Exception as e:
-            self.logger.error(f"Error initializing components: {e}")
+            self.logger.exception(f"Error initializing components: {e}")
             raise
 
     async def _load_candidate_profile(self):
@@ -168,7 +168,7 @@ class Evaluation(BaseEvaluation):
                 self.logger.warning("No profile data found")
                 self.candidate_profile = None
         except Exception as e:
-            self.logger.error(f"Error loading candidate profile: {e}")
+            self.logger.exception(f"Error loading candidate profile: {e}")
             self.candidate_profile = None
 
     async def _setup_interview_metadata(self):
@@ -188,7 +188,7 @@ class Evaluation(BaseEvaluation):
                 )
 
         except Exception as e:
-            self.logger.error(f"Error setting up interview metadata: {e}")
+            self.logger.exception(f"Error setting up interview metadata: {e}")
             self.is_interview_completed = True
 
     async def _handle_image_upload(self):
@@ -210,7 +210,7 @@ class Evaluation(BaseEvaluation):
                 self.logger.info("No image found for upload")
 
         except Exception as e:
-            self.logger.error(f"Error handling image upload: {e}")
+            self.logger.exception(f"Error handling image upload: {e}")
 
     def get_latest_image_path(self) -> Optional[Path]:
         """Get the latest image path from the static directory."""
@@ -223,7 +223,7 @@ class Evaluation(BaseEvaluation):
             return max(images_list, key=lambda f: f.stat().st_mtime) if images_list else None
 
         except Exception as e:
-            self.logger.error(f"Error getting latest image path: {e}")
+            self.logger.exception(f"Error getting latest image path: {e}")
             return None
 
     async def _create_activity_agent(self):
@@ -250,7 +250,7 @@ class Evaluation(BaseEvaluation):
                 is_evaluating=True,
             )
         except Exception as e:
-            self.logger.error(f"Error creating activity agent: {e}")
+            self.logger.exception(f"Error creating activity agent: {e}")
             raise
 
     async def _create_panelist_agents(self):
@@ -289,10 +289,10 @@ class Evaluation(BaseEvaluation):
                     self.logger.info(f"Panelist {panelist_profile.background.name} created")
 
         except Exception as e:
-            self.logger.error(f"Error creating panelist agents: {e}")
+            self.logger.exception(f"Error creating panelist agents: {e}")
             raise
 
-    def get_panelist_profiles_for_current_interview_round(self) -> List[Profile]:
+    def get_panelist_profiles_for_current_interview_round(self) -> list[Profile]:
         """Get panelist profiles for current interview round with caching."""
         if not hasattr(self, "_cached_panelist_profiles"):
             self._cached_panelist_profiles = [
@@ -309,7 +309,7 @@ class Evaluation(BaseEvaluation):
             self.logger.info(f"Code from firebase: {code}")
             return code
         except Exception as e:
-            self.logger.error(f"Error loading activity code: {e}")
+            self.logger.exception(f"Error loading activity code: {e}")
             return None
 
     def load_data_into_memory(self, json_file_path: str):
@@ -317,7 +317,7 @@ class Evaluation(BaseEvaluation):
         try:
             self.interview_topic_tracker.load_data_into_memory_graph(json_file_path)
         except Exception as e:
-            self.logger.error(f"Error loading data into memory: {e}")
+            self.logger.exception(f"Error loading data into memory: {e}")
 
     def parse_response_evaluation_content(
         self, response: AssistantChatMessage, prompt: ChatMessage
@@ -421,7 +421,7 @@ class Evaluation(BaseEvaluation):
             return SubqueryGeneratorOutputMessage(subqueries=subquery_data.subqueries)
 
         except Exception as e:
-            self.logger.error(f"Error in subquery generator: {e}")
+            self.logger.exception(f"Error in subquery generator: {e}")
             raise
 
     async def run_subquery_data_extraction(self, subqueries) -> SubqueryDataExtractionOutputMessage:
@@ -463,7 +463,7 @@ class Evaluation(BaseEvaluation):
             return subquery_data
 
         except Exception as e:
-            self.logger.error(f"Error in subquery data extraction: {e}")
+            self.logger.exception(f"Error in subquery data extraction: {e}")
             raise
 
     async def run_evaluation_per_topic(self, topic_name: str) -> None:
@@ -488,7 +488,7 @@ class Evaluation(BaseEvaluation):
                 await self._evaluate_subtopic(topic_name, subtopic_name, topic_data)
 
         except Exception as e:
-            self.logger.error(f"Error running evaluation for topic {topic_name}: {e}")
+            self.logger.exception(f"Error running evaluation for topic {topic_name}: {e}")
             raise
 
     async def _evaluate_subtopic(self, topic_name: str, subtopic_name: str, topic_data):
@@ -535,7 +535,7 @@ class Evaluation(BaseEvaluation):
             )
 
         except Exception as e:
-            self.logger.error(f"Error evaluating subtopic {subtopic_name}: {e}")
+            self.logger.exception(f"Error evaluating subtopic {subtopic_name}: {e}")
             raise
 
     def _get_evaluation_key(self, topic_name: str, subtopic_name: str) -> str:
@@ -637,7 +637,7 @@ class Evaluation(BaseEvaluation):
             )
 
         except Exception as e:
-            self.logger.error(f"Error performing evaluation: {e}")
+            self.logger.exception(f"Error performing evaluation: {e}")
             raise
 
     async def _save_evaluation_output(self, evaluation_output):
@@ -650,7 +650,7 @@ class Evaluation(BaseEvaluation):
                 json.dump(evaluation_output.model_dump(), f, indent=4)
                 f.write("\n")
         except Exception as e:
-            self.logger.error(f"Error saving evaluation output: {e}")
+            self.logger.exception(f"Error saving evaluation output: {e}")
 
     async def evaluation_from_panelists(
         self,
@@ -676,7 +676,7 @@ class Evaluation(BaseEvaluation):
                     subqueries_data,
                 )
         except Exception as e:
-            self.logger.error(f"Error evaluating panelists: {e}")
+            self.logger.exception(f"Error evaluating panelists: {e}")
 
     async def generate_summary(self, text: str) -> str:
         """Generate summary with error handling."""
@@ -689,7 +689,7 @@ class Evaluation(BaseEvaluation):
             output = await super().generate_summary(prompt)
             return output
         except Exception as e:
-            self.logger.error(f"Error generating summary: {e}")
+            self.logger.exception(f"Error generating summary: {e}")
             return "Summary generation failed"
 
     async def merge_evaluation_output(self):
@@ -722,17 +722,17 @@ class Evaluation(BaseEvaluation):
             return final_evaluation_output, overall_analysis_summary, overall_score
 
         except Exception as e:
-            self.logger.error(f"Error merging evaluation output: {e}")
+            self.logger.exception(f"Error merging evaluation output: {e}")
             raise
 
-    def _get_metrics_covered(self) -> List[str]:
+    def _get_metrics_covered(self) -> list[str]:
         """Get metrics covered for current interview round."""
         metrics = self.interview_topic_tracker.get_metrics_covered_for_current_interview_round(
             InterviewRound.ROUND_TWO
         )
         return [metric.lower() for metric in metrics]
 
-    def _initialize_criteria_scoring(self, metrics_covered: List[str]):
+    def _initialize_criteria_scoring(self, metrics_covered: list[str]):
         """Initialize criteria scoring lists."""
         criteria_scoring_list = []
         criteria_counter_list = []
@@ -994,9 +994,9 @@ class Evaluation(BaseEvaluation):
 
     async def run_panelist_feedback_visual_summary(
         self,
-        panelist_feedback: List[str],
-        panelist_names: List[str],
-        panelist_occupations: List[str],
+        panelist_feedback: list[str],
+        panelist_names: list[str],
+        panelist_occupations: list[str],
     ):
         self.logger.info("Running panelist feedback visual summary")
 
@@ -1018,7 +1018,7 @@ class Evaluation(BaseEvaluation):
         return panelist_feedback_visual_summary
 
     async def run_criteria_visual_summary(
-        self, criteria_specific_scoring: List[CriteriaSpecificScoring]
+        self, criteria_specific_scoring: list[CriteriaSpecificScoring]
     ) -> CriteriaScoreVisualSummaryList:
         self.logger.info("Running criteria visual summary")
 
@@ -1047,8 +1047,8 @@ class Evaluation(BaseEvaluation):
         # we need to revise the following: overall analysis, panelist feedback and criteria specific scoring explaination. Basically all text fields
         self.logger.info(f"Evaluation data: {evaluation_data}")
         overall_analysis: str = evaluation_data.overall_analysis
-        panelist_feedback: List[str] = evaluation_data.panelist_feedback
-        criteria_specific_scoring_list: List[CriteriaSpecificScoring] = (
+        panelist_feedback: list[str] = evaluation_data.panelist_feedback
+        criteria_specific_scoring_list: list[CriteriaSpecificScoring] = (
             evaluation_data.evaluation_output.criteria_specific_scoring
         )
         code_written_by_candidate: str = evaluation_data.code_from_candidate
@@ -1142,12 +1142,12 @@ class Evaluation(BaseEvaluation):
                 evaluation_report: EvaluationMessageToFrontEnd = (
                     await self.generate_evaluation_report()
                 )
-                report: CandidateEvaluationVisualisationReport = (
+                (
                     await self.revise_evaluation_report_for_visualization(evaluation_report)
                 )
 
         except Exception as e:
-            self.logger.error(f"Error in evaluation run: {e}")
+            self.logger.exception(f"Error in evaluation run: {e}")
             raise
         finally:
             self.logger.info("Evaluation completed. Exiting evaluation agent")

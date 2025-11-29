@@ -1,5 +1,4 @@
 import json
-from typing import List
 
 from candidate_agent.base import BaseCandidateConfiguration, Profile
 
@@ -33,7 +32,7 @@ class CandidatePromptStrategy(BaseCandidatePromptStrategy):
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
 
-    def convert_simulation_type(self, simulation_history: List[MasterChatMessage]):
+    def convert_simulation_type(self, simulation_history: list[MasterChatMessage]):
         if simulation_history is None:
             return ""
         conversation_history_strings = [
@@ -83,13 +82,8 @@ class CandidatePromptStrategy(BaseCandidatePromptStrategy):
 
     def _generate_domain_knowledge_prompt(self, input_message: PromptInput):
         message: CommunicationMessage = input_message.message
-        reasoning_output = input_message.reasoningOutput
         master_message: MasterMessageStructure = message.content
         speaker: Profile = master_message.speaker
-        listener: Profile = master_message.listener
-        advice = master_message.advice
-        topic: InterviewTopicData = master_message.topic
-        subtopic: SubTopicData = master_message.sub_topic
         job_description = master_message.job_details
         interview_round = master_message.interview_round
 
@@ -208,12 +202,8 @@ class CandidatePromptStrategy(BaseCandidatePromptStrategy):
 
     def _generate_response_prompt(self, input_message: PromptInput):
         message: CommunicationMessage = input_message.message
-        ReasoningOutputMessage = input_message.reasoningOutput
-        domainKnowledgeOutputMessage = input_message.domainKnowledgeOutput
         master_message: MasterMessageStructure = message.content
         speaker: Profile = master_message.speaker
-        listener: Profile = master_message.listener
-        advice = master_message.advice
         topic: InterviewTopicData = master_message.topic
         subtopic: SubTopicData = master_message.sub_topic
         job_description = master_message.job_details

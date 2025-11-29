@@ -6,7 +6,7 @@ import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from unittest.mock import AsyncMock, MagicMock
 
 from core.database.base import DatabaseInterface, SessionData, UserProfile
@@ -51,7 +51,7 @@ class DatabaseTestHelper:
     @staticmethod
     def create_test_simulation_config(
         job_title: str = "Software Engineer", company_name: str = "Test Company"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a test simulation configuration"""
         return {
             "job_details": {
@@ -145,7 +145,7 @@ class DatabaseTestHelper:
         num_users: int = 3,
         num_sessions_per_user: int = 2,
         num_configs: int = 2,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Populate database with test data"""
         test_data = {"users": [], "sessions": [], "configs": []}
 
@@ -207,7 +207,7 @@ class DatabaseTestHelper:
         return test_data
 
     @staticmethod
-    async def cleanup_test_data(db: DatabaseInterface, test_data: Dict[str, Any]):
+    async def cleanup_test_data(db: DatabaseInterface, test_data: dict[str, Any]):
         """Clean up test data from database"""
         # Clean up users (this should cascade delete sessions)
         for user in test_data.get("users", []):
@@ -230,7 +230,7 @@ class ConfigTestHelper:
     @staticmethod
     def create_test_config_data(
         environment: str = "test", database_type: str = "sqlite"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create test configuration data"""
         return {
             "environment": environment,
@@ -284,7 +284,7 @@ class ConfigTestHelper:
         }
 
     @staticmethod
-    def create_temp_config_file(config_data: Dict[str, Any], file_format: str = "yaml") -> Path:
+    def create_temp_config_file(config_data: dict[str, Any], file_format: str = "yaml") -> Path:
         """Create a temporary configuration file"""
         import json
 
@@ -352,8 +352,8 @@ class TestDataGenerator:
 
     @staticmethod
     def generate_interview_transcript(
-        num_exchanges: int = 5, speakers: List[str] = None
-    ) -> List[Dict[str, str]]:
+        num_exchanges: int = 5, speakers: Optional[list[str]] = None
+    ) -> list[dict[str, str]]:
         """Generate a mock interview transcript"""
         if speakers is None:
             speakers = ["Interviewer", "Candidate"]
@@ -387,8 +387,8 @@ class TestDataGenerator:
 
     @staticmethod
     def generate_evaluation_data(
-        user_id: str, session_id: str, overall_score: int = None
-    ) -> Dict[str, Any]:
+        user_id: str, session_id: str, overall_score: Optional[int] = None
+    ) -> dict[str, Any]:
         """Generate mock evaluation data"""
         import random
 

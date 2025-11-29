@@ -107,7 +107,7 @@ class PerplexityProvider(
                 prompt_tokens=0,
                 total_tokens=0
             )
-           
+
         )
     """
     # _budget: ModelProviderBudget
@@ -134,10 +134,7 @@ class PerplexityProvider(
         return tiktoken.encoding_for_model(model_name)
 
     def count_tokens(self, text, model_name):
-        if model_name.startswith("gpt-4"):
-            encoding_model_name = "gpt-4"
-        else:
-            encoding_model_name = "gpt-3.5-turbo"
+        encoding_model_name = "gpt-4" if model_name.startswith("gpt-4") else "gpt-3.5-turbo"
         encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
 
@@ -146,7 +143,6 @@ class PerplexityProvider(
             messages = [messages]
 
         tokens_per_message = 4
-        tokens_per_names = -1
         encoding_model = "gpt-3.5-turbo"
 
         try:
@@ -185,7 +181,6 @@ class PerplexityProvider(
             response_format = None
 
         total_cost = 0
-        attempts = 0
 
         # combine model_name and response_format into keyword arguments
         kwargs = {"response_format": response_format, "model": model_name}

@@ -97,7 +97,7 @@ class GeminiProvider(Configurable[GeminiSettings], ChatModelProvider):
                 prompt_tokens=0,
                 total_tokens=0
             )
-           
+
         )
     """
     # _budget: ModelProviderBudget
@@ -129,10 +129,7 @@ class GeminiProvider(Configurable[GeminiSettings], ChatModelProvider):
 
     # use the same tokenizer as GPT for gemini?
     def count_tokens(self, text, model_name):
-        if model_name.startswith("gemini-2.0"):
-            encoding_model_name = "gpt-4"
-        else:
-            encoding_model_name = "gpt-3.5-turbo"
+        encoding_model_name = "gpt-4" if model_name.startswith("gemini-2.0") else "gpt-3.5-turbo"
         encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
 
@@ -142,11 +139,9 @@ class GeminiProvider(Configurable[GeminiSettings], ChatModelProvider):
 
         if model_name.startswith("gemini-1.5"):
             tokens_per_message = 4
-            tokens_per_names = -1
             encoding_model = "gpt-3.5-turbo"
         elif model_name.startswith("gemini-2"):
             tokens_per_message = 3
-            tokens_per_names = 1
             encoding_model = "gpt-4"
 
         else:
@@ -180,13 +175,11 @@ class GeminiProvider(Configurable[GeminiSettings], ChatModelProvider):
         **kwargs,
     ):
         total_cost = 0
-        attempts = 0
         kwargs = {"model": model_name}
         # print ("model_prompt: ", chatmessages)
 
         gemini_messages = []
         for message in chat_messages.messages:
-            role = message.role
             content = message.content
 
             gemini_messages.append(content)

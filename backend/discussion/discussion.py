@@ -146,7 +146,7 @@ class Discussion(BaseDiscussion):
 
             # check if consensus is reached or not from the feedback data
             feedback_output = []
-            for key in feedback_data.keys():
+            for key in feedback_data:
                 feedback_output.append(
                     f"feedback for {key}: {feedback_data[key][-1]}"
                 )  # get the latest feedback from the characters
@@ -195,7 +195,7 @@ class Discussion(BaseDiscussion):
 
             # check if consensus is reached or not from the feedback data
             feedback_output = []
-            for key in feedback_data.keys():
+            for key in feedback_data:
                 feedback_output.append(
                     f"feedback for {key}: {feedback_data[key][-1]}"
                 )  # get the latest feedback from the characters

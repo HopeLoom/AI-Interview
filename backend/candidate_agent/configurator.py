@@ -16,10 +16,10 @@ async def create_candidate_instance(**kwargs):
     # do all checks before calling agent creation
     settings = configure_settings()
     llm_provider = kwargs.get("llm_provider")
-    resume_data = kwargs.get("resume_data")
+    kwargs.get("resume_data")
     receiving_message_queue = kwargs.get("receiving_message_queue")
     sending_message_queue = kwargs.get("sending_message_queue")
-    data_dir = kwargs.get("data_dir")
+    kwargs.get("data_dir")
     user_id = kwargs.get("user_id")
     firebase_database = kwargs.get("firebase_database")
 

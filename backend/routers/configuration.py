@@ -7,7 +7,7 @@ import json
 import os
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from globals import main_logger
@@ -43,7 +43,7 @@ def get_configuration_service():
 # ============================================================================
 
 
-def load_static_data(filename: str) -> Dict[str, Any]:
+def load_static_data(filename: str) -> dict[str, Any]:
     """Load static configuration data from JSON files"""
     try:
         template_file_path = Path(__file__).parent.parent / "templates" / filename
@@ -722,7 +722,7 @@ async def parse_job_description(
 
 
 @router.post("/register-user")
-async def register_user(user_data: Dict[str, Any]):
+async def register_user(user_data: dict[str, Any]):
     """
     Register a new user (company or candidate)
     """
@@ -782,7 +782,7 @@ async def get_configuration_by_id(config_id: str):
 
 
 @router.post("/join-by-code")
-async def join_interview_by_code(request_data: Dict[str, str]):
+async def join_interview_by_code(request_data: dict[str, str]):
     """
     Join an interview using an invitation code
 
@@ -890,7 +890,7 @@ async def get_interview_sessions(
     try:
         db_service = InterviewConfigurationDatabase()
 
-        sessions: List[Dict[str, Any]] = []
+        sessions: list[dict[str, Any]] = []
         if configuration_id:
             # Get all sessions for a configuration
             main_logger.info(f"Getting sessions for configuration: {configuration_id}")
@@ -951,7 +951,7 @@ async def get_interview_sessions(
 
 
 @router.put("/sessions/{session_id}/end")
-async def end_interview_session(session_id: str, request_data: Dict[str, Any]):
+async def end_interview_session(session_id: str, request_data: dict[str, Any]):
     """
     Finalize an interview session when candidate exits or completes
 

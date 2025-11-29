@@ -1,7 +1,7 @@
 import base64
 import json
 import traceback
-from typing import Any, Dict
+from typing import Any
 
 import httpx
 from elevenlabs import HttpValidationError, Voice
@@ -15,12 +15,12 @@ class ElevenLabsTTS(VoiceBase):
     def __init__(self, config: SpeechConfig, main_logger):
         super().__init__(config, main_logger)
 
-    async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
+    async def _speech_to_text(self, audio_data: str, user_id: str) -> dict[str, Any]:
         return {"user_id": user_id, "status": False}
 
     async def _text_to_speech(
         self, websocket_connection_manager, user_id: str, text: str, voice_name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         self.main_logger.info(
             f"Running text to speech for user: {user_id}, text: {text}, voice: {voice_name}"
         )
@@ -71,19 +71,19 @@ class ElevenLabsTTS(VoiceBase):
                 return {"user_id": user_id, "status": True}
 
         except HttpValidationError as api_err:
-            self.main_logger.error(f"Eleven labs [API Error] {api_err}")
+            self.main_logger.exception(f"Eleven labs [API Error] {api_err}")
             return {"user_id": user_id, "status": False}
 
         except httpx.TimeoutException as net_timeout:
-            self.main_logger.error(f"[Timeout Error] {net_timeout}")
+            self.main_logger.exception(f"[Timeout Error] {net_timeout}")
             return {"user_id": user_id, "status": False}
 
         except httpx.RequestError as net_error:
-            self.main_logger.error(f"[Network Error] {net_error}")
+            self.main_logger.exception(f"[Network Error] {net_error}")
             return {"user_id": user_id, "status": False}
 
         except Exception as e:
-            self.main_logger.error(f"Unexpected error in Eleven Labs TTS: {e}")
+            self.main_logger.exception(f"Unexpected error in Eleven Labs TTS: {e}")
             traceback.print_exc()
             return {"user_id": user_id, "status": False}
 

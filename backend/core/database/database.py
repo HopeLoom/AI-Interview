@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from urllib.parse import unquote, urlparse
 
 import firebase_admin
@@ -53,8 +53,8 @@ class UserProfile:
     starter_code_url: Optional[str] = None
     profile_json_url: Optional[str] = None
     simulation_config_json_url: Optional[str] = None
-    panelist_profiles: Optional[List[str]] = None
-    panelist_images: Optional[List[str]] = None
+    panelist_profiles: Optional[list[str]] = None
+    panelist_images: Optional[list[str]] = None
     created_at: Optional[str] = None
     role: Optional[str] = "candidate"  # candidate, company_admin, super_admin
     organization_id: Optional[str] = None
@@ -126,7 +126,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Failed to initialize Firebase: {e}")
+                self.logger.exception(f"Failed to initialize Firebase: {e}")
             raise
 
     # TODO: We cannot directly add data to the database since every data is being converted into a specific format first. Lets fix this later.
@@ -166,7 +166,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error committing batch: {e}")
+                self.logger.exception(f"Error committing batch: {e}")
             self.fallback_individual_writes()
 
     def fallback_individual_writes(self):
@@ -183,7 +183,7 @@ class FireBaseDataBase:
                 doc_ref.set(operation["data"])
             except Exception as e:
                 if self.logger is not None:
-                    self.logger.error(f"Error writing individual document: {e}")
+                    self.logger.exception(f"Error writing individual document: {e}")
         self.pending_batch_operations = []
 
     def set_logger(self, logger):
@@ -203,15 +203,15 @@ class FireBaseDataBase:
 
         except UserNotFoundError:
             if self.logger is not None:
-                self.logger.error(f"User with email {email} not found.")
+                self.logger.exception(f"User with email {email} not found.")
             return None
         except ValueError as ve:
             if self.logger is not None:
-                self.logger.error(f"Invalid email format: {email}. Error: {ve}")
+                self.logger.exception(f"Invalid email format: {email}. Error: {ve}")
             return None
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"An error occurred while fetching user ID: {e}")
+                self.logger.exception(f"An error occurred while fetching user ID: {e}")
             return None
 
     def get_user_by_id(self, user_id: str) -> Optional[UserProfile]:
@@ -306,7 +306,7 @@ class FireBaseDataBase:
 
     def get_activity_progress_analysis_output_from_database(
         self, user_id, session_id
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Get activity progress analysis output from Firestore"""
         output_ref = (
             self.db.collection("users")
@@ -1005,9 +1005,8 @@ class FireBaseDataBase:
             if blob.name.endswith(".webm"):  # filter only video chunks
                 urls.append(blob.public_url)
 
-        if not urls:
-            if self.logger is not None:
-                self.logger.warning(f"No video chunks found for session: {session_id}")
+        if not urls and self.logger is not None:
+            self.logger.warning(f"No video chunks found for session: {session_id}")
 
         return urls
 
@@ -1048,10 +1047,10 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error while fetching recent session ID for user {user_id}: {e}")
+                self.logger.exception(f"Error while fetching recent session ID for user {user_id}: {e}")
             return None
 
-    def get_all_users_data(self) -> List[UserProfile]:
+    def get_all_users_data(self) -> list[UserProfile]:
         """Fetches all user data from Firestore and returns a list of UserProfile objects"""
         try:
             users_ref = self.db.collection("users")
@@ -1069,10 +1068,10 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error while fetching all users data: {e}")
+                self.logger.exception(f"Error while fetching all users data: {e}")
             return []
 
-    def get_all_users(self) -> List[str]:
+    def get_all_users(self) -> list[str]:
         """Fetches all user IDs from Firebase Auth"""
         try:
             users = auth.list_users().users
@@ -1083,7 +1082,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error while fetching all users: {e}")
+                self.logger.exception(f"Error while fetching all users: {e}")
             return []
 
     def get_all_session_data(self, user_id, session_id=None) -> dict:
@@ -1118,7 +1117,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Failed to fetch all session data: {e}")
+                self.logger.exception(f"Failed to fetch all session data: {e}")
             return {}
 
     def get_recent_code_data(self, user_id):
@@ -1151,7 +1150,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error while fetching recent code data: {e}")
+                self.logger.exception(f"Error while fetching recent code data: {e}")
             return None
 
     # Company Management Methods
@@ -1166,7 +1165,7 @@ class FireBaseDataBase:
             return True
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(
+                self.logger.exception(
                     f"Error creating company {company_data.get('company_id', 'unknown')}: {e}"
                 )
             return False
@@ -1182,7 +1181,7 @@ class FireBaseDataBase:
             return None
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting company {company_id}: {e}")
+                self.logger.exception(f"Error getting company {company_id}: {e}")
             return None
 
     def get_company_by_email(self, email):
@@ -1197,7 +1196,7 @@ class FireBaseDataBase:
             return None
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting company by email {email}: {e}")
+                self.logger.exception(f"Error getting company by email {email}: {e}")
             return None
 
     def update_company(self, company_id, updates):
@@ -1217,7 +1216,7 @@ class FireBaseDataBase:
             return True
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error updating company {company_id}: {e}")
+                self.logger.exception(f"Error updating company {company_id}: {e}")
             return False
 
     def delete_company(self, company_id):
@@ -1231,7 +1230,7 @@ class FireBaseDataBase:
             return True
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error deleting company {company_id}: {e}")
+                self.logger.exception(f"Error deleting company {company_id}: {e}")
             return False
 
     def search_companies_by_name(self, name):
@@ -1252,7 +1251,7 @@ class FireBaseDataBase:
             return companies
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error searching companies by name {name}: {e}")
+                self.logger.exception(f"Error searching companies by name {name}: {e}")
             return []
 
     def check_company_email_availability(self, email):
@@ -1262,7 +1261,7 @@ class FireBaseDataBase:
             return company is None
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error checking email availability {email}: {e}")
+                self.logger.exception(f"Error checking email availability {email}: {e}")
             return False
 
     def get_all_companies(self):
@@ -1278,7 +1277,7 @@ class FireBaseDataBase:
             return companies
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting all companies: {e}")
+                self.logger.exception(f"Error getting all companies: {e}")
             return []
 
     def validate_company_session(self, token):
@@ -1294,7 +1293,7 @@ class FireBaseDataBase:
             return False
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error validating company session: {e}")
+                self.logger.exception(f"Error validating company session: {e}")
             return False
 
     # Dashboard and Candidate Management Methods
@@ -1315,7 +1314,7 @@ class FireBaseDataBase:
             return candidates
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting candidates by company name {company_name}: {e}")
+                self.logger.exception(f"Error getting candidates by company name {company_name}: {e}")
             return []
 
     def get_candidates_by_company_id(self, company_id):
@@ -1332,7 +1331,7 @@ class FireBaseDataBase:
             return self.get_candidates_by_company_name(company.get("name", ""))
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting candidates by company ID {company_id}: {e}")
+                self.logger.exception(f"Error getting candidates by company ID {company_id}: {e}")
             return []
 
     def get_candidate_evaluation_data(self, user_id, session_id=None):
@@ -1355,7 +1354,7 @@ class FireBaseDataBase:
             return None
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting evaluation data for candidate {user_id}: {e}")
+                self.logger.exception(f"Error getting evaluation data for candidate {user_id}: {e}")
             return None
 
     def get_candidate_interview_sessions(self, user_id):
@@ -1379,7 +1378,7 @@ class FireBaseDataBase:
             return sessions
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting interview sessions for candidate {user_id}: {e}")
+                self.logger.exception(f"Error getting interview sessions for candidate {user_id}: {e}")
             return []
 
     def get_company_dashboard_data(self, company_id):
@@ -1491,7 +1490,7 @@ class FireBaseDataBase:
             return dashboard_data
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting dashboard data for company {company_id}: {e}")
+                self.logger.exception(f"Error getting dashboard data for company {company_id}: {e}")
             return {}
 
     def get_candidates_with_evaluations(self, company_id):
@@ -1565,7 +1564,7 @@ class FireBaseDataBase:
             return candidates_with_evaluations
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(
+                self.logger.exception(
                     f"Error getting candidates with evaluations for company {company_id}: {e}"
                 )
             return []
@@ -1665,7 +1664,7 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting interviews for company {company_id}: {e}")
+                self.logger.exception(f"Error getting interviews for company {company_id}: {e}")
             return []
 
     def _get_department_from_title(self, job_title):
@@ -1789,5 +1788,5 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.error(f"Error getting candidates for interview {interview_id}: {e}")
+                self.logger.exception(f"Error getting candidates for interview {interview_id}: {e}")
             return []

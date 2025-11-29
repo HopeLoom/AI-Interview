@@ -2,122 +2,130 @@
 
 This document describes the architecture of the AI Interview Simulation Platform, including both backend and frontend components.
 
+## System Overview
+
+```mermaid
+flowchart LR
+    subgraph Frontend["🌐 Frontend (React + TypeScript)"]
+        A[User Interface]
+        B[WebSocket Client]
+        C[REST API Client]
+    end
+    
+    subgraph Backend["⚙️ Backend (FastAPI + Python)"]
+        D[WebSocket Handler]
+        E[REST API Routes]
+        F[Master Agent]
+        G[Specialized Agents]
+        H[LLM Providers]
+        I[(Database)]
+    end
+    
+    A --> B
+    A --> C
+    B --> D
+    C --> E
+    D --> F
+    E --> I
+    F --> G
+    G --> H
+    F --> I
+    G --> I
+    
+    style Frontend fill:#e1f5ff
+    style Backend fill:#fff4e1
+    style F fill:#ff6b6b
+    style H fill:#4ecdc4
+```
+
 ## Backend Architecture
 
 The backend is built with Python FastAPI and follows an agent-based architecture with a master agent orchestrating multiple specialized agents.
 
+### High-Level Architecture
+
 ```mermaid
-graph TB
-    subgraph "Client Layer"
-        FE[Frontend Client]
-    end
+flowchart LR
+    A[Frontend] -->|WebSocket| B[WebSocket Handler]
+    A -->|HTTP REST| C[API Routes]
     
-    subgraph "API Gateway"
-        WS[WebSocket Handler<br/>/ws]
-        REST[REST API Routes<br/>/api/*]
-    end
+    B --> D[Connection Manager]
+    D --> E[Master Agent]
     
-    subgraph "Connection Management"
-        CM[ConnectionManager]
-        UMIM[UserMasterInstanceManager]
-    end
+    E --> F[Panelist Agents]
+    E --> G[Activity Agent]
+    E --> H[Evaluation Agent]
     
-    subgraph "Master Agent System"
-        MA[Master Agent<br/>Orchestrator]
-        ITT[Interview Topic Tracker]
-        MM[Master Memory]
-    end
+    F --> I[LLM Providers]
+    G --> I
+    H --> I
+    E --> I
     
-    subgraph "Specialized Agents"
-        PA1[Panelist Agent 1]
-        PA2[Panelist Agent 2]
-        AA[Activity Agent<br/>Code Monitor]
-        EA[Evaluation Agent<br/>Scoring]
-    end
+    E --> J[(Database)]
+    F --> K[Memory System]
+    E --> K
     
-    subgraph "Core Services"
-        DB[(Database<br/>Firebase/PostgreSQL/SQLite)]
-        LLM[LLM Providers<br/>OpenAI/DeepSeek/Gemini/Grok]
-        SPEECH[Speech Services<br/>TTS/STT]
-        IMG[Image Generator]
-        MEMORY[Memory System<br/>Character/Recall Memory]
-    end
+    C --> L[Configuration Service]
+    C --> M[Company APIs]
+    C --> J
     
-    subgraph "Configuration & Setup"
-        ICS[Interview Configuration Service]
-        IDA[Interview Details Agent]
-        CFA[Candidate Profile Generator]
-        PF[Panelist Factory]
-    end
+    style E fill:#ff6b6b
+    style I fill:#4ecdc4
+    style J fill:#95e1d3
+```
+
+### Agent Communication Flow
+
+```mermaid
+flowchart TD
+    A[Frontend Client] -->|1. WebSocket Message| B[Connection Manager]
+    B -->|2. Route Message| C[Master Agent]
     
-    subgraph "REST API Routes"
-        CONFIG[Interview Configuration]
-        COMPANY[Company Management]
-        CANDIDATE[Candidate Management]
-        JOB[Job Postings]
-        APP[Applications]
-        EVAL[Evaluations]
-        IMG_UPLOAD[Image Upload]
-        VIDEO[Video Chunk]
-    end
+    C -->|3. Determine Action| D{Message Type}
     
-    FE -->|WebSocket| WS
-    FE -->|HTTP| REST
+    D -->|Interview Message| E[Panelist Agent]
+    D -->|Code Activity| F[Activity Agent]
+    D -->|Evaluation| G[Evaluation Agent]
     
-    WS --> CM
-    WS --> UMIM
-    CM --> MA
-    UMIM --> MA
+    E -->|4. Process with LLM| H[LLM Provider]
+    F -->|4. Analyze Code| H
+    G -->|4. Evaluate| H
     
-    MA --> ITT
-    MA --> MM
-    MA -->|Orchestrates| PA1
-    MA -->|Orchestrates| PA2
-    MA -->|Orchestrates| AA
-    MA -->|Orchestrates| EA
+    E -->|5. Update Memory| I[Memory System]
+    C -->|5. Track State| I
     
-    PA1 --> LLM
-    PA2 --> LLM
-    AA --> LLM
-    EA --> LLM
-    MA --> LLM
+    C -->|6. Response| B
+    B -->|7. WebSocket| A
     
-    PA1 --> MEMORY
-    PA2 --> MEMORY
-    MA --> MEMORY
+    style C fill:#ff6b6b
+    style H fill:#4ecdc4
+    style I fill:#fce38a
+```
+
+### API Routes Structure
+
+```mermaid
+flowchart TD
+    A[FastAPI App] --> B[WebSocket /ws]
+    A --> C[REST API /api]
     
-    AA -->|Monitors| DB
-    EA --> DB
-    MA --> DB
+    C --> D[Configuration]
+    C --> E[Company]
+    C --> F[Candidates]
+    C --> G[Job Postings]
+    C --> H[Applications]
+    C --> I[Evaluation]
+    C --> J[Upload]
     
-    ICS --> IDA
-    ICS --> CFA
-    ICS --> PF
-    PF --> IMG
+    D --> K[Interview Config Service]
+    E --> L[(Database)]
+    F --> L
+    G --> L
+    H --> L
+    I --> M[Evaluation Agent]
     
-    REST --> CONFIG
-    REST --> COMPANY
-    REST --> CANDIDATE
-    REST --> JOB
-    REST --> APP
-    REST --> EVAL
-    REST --> IMG_UPLOAD
-    REST --> VIDEO
-    
-    CONFIG --> ICS
-    COMPANY --> DB
-    CANDIDATE --> DB
-    JOB --> DB
-    APP --> DB
-    EVAL --> EA
-    
-    WS --> SPEECH
-    
-    style MA fill:#ff6b6b
-    style LLM fill:#4ecdc4
-    style DB fill:#95e1d3
-    style CM fill:#fce38a
-    style WS fill:#f38181
+    style A fill:#ff6b6b
+    style L fill:#95e1d3
 ```
 
 ### Backend Component Details
@@ -156,153 +164,128 @@ graph TB
   - Graph-based memory structure
 
 #### **Communication Flow**
-```
-Frontend ↔ WebSocket ↔ ConnectionManager ↔ Master Agent
-                                         ↓
-                          ┌──────────────┼──────────────┐
-                          ↓              ↓              ↓
-                    Panelist Agents  Activity Agent  Evaluation Agent
-                          ↓              ↓              ↓
-                          └──────────────┼──────────────┘
-                                         ↓
-                                    LLM Providers
-                                         ↓
-                                    Database/Memory
+
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant W as WebSocket Handler
+    participant M as Master Agent
+    participant P as Panelist Agent
+    participant A as Activity Agent
+    participant L as LLM Provider
+    participant D as Database
+    
+    F->>W: Send Message
+    W->>M: Route Message
+    M->>M: Determine Action
+    
+    alt Interview Message
+        M->>P: Forward to Panelist
+        P->>L: Generate Response
+        L->>P: Return Response
+        P->>M: Send Back
+    else Code Activity
+        M->>A: Monitor Activity
+        A->>L: Analyze Code
+        L->>A: Return Analysis
+        A->>M: Send Results
+    end
+    
+    M->>D: Save State
+    M->>W: Send Response
+    W->>F: Update UI
 ```
 
 ## Frontend Architecture
 
 The frontend is a React TypeScript application with mode-aware routing and real-time WebSocket communication.
 
+### Component Hierarchy
+
 ```mermaid
-graph TB
-    subgraph "Entry Point"
-        APP[App.tsx]
-        MAIN[main.tsx]
-    end
+flowchart TD
+    A[App.tsx] --> B[ModeAwareRouter]
+    B --> C[Context Providers]
     
-    subgraph "Routing Layer"
-        ROUTER[ModeAwareRouter]
-        PROTECTED[Protected Routes]
-        MODE_LOGIN[Mode-Specific Login]
-    end
+    C --> D[UserContext]
+    C --> E[InterviewContext]
+    C --> F[ConfigurationContext]
+    C --> G[CameraContext]
     
-    subgraph "Context Providers"
-        USER[UserContext]
-        INTERVIEW[InterviewContext]
-        CONFIG[ConfigurationContext]
-        CAMERA[CameraContext]
-        COMPANY[CompanyContext]
-        CC[CompanyCandidateContext]
-    end
+    B --> H[Pages]
     
-    subgraph "Pages"
-        HOME[Home]
-        CAND_LOGIN[Candidate Login]
-        COMP_LOGIN[Company Login]
-        CC_LOGIN[Company Candidate Login]
-        CAND_DASH[Candidate Dashboard]
-        COMP_DASH[Company Dashboard]
-        CONFIG_WIZ[Configuration Wizard]
-        INTERVIEW_LAYOUT[Interview Layout]
-        RESULTS[Results]
-    end
+    H --> I[Login Pages]
+    H --> J[Dashboard Pages]
+    H --> K[Interview Layout]
+    H --> L[Configuration Wizard]
     
-    subgraph "Interview Components"
-        HEADER[Header]
-        VIDEO[Video Participants]
-        CHAT[Chat Panel]
-        MEDIA[Media Controls]
-        CODING[Live Coding Layout]
-        PROBLEM[Problem Statement]
-        PROGRESS[Progress Tracker]
-    end
+    K --> M[Video Participants]
+    K --> N[Chat Panel]
+    K --> O[Live Coding]
+    K --> P[Media Controls]
     
-    subgraph "Configuration Components"
-        JOB_DETAILS[Job Details Step]
-        RESUME[Resume Upload]
-        REVIEW[Review & Generate]
-        RESULTS_PANEL[Configuration Results]
-    end
+    L --> Q[Job Details]
+    L --> R[Resume Upload]
+    L --> S[Review & Generate]
     
-    subgraph "Services Layer"
-        WS[WebSocket Service]
-        API[API Client]
-        CAND_SVC[Candidate Service]
-        COMP_SVC[Company Service]
-        CONFIG_SVC[Config Service]
-        EVAL_SVC[Evaluation Service]
-        AUDIO[Audio Streaming]
-    end
+    B --> T[WebSocket Service]
+    J --> U[API Services]
+    L --> U
     
-    subgraph "Hooks"
-        USE_INTERVIEW[useInterviewState]
-        USE_AUDIO[useAudioStreaming]
-        USE_CAMERA[useCameraStream]
-        USE_ERROR[useErrorHandler]
-    end
+    style B fill:#ff6b6b
+    style T fill:#4ecdc4
+    style K fill:#95e1d3
+```
+
+### State Management Flow
+
+```mermaid
+flowchart LR
+    A[User Actions] --> B[Context Providers]
     
-    subgraph "UI Components"
-        SHADCN[shadcn/ui Components]
-        NAV[Navigation]
-    end
+    B --> C[UserContext]
+    B --> D[InterviewContext]
+    B --> E[ConfigurationContext]
     
-    MAIN --> APP
-    APP --> WS
-    APP --> ROUTER
+    C --> F[WebSocket Service]
+    D --> F
+    E --> G[API Client]
     
-    ROUTER --> PROTECTED
-    ROUTER --> MODE_LOGIN
-    ROUTER --> USER
-    ROUTER --> INTERVIEW
-    ROUTER --> CONFIG
-    ROUTER --> CAMERA
+    F --> H[Backend WebSocket]
+    G --> I[Backend REST API]
     
-    PROTECTED --> CAND_LOGIN
-    PROTECTED --> COMP_LOGIN
-    PROTECTED --> CC_LOGIN
-    PROTECTED --> CAND_DASH
-    PROTECTED --> COMP_DASH
-    PROTECTED --> CONFIG_WIZ
-    PROTECTED --> INTERVIEW_LAYOUT
-    PROTECTED --> RESULTS
+    H --> J[Update Context]
+    I --> J
     
-    INTERVIEW_LAYOUT --> HEADER
-    INTERVIEW_LAYOUT --> VIDEO
-    INTERVIEW_LAYOUT --> CHAT
-    INTERVIEW_LAYOUT --> MEDIA
-    INTERVIEW_LAYOUT --> CODING
-    INTERVIEW_LAYOUT --> PROBLEM
-    INTERVIEW_LAYOUT --> PROGRESS
+    J --> K[UI Re-render]
     
-    CONFIG_WIZ --> JOB_DETAILS
-    CONFIG_WIZ --> RESUME
-    CONFIG_WIZ --> REVIEW
-    CONFIG_WIZ --> RESULTS_PANEL
+    style B fill:#ff6b6b
+    style F fill:#4ecdc4
+    style G fill:#4ecdc4
+```
+
+### Interview Page Structure
+
+```mermaid
+flowchart TD
+    A[Interview Layout] --> B[Header]
+    A --> C[Video Participants]
+    A --> D[Chat Panel]
+    A --> E[Problem Statement]
+    A --> F[Live Coding Editor]
+    A --> G[Media Controls]
     
-    INTERVIEW_LAYOUT --> WS
-    CAND_DASH --> API
-    COMP_DASH --> API
-    CONFIG_WIZ --> API
+    C --> H[useCameraStream Hook]
+    D --> I[WebSocket Service]
+    F --> I
+    G --> J[useAudioStreaming Hook]
     
-    WS --> USE_INTERVIEW
-    VIDEO --> USE_CAMERA
-    MEDIA --> USE_AUDIO
+    I --> K[Backend]
+    H --> K
+    J --> K
     
-    API --> CAND_SVC
-    API --> COMP_SVC
-    API --> CONFIG_SVC
-    API --> EVAL_SVC
-    
-    INTERVIEW_LAYOUT --> SHADCN
-    CAND_DASH --> SHADCN
-    COMP_DASH --> SHADCN
-    
-    style ROUTER fill:#ff6b6b
-    style WS fill:#4ecdc4
-    style INTERVIEW_LAYOUT fill:#95e1d3
-    style USER fill:#fce38a
-    style INTERVIEW fill:#f38181
+    style A fill:#ff6b6b
+    style I fill:#4ecdc4
 ```
 
 ### Frontend Component Details

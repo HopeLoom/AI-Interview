@@ -1,59 +1,75 @@
-from core.prompting.base import BaseActivityPromptStrategy
-from core.prompting.schema import LanguageModelClassification
-from core.resource.model_providers.schema import AssistantChatMessage, ChatMessage, MasterChatMessage
-from core.prompting.schema import ChatPrompt
 import json
-from typing import List
-from activity_agent.base import ActivityProgressAnalysisOutputMessage, ActivityProgressWithRespectToQuestionOutputMessage, ActivityProgressAnalysisSummaryForPanelistOutputMessage, PromptInput
+
 from interview_details_agent.base import BaseInterviewConfiguration, InterviewRoundDetails
+
+from activity_agent.base import (
+    ActivityProgressAnalysisOutputMessage,
+    ActivityProgressAnalysisSummaryForPanelistOutputMessage,
+    ActivityProgressWithRespectToQuestionOutputMessage,
+    PromptInput,
+)
+from core.prompting.base import BaseActivityPromptStrategy
+from core.prompting.schema import ChatPrompt, LanguageModelClassification
+from core.resource.model_providers.schema import (
+    AssistantChatMessage,
+    ChatMessage,
+)
+
 
 class ActivityPromptStrategy(BaseActivityPromptStrategy):
     def __init__(self, configuration, interview_config):
-        self.config = configuration 
-        self.interview_config:BaseInterviewConfiguration = interview_config
+        self.config = configuration
+        self.interview_config: BaseInterviewConfiguration = interview_config
         self.job_details = self.interview_config.job_details
-        self.interview_round_details:InterviewRoundDetails = self.interview_config.interview_round_details
+        self.interview_round_details: InterviewRoundDetails = (
+            self.interview_config.interview_round_details
+        )
         self.character_data = self.interview_config.character_data
         self.activity_details = self.interview_config.activity_details
 
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
 
-    def build_prompt(self, prompt_input:PromptInput) -> ChatPrompt:
-
+    def build_prompt(self, prompt_input: PromptInput) -> ChatPrompt:
         response_type = prompt_input.response_type
 
         if response_type == ActivityPromptStrategy.RESPONSE_TYPE.ACTIVITY_HIGH_LEVEL_ANALYSIS:
-
             system_message = self._generate_activity_progress_prompt(prompt_input)
-            
-        elif response_type == ActivityPromptStrategy.RESPONSE_TYPE.ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION:
 
-            system_message = self._generate_monitor_activity_progress_with_respect_to_question_prompt(prompt_input)
+        elif (
+            response_type
+            == ActivityPromptStrategy.RESPONSE_TYPE.ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION
+        ):
+            system_message = (
+                self._generate_monitor_activity_progress_with_respect_to_question_prompt(
+                    prompt_input
+                )
+            )
 
-        elif response_type == ActivityPromptStrategy.RESPONSE_TYPE.ACTIVITY_ANALYSIS_SUMMARY_FOR_PANELIST:
+        elif (
+            response_type
+            == ActivityPromptStrategy.RESPONSE_TYPE.ACTIVITY_ANALYSIS_SUMMARY_FOR_PANELIST
+        ):
+            system_message = self._generate_monitor_activity_analysis_for_panelist_prompt(
+                prompt_input
+            )
 
-            system_message = self._generate_monitor_activity_analysis_for_panelist_prompt(prompt_input)
-            
-        prompt = ChatPrompt(
-            messages = [
-                ChatMessage.system(system_message)
-            ]
-        )
+        prompt = ChatPrompt(messages=[ChatMessage.system(system_message)])
 
         return prompt
 
-    def _generate_activity_progress_prompt(self, prompt_input:PromptInput) ->str:
-        
+    def _generate_activity_progress_prompt(self, prompt_input: PromptInput) -> str:
         output = ActivityProgressAnalysisOutputMessage()
-        interview_round_two_description = self.interview_round_details.rounds["interview_round_2"].description
+        interview_round_two_description = self.interview_round_details.rounds[
+            "interview_round_2"
+        ].description
 
         activity_progress_history = prompt_input.activity_progress_history
         if len(activity_progress_history) > 0:
             activity_progress_history = ",".join(activity_progress_history)
         else:
             activity_progress_history = "None"
-            
+
         code_data_from_candidate = prompt_input.activity_code_from_candidate
         starter_code = prompt_input.starter_code
 
@@ -84,15 +100,15 @@ You must NOT care about edge cases, error handling, syntax errors and return sta
         """
         return prompt
 
-
-    def _generate_monitor_activity_progress_with_respect_to_question_prompt(self, prompt_input:PromptInput)->str:
-        
+    def _generate_monitor_activity_progress_with_respect_to_question_prompt(
+        self, prompt_input: PromptInput
+    ) -> str:
         output = ActivityProgressWithRespectToQuestionOutputMessage()
         interview_round_two = self.interview_round_details.rounds["interview_round_2"].description
         starter_code = prompt_input.starter_code
         code_data_from_candidate = prompt_input.activity_code_from_candidate
 
-        progress:ActivityProgressAnalysisOutputMessage = prompt_input.activity_progress_analysis  
+        progress: ActivityProgressAnalysisOutputMessage = prompt_input.activity_progress_analysis
 
         code_intrepretation = progress.code_intrepretation
         complexity_analysis = progress.complexity_analysis
@@ -138,14 +154,17 @@ Output consists of the following:
 10. if the question is completely solved in terms of logic with exceptions to edge cases, error handling, syntax errors and return statements, make sure that the remaining_things_to_do_with_respect_to_question is empty
         """
         return prompt
-    
-    def _generate_monitor_activity_analysis_for_panelist_prompt(self, prompt_input:PromptInput)->str:
-        
+
+    def _generate_monitor_activity_analysis_for_panelist_prompt(
+        self, prompt_input: PromptInput
+    ) -> str:
         output = ActivityProgressAnalysisSummaryForPanelistOutputMessage()
         interview_round_two = self.interview_round_details.rounds["interview_round_2"].description
 
-        code_interpretation:ActivityProgressAnalysisOutputMessage = prompt_input.activity_progress_analysis
-        activity_progress_with_respect_to_question:ActivityProgressWithRespectToQuestionOutputMessage = prompt_input.activity_progress_with_respect_to_question
+        code_interpretation: ActivityProgressAnalysisOutputMessage = (
+            prompt_input.activity_progress_analysis
+        )
+        activity_progress_with_respect_to_question: ActivityProgressWithRespectToQuestionOutputMessage = prompt_input.activity_progress_with_respect_to_question
         starter_code = prompt_input.starter_code
         code_data_from_candidate = prompt_input.activity_code_from_candidate
 
@@ -153,11 +172,17 @@ Output consists of the following:
         complexity_analysis = code_interpretation.complexity_analysis
         logic_analysis = code_interpretation.logic_analysis
 
-        code_intrepretation_with_respect_to_question = activity_progress_with_respect_to_question.code_intrepretation_with_respect_to_question
-        complexity_analysis_with_respect_to_question = activity_progress_with_respect_to_question.complexity_analysis_with_respect_to_question
-        logic_analysis_with_respect_to_question = activity_progress_with_respect_to_question.logic_analysis_with_respect_to_question
+        code_intrepretation_with_respect_to_question = (
+            activity_progress_with_respect_to_question.code_intrepretation_with_respect_to_question
+        )
+        complexity_analysis_with_respect_to_question = (
+            activity_progress_with_respect_to_question.complexity_analysis_with_respect_to_question
+        )
+        logic_analysis_with_respect_to_question = (
+            activity_progress_with_respect_to_question.logic_analysis_with_respect_to_question
+        )
         remaining_things_to_do_with_respect_to_question = activity_progress_with_respect_to_question.remaining_things_to_do_with_respect_to_question
-        
+
         prompt = f"""
 You are a code monitoring agent assisting an interview panel in evaluating the candidate’s progress in the current interview round.
 - **Technical Problem Details presented to the candidate:**
@@ -193,8 +218,7 @@ if the question is completely solved in terms of logic with exceptions to edge c
 
         """
         return prompt
-    
-        
+
     def parse_response_content(self, response: AssistantChatMessage):
         # Assistant chat message consists of the following
         # content: str

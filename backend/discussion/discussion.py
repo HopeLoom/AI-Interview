@@ -1,146 +1,220 @@
-from pydantic import Field
-from typing import Any
-from discussion.base import BaseDiscussion, BaseDiscussionConfiguration, FeedbackOutput, ConsensusOutput, ActivityCodeInputMessage, ActivityDetailsInputMessage, FeedbackInput, ConsensusInput
-from core.resource.model_providers.schema import ChatMessage, AssistantChatMessage, ChatModelProvider
-from core.prompting.prompt_strategies.discussion_one_shot import DiscussionPromptStrategy
 import json
-from interview.interview_agent.base import CharacterDataOutput, CharacterData
-from activity.base import BaseActivityConfiguration, ActivityCodeGenerationOutputMessage, ActivityDetailsOutputMessage
 from collections import defaultdict
+from typing import Any
+
+from activity.base import (
+    ActivityCodeGenerationOutputMessage,
+    ActivityDetailsOutputMessage,
+    BaseActivityConfiguration,
+)
+from discussion.base import (
+    ActivityCodeInputMessage,
+    ActivityDetailsInputMessage,
+    BaseDiscussion,
+    BaseDiscussionConfiguration,
+    ConsensusInput,
+    ConsensusOutput,
+    FeedbackInput,
+    FeedbackOutput,
+)
+from interview.interview_agent.base import CharacterData, CharacterDataOutput
+
+from core.prompting.prompt_strategies.discussion_one_shot import DiscussionPromptStrategy
+from core.resource.model_providers.schema import (
+    AssistantChatMessage,
+    ChatMessage,
+    ChatModelProvider,
+)
+
 
 # when creating a new agent, we need to pass the settings and llm_provider
 class Discussion(BaseDiscussion):
-    
     config: BaseDiscussionConfiguration = BaseDiscussionConfiguration()
     prompt_strategy: Any = None
-    def __init__(self, discussion_id, discussion_config:BaseDiscussionConfiguration, llm_provider:ChatModelProvider, character_data:CharacterDataOutput):
-        prompt_strategy = DiscussionPromptStrategy(discussion_config)  
+
+    def __init__(
+        self,
+        discussion_id,
+        discussion_config: BaseDiscussionConfiguration,
+        llm_provider: ChatModelProvider,
+        character_data: CharacterDataOutput,
+    ):
+        prompt_strategy = DiscussionPromptStrategy(discussion_config)
         super().__init__(
-            discussion_id = discussion_id,
-            discussion_config = discussion_config,
-            llm_provider = llm_provider,
-            prompt_strategy = prompt_strategy,
+            discussion_id=discussion_id,
+            discussion_config=discussion_config,
+            llm_provider=llm_provider,
+            prompt_strategy=prompt_strategy,
         )
-        print (f"discussion id: {discussion_id}")
+        print(f"discussion id: {discussion_id}")
         self.prompt_strategy = prompt_strategy
-        self.character_data:CharacterDataOutput = character_data
-    
+        self.character_data: CharacterDataOutput = character_data
+
     def build_prompt(self, **kwargs):
         return super().build_prompt(**kwargs)
-    
-    def parse_and_process_response_feedback_info(self, response: AssistantChatMessage, prompt: ChatMessage) -> FeedbackOutput:
-        data = self.prompt_strategy.parse_response_content(response) 
+
+    def parse_and_process_response_feedback_info(
+        self, response: AssistantChatMessage, prompt: ChatMessage
+    ) -> FeedbackOutput:
+        data = self.prompt_strategy.parse_response_content(response)
         json_data = json.loads(response.content)
-        #print ("feedback info:", json_data)
+        # print ("feedback info:", json_data)
         data = FeedbackOutput.model_validate(json_data)
         return data
-    
-    def parse_and_process_response_activity_info(self, response: AssistantChatMessage, prompt: ChatMessage) -> ActivityDetailsOutputMessage:
-        data = self.prompt_strategy.parse_response_content(response) 
+
+    def parse_and_process_response_activity_info(
+        self, response: AssistantChatMessage, prompt: ChatMessage
+    ) -> ActivityDetailsOutputMessage:
+        data = self.prompt_strategy.parse_response_content(response)
         json_data = json.loads(response.content)
-        #print ("activity info:", json_data)
+        # print ("activity info:", json_data)
         data = ActivityDetailsOutputMessage.model_validate(json_data)
         return data
-    
-    def parse_and_process_response_activity_code_info(self, response: AssistantChatMessage, prompt: ChatMessage) -> ActivityCodeGenerationOutputMessage:
-        data = self.prompt_strategy.parse_response_content(response) 
+
+    def parse_and_process_response_activity_code_info(
+        self, response: AssistantChatMessage, prompt: ChatMessage
+    ) -> ActivityCodeGenerationOutputMessage:
+        data = self.prompt_strategy.parse_response_content(response)
         json_data = json.loads(response.content)
-        #print ("activity code info:", json_data)
+        # print ("activity code info:", json_data)
         data = ActivityCodeGenerationOutputMessage.model_validate(json_data)
         return data
-    
-    def parse_and_process_response_consensus_info(self, response: AssistantChatMessage, prompt: ChatMessage) -> ConsensusOutput:
-        data = self.prompt_strategy.parse_response_content(response) 
+
+    def parse_and_process_response_consensus_info(
+        self, response: AssistantChatMessage, prompt: ChatMessage
+    ) -> ConsensusOutput:
+        data = self.prompt_strategy.parse_response_content(response)
         json_data = json.loads(response.content)
-        #print ("consensus info:", json_data)
+        # print ("consensus info:", json_data)
         data = ConsensusOutput.model_validate(json_data)
         return data
-    
-    async def get_feedback_information(self, prompt_details:FeedbackInput):
-        prompt = self.build_prompt(response_type=DiscussionPromptStrategy.RESPONSE_TYPE.FEEDBACK_INFO, prompt_details=prompt_details)
-        data =  await super().get_feedback_information(prompt)
+
+    async def get_feedback_information(self, prompt_details: FeedbackInput):
+        prompt = self.build_prompt(
+            response_type=DiscussionPromptStrategy.RESPONSE_TYPE.FEEDBACK_INFO,
+            prompt_details=prompt_details,
+        )
+        data = await super().get_feedback_information(prompt)
         return data
-    
-    async def get_activity_details(self, prompt_details:ActivityDetailsInputMessage):
-        prompt = self.build_prompt(response_type=DiscussionPromptStrategy.RESPONSE_TYPE.ACTIVITY_INFO, prompt_details=prompt_details)
+
+    async def get_activity_details(self, prompt_details: ActivityDetailsInputMessage):
+        prompt = self.build_prompt(
+            response_type=DiscussionPromptStrategy.RESPONSE_TYPE.ACTIVITY_INFO,
+            prompt_details=prompt_details,
+        )
         data = await super().get_activity_details(prompt)
         return data
-    
-    async def get_activity_code_details(self, prompt_details:ActivityCodeInputMessage):
-        prompt = self.build_prompt(response_type=DiscussionPromptStrategy.RESPONSE_TYPE.ACTIVITY_CODE_INFO, prompt_details=prompt_details)
+
+    async def get_activity_code_details(self, prompt_details: ActivityCodeInputMessage):
+        prompt = self.build_prompt(
+            response_type=DiscussionPromptStrategy.RESPONSE_TYPE.ACTIVITY_CODE_INFO,
+            prompt_details=prompt_details,
+        )
         data = await super().get_activity_code_details(prompt)
         return data
-    
-    async def get_consensus_details(self, prompt_details:ConsensusInput):
-        prompt = self.build_prompt(response_type=DiscussionPromptStrategy.RESPONSE_TYPE.CONSENSUS_INFO, prompt_details=prompt_details)
+
+    async def get_consensus_details(self, prompt_details: ConsensusInput):
+        prompt = self.build_prompt(
+            response_type=DiscussionPromptStrategy.RESPONSE_TYPE.CONSENSUS_INFO,
+            prompt_details=prompt_details,
+        )
         data = await super().get_consensus_details(prompt)
         return data
-    
+
     # so we want to run the discussion among the different characters until a consensus is reached
     # so since for the character data, we have basic information about them, we can use it to generate a dialog
-    # maybe as input, we receive activity data that is generated by the activity agent. we can basically have a discussion around it 
+    # maybe as input, we receive activity data that is generated by the activity agent. we can basically have a discussion around it
     # during the discussion, since HR manager is fixed, we can use this character to generate activity information and let other characters give feedback. +
-    async def run(self, activity_config:BaseActivityConfiguration):
+    async def run(self, activity_config: BaseActivityConfiguration):
         counter = 0
         while True and counter < 10:
             feedback_data = defaultdict(list)
             for character_data in self.character_data:
-                character_data:CharacterData = character_data
+                character_data: CharacterData = character_data
                 if character_data.role != "HR Manager":
-                    feedback_input = FeedbackInput(character_data=character_data, activity_data=activity_config, previous_feedback=feedback_data[character_data.role], isCode=False)
-                    feedback = await self.get_feedback_information(feedback_input)        # given activity and character data, we would generate feedback on the activity
-                    print (f"feedback for {character_data.role}: {feedback}")
+                    feedback_input = FeedbackInput(
+                        character_data=character_data,
+                        activity_data=activity_config,
+                        previous_feedback=feedback_data[character_data.role],
+                        isCode=False,
+                    )
+                    feedback = await self.get_feedback_information(
+                        feedback_input
+                    )  # given activity and character data, we would generate feedback on the activity
+                    print(f"feedback for {character_data.role}: {feedback}")
                     feedback_data[character_data.role].append(feedback)
 
-            # check if consensus is reached or not from the feedback data 
+            # check if consensus is reached or not from the feedback data
             feedback_output = []
             for key in feedback_data.keys():
-                feedback_output.append(f"feedback for {key}: {feedback_data[key][-1]}")      # get the latest feedback from the characters
-            consensus_input = ConsensusInput(feedbackData=feedback_output, activity_data=activity_config)
-            consensus:ConsensusOutput = await self.get_consensus_details(consensus_input)
-            print (f"consensus: {consensus}")
+                feedback_output.append(
+                    f"feedback for {key}: {feedback_data[key][-1]}"
+                )  # get the latest feedback from the characters
+            consensus_input = ConsensusInput(
+                feedbackData=feedback_output, activity_data=activity_config
+            )
+            consensus: ConsensusOutput = await self.get_consensus_details(consensus_input)
+            print(f"consensus: {consensus}")
             if consensus.consensus_type == "REACHED":
                 # so if we reach a consensus, then we can break out of the loop
-                print ("consensus reached")
+                print("consensus reached")
                 break
             else:
-                activity_details_input = ActivityDetailsInputMessage(activity_data=activity_config, consensus_output=consensus)
-                activity_details:ActivityDetailsOutputMessage = await self.get_activity_details(activity_details_input)
-                print (f"activity details: {activity_details}")
+                activity_details_input = ActivityDetailsInputMessage(
+                    activity_data=activity_config, consensus_output=consensus
+                )
+                activity_details: ActivityDetailsOutputMessage = await self.get_activity_details(
+                    activity_details_input
+                )
+                print(f"activity details: {activity_details}")
                 activity_config.activity_details = activity_details
                 counter += 1
-        
+
         # at this point, we have updated the activity details with the feedback from the characters
 
         # now we can have another discussion to generate activity code
-        
-        counter = 0 
+
+        counter = 0
 
         while True and counter < 10:
             feedback_data = defaultdict(list)
             for character_data in self.character_data:
-                character_data:CharacterData = character_data
+                character_data: CharacterData = character_data
                 if character_data.role != "HR Manager":
-                    feedback_input = FeedbackInput(character_data=character_data, activity_data=activity_config, previous_feedback=feedback_data[character_data.role], isCode=True)
-                    feedback = await self.get_feedback_information(feedback_input)        # given activity and character data, we would generate feedback on the activity
-                    print (f"feedback for {character_data.role}: {feedback}")
+                    feedback_input = FeedbackInput(
+                        character_data=character_data,
+                        activity_data=activity_config,
+                        previous_feedback=feedback_data[character_data.role],
+                        isCode=True,
+                    )
+                    feedback = await self.get_feedback_information(
+                        feedback_input
+                    )  # given activity and character data, we would generate feedback on the activity
+                    print(f"feedback for {character_data.role}: {feedback}")
                     feedback_data[character_data.role].append(feedback)
 
-            # check if consensus is reached or not from the feedback data 
+            # check if consensus is reached or not from the feedback data
             feedback_output = []
             for key in feedback_data.keys():
-                feedback_output.append(f"feedback for {key}: {feedback_data[key][-1]}")      # get the latest feedback from the characters
-            consensus_input = ConsensusInput(feedbackData=feedback_output, activity_data=activity_config)
-            consensus:ConsensusOutput = await self.get_consensus_details(consensus_input)
-            print (f"consensus: {consensus}")
+                feedback_output.append(
+                    f"feedback for {key}: {feedback_data[key][-1]}"
+                )  # get the latest feedback from the characters
+            consensus_input = ConsensusInput(
+                feedbackData=feedback_output, activity_data=activity_config
+            )
+            consensus: ConsensusOutput = await self.get_consensus_details(consensus_input)
+            print(f"consensus: {consensus}")
             if consensus.consensus_type == "REACHED":
                 # so if we reach a consensus, then we can break out of the loop
-                print ("consensus reached")
+                print("consensus reached")
                 break
             else:
-                activity_details_input = ActivityCodeInputMessage(activity_data=activity_config, consensus_output=consensus)
-                activity_details:ActivityCodeGenerationOutputMessage = await self.get_activity_code_details(activity_details_input)
-                print (f"activity code details: {activity_details}")
+                activity_details_input = ActivityCodeInputMessage(
+                    activity_data=activity_config, consensus_output=consensus
+                )
+                activity_details: ActivityCodeGenerationOutputMessage = (
+                    await self.get_activity_code_details(activity_details_input)
+                )
+                print(f"activity code details: {activity_details}")
                 activity_config.activity_code_generation = activity_details
                 counter += 1
-        

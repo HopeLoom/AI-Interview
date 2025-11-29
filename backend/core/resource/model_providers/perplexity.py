@@ -1,45 +1,38 @@
+import abc
 import enum
-from core.resource.model_providers.schema import (
-    ChatModelProvider, 
-    EmbeddingModelProvider,
-    ChatModelInfo,
-    ModelInfo,
-    ModelResponse,
-    AssistantChatMessage,
-    ModelProviderName,
-    ModelProviderService,
-    ModelProviderSettings,
-    SystemSettings,
-    ModelProviderBudget,
-    ModelProviderConfiguration,
-    ModelProviderCredentials,
-    ModelProviderUsage,
-    ChatMessage,
-    ChatModelResponse,
-    EmbeddingModelInfo,
-    EmbeddingModelResponse,
-    )
-from core.prompting.schema import ChatPrompt
+import json
+import traceback
+import typing
+from typing import Callable, Generic, Optional, TypeVar
 
-from typing import Optional, Callable
-from openai import AsyncOpenAI 
-import tiktoken
-import yaml
-from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 import httpx
 import openai
-import traceback
-import abc
-import typing
-from typing import Generic, TypeVar
-import json 
+import tiktoken
+from openai import AsyncOpenAI
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+
+from core.prompting.schema import ChatPrompt
+from core.resource.model_providers.schema import (
+    AssistantChatMessage,
+    ChatMessage,
+    ChatModelInfo,
+    ChatModelProvider,
+    ChatModelResponse,
+    EmbeddingModelProvider,
+    EmbeddingModelResponse,
+    ModelProviderConfiguration,
+    ModelProviderCredentials,
+    ModelProviderName,
+    ModelProviderService,
+    SystemSettings,
+)
 
 # You can customize these as needed
 RETRY_ATTEMPTS = 3
 RETRY_WAIT_SECONDS = 2
 
 
- # Define which exceptions are retryable
+# Define which exceptions are retryable
 RETRYABLE_ERRORS = (
     httpx.TimeoutException,
     httpx.ConnectError,
@@ -48,38 +41,45 @@ RETRYABLE_ERRORS = (
     openai.APIConnectionError,
 )
 
+
 class PerplexityModelName(str, enum.Enum):
-    SONAR_PRO:str = "sonar-pro"
+    SONAR_PRO: str = "sonar-pro"
+
 
 PERPLEXITY_CHAT_MODELS = {
-    info.name:info 
+    info.name: info
     for info in [
         ChatModelInfo(
             name=PerplexityModelName.SONAR_PRO,
-            service = ModelProviderService.CHAT,
+            service=ModelProviderService.CHAT,
             provider_name=ModelProviderName.Perplexity,
             max_tokens=50000,
             has_function_call_api=True,
-            completion_token_cost=0.03/1000,
-            prompt_token_cost=0.01/1000
+            completion_token_cost=0.03 / 1000,
+            prompt_token_cost=0.01 / 1000,
         )
     ]
 }
 
+
 class PerplexityConfiguration(ModelProviderConfiguration):
-    fix_failed_tries:int = 3
+    fix_failed_tries: int = 3
+
 
 class PerplexityCredentials(ModelProviderCredentials):
-    api_key:str = ""
-    api_type:str = ""
-    organization:str = ""
+    api_key: str = ""
+    api_type: str = ""
+    organization: str = ""
+
 
 class PerplexitySettings(SystemSettings):
     configuration: PerplexityConfiguration
     credentials: Optional[PerplexityCredentials]
-    warning_token_threshold:float = 0.75
+    warning_token_threshold: float = 0.75
+
 
 S = TypeVar("S", bound=SystemSettings)
+
 
 class Configurable(abc.ABC, Generic[S]):
     """A base class for all configurable objects."""
@@ -87,17 +87,17 @@ class Configurable(abc.ABC, Generic[S]):
     prefix: str = ""
     default_settings: typing.ClassVar[S]
 
-class PerplexityProvider(Configurable[PerplexitySettings], ChatModelProvider, EmbeddingModelProvider):
 
+class PerplexityProvider(
+    Configurable[PerplexitySettings], ChatModelProvider, EmbeddingModelProvider
+):
     default_settings = PerplexitySettings(
-        name = PerplexityModelName.SONAR_PRO,
-        description = "Perplexity model provider",
-        configuration = PerplexityConfiguration(
-            retries_per_request=10, fix_failed_tries=3
-        ),
-        credentials=None    
+        name=PerplexityModelName.SONAR_PRO,
+        description="Perplexity model provider",
+        configuration=PerplexityConfiguration(retries_per_request=10, fix_failed_tries=3),
+        credentials=None,
     )
-    '''
+    """
         budget = ModelProviderBudget(
             total_budget=10,
             total_cost=0,
@@ -109,121 +109,110 @@ class PerplexityProvider(Configurable[PerplexitySettings], ChatModelProvider, Em
             )
            
         )
-    '''
-    #_budget: ModelProviderBudget
+    """
+    # _budget: ModelProviderBudget
     _configuration: PerplexityConfiguration
     _credentials: PerplexityCredentials
 
-    def __init__(
-            self,
-            settings
-    ):
+    def __init__(self, settings):
         if not settings:
             settings = self.default_settings
-        
+
         self.settings = settings
 
-        #self._budget = settings.budget
+        # self._budget = settings.budget
         self._configuration = settings.configuration
         self._credentials = settings.credentials
-        self._client = AsyncOpenAI(api_key=self._credentials.api_key, base_url="https://api.perplexity.ai")
+        self._client = AsyncOpenAI(
+            api_key=self._credentials.api_key, base_url="https://api.perplexity.ai"
+        )
 
     def get_token_limit(self, model_name):
         return PERPLEXITY_CHAT_MODELS[model_name].max_tokens
-    
+
     def get_tokenizer(self, model_name):
         return tiktoken.encoding_for_model(model_name)
-    
+
     def count_tokens(self, text, model_name):
         if model_name.startswith("gpt-4"):
             encoding_model_name = "gpt-4"
         else:
             encoding_model_name = "gpt-3.5-turbo"
-        encoder = self.get_tokenizer(encoding_model_name) 
+        encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
-    
+
     def count_message_tokens(self, messages, model_name):
         if isinstance(messages, ChatMessage):
             messages = [messages]
 
-        tokens_per_message = 4 
+        tokens_per_message = 4
         tokens_per_names = -1
         encoding_model = "gpt-3.5-turbo"
-        
+
         try:
             encoder = tiktoken.encoding_for_model(encoding_model)
         except KeyError:
             encoder = tiktoken.get_encoding("cl110k_base")
-        
+
         num_tokens = 0
         for message in messages:
-            num_tokens += tokens_per_message 
+            num_tokens += tokens_per_message
             content = message.content
             num_tokens += len(encoder.encode(content))
-        num_tokens += 3 
+        num_tokens += 3
         return num_tokens
-    
 
     def _get_embedding_args(self, model_name, **kwargs):
-        kwargs['model'] = model_name
+        kwargs["model"] = model_name
         return kwargs
-    
+
     _T = TypeVar("_T")
 
     async def create_chat_completion(
-        self, 
+        self,
         chat_messages: ChatPrompt,
         model_name: PerplexityModelName,
         completion_parser: Callable[[AssistantChatMessage], _T] = lambda _: None,
         is_json_mode: bool = True,
-        **kwargs
+        **kwargs,
     ):
-        if (is_json_mode):
-            response_format = {"type": kwargs.get("json_type"), "json_schema": kwargs.get("json_schema")}
+        if is_json_mode:
+            response_format = {
+                "type": kwargs.get("json_type"),
+                "json_schema": kwargs.get("json_schema"),
+            }
         else:
             response_format = None
 
-        total_cost = 0 
-        attempts = 0 
+        total_cost = 0
+        attempts = 0
 
         # combine model_name and response_format into keyword arguments
-        kwargs = {
-            "response_format": response_format,
-            "model": model_name
-        }
+        kwargs = {"response_format": response_format, "model": model_name}
 
         openai_messages = []
         for message in chat_messages.messages:
             role = message.role
             content = message.content
 
-            openai_messages.append({
-                "role": role,
-                "content": content
-            })
-
+            openai_messages.append({"role": role, "content": content})
 
         _response, _cost, t_input, t_output = await self._create_chat_completion(
-           openai_messages,kwargs
+            openai_messages, kwargs
         )
 
         total_cost += _cost
 
-
         if _response is None:
             _assistant_msg = json.dumps({"error": "Failed to get response from model"})
-            
-            assistant_msg =  AssistantChatMessage(
-                content = _assistant_msg,
-                role = "assistant"  
-            )
+
+            assistant_msg = AssistantChatMessage(content=_assistant_msg, role="assistant")
 
         else:
-            _assistant_msg = _response.choices[0].message ## get output from response
+            _assistant_msg = _response.choices[0].message  ## get output from response
 
-            assistant_msg =  AssistantChatMessage(
-                content = _assistant_msg.content,
-                role = _assistant_msg.role  
+            assistant_msg = AssistantChatMessage(
+                content=_assistant_msg.content, role=_assistant_msg.role
             )
 
         if completion_parser is None:
@@ -232,27 +221,22 @@ class PerplexityProvider(Configurable[PerplexitySettings], ChatModelProvider, Em
             parsed_result = completion_parser(assistant_msg)
 
         return ChatModelResponse(
-            response = AssistantChatMessage(
-                content = assistant_msg.content
-            ),
-            parsed_response = parsed_result,
-            model_info = PERPLEXITY_CHAT_MODELS[model_name],
-            prompt_tokens_used = t_input,
-            completion_tokens_used = t_output
+            response=AssistantChatMessage(content=assistant_msg.content),
+            parsed_response=parsed_result,
+            model_info=PERPLEXITY_CHAT_MODELS[model_name],
+            prompt_tokens_used=t_input,
+            completion_tokens_used=t_output,
         )
-
 
     @retry(
         stop=stop_after_attempt(RETRY_ATTEMPTS),
         wait=wait_fixed(RETRY_WAIT_SECONDS),
         retry=retry_if_exception_type(RETRYABLE_ERRORS),
-        reraise=True
+        reraise=True,
     )
     async def _create_chat_completion_with_retry(self, messages, kwargs):
-        return await self._client.chat.completions.create(
-            messages=messages,
-            **kwargs
-        )
+        return await self._client.chat.completions.create(messages=messages, **kwargs)
+
     # This function calls the openai chat completion API
     async def _create_chat_completion(self, messages, kwargs):
         if kwargs.get("response_format") is None:
@@ -277,38 +261,22 @@ class PerplexityProvider(Configurable[PerplexitySettings], ChatModelProvider, Em
 
         # Return fallback on error
         return None, 0, 0, 0
-    
 
     def _create_embedding(self, text, **kwargs):
+        async def _create_embedding_with_retry(text, **kwargs):
+            return await self._client.embeddings.create(input=text, **kwargs)
 
-        async def _create_embedding_with_retry(
-                text, **kwargs
-        ):
-            return await self._client.embeddings.create(
-                input=text,
-                **kwargs
-            )
-        
-        return _create_embedding_with_retry(
-            text, **kwargs
-        )
-    
+        return _create_embedding_with_retry(text, **kwargs)
 
-    async def create_embedding(
-            self, text, model_name, embedding_parser, **kwargs
-    ):
-        embedding_kwargs = self._get_embedding_args(
-            model_name, **kwargs
-        )
-        response = await self._create_embedding(
-            text, **embedding_kwargs
-        )   
+    async def create_embedding(self, text, model_name, embedding_parser, **kwargs):
+        embedding_kwargs = self._get_embedding_args(model_name, **kwargs)
+        response = await self._create_embedding(text, **embedding_kwargs)
 
         response = EmbeddingModelResponse(
-            embedding = embedding_parser(response.data[0].embedding),
-            model_info = model_name,
-            prompt_tokens_used = response.usage.prompt_tokens,
-            completion_tokens_used = 0
+            embedding=embedding_parser(response.data[0].embedding),
+            model_info=model_name,
+            prompt_tokens_used=response.usage.prompt_tokens,
+            completion_tokens_used=0,
         )
 
         return response

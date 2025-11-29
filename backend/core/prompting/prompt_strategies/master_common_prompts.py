@@ -1,32 +1,42 @@
-from master_agent.base import BaseInterviewConfiguration, InterviewTopicData, SubTopicData, InterviewRound, TOPICS_TECHNICAL_ROUND, SUBTOPICS_TECHNICAL_ROUND, SUBTOPICS_HR_ROUND, TOPICS_HR_ROUND
-from master_agent.base import InterviewRoundDetails
-from master_agent.base import BaseMasterConfiguration
-from master_agent.base import InterviewRoundDetails
-from typing import List 
-import os 
+from typing import List
+
 from core.database.base import DatabaseInterface
+from master_agent.base import (
+    SUBTOPICS_HR_ROUND,
+    SUBTOPICS_TECHNICAL_ROUND,
+    TOPICS_HR_ROUND,
+    TOPICS_TECHNICAL_ROUND,
+    BaseInterviewConfiguration,
+    BaseMasterConfiguration,
+    InterviewRound,
+    InterviewRoundDetails,
+    InterviewTopicData,
+    SubTopicData,
+)
 
-class CommonPrompts():
 
+class CommonPrompts:
     def __init__(self, configuration, database=None):
-        self.config:BaseMasterConfiguration = configuration 
+        self.config: BaseMasterConfiguration = configuration
         # load all the interview related information since its used everywhere
-        interview_data:BaseInterviewConfiguration = self.config.interview_data
+        interview_data: BaseInterviewConfiguration = self.config.interview_data
         self.job_details = interview_data.job_details
         self.interview_round_details: InterviewRoundDetails = interview_data.interview_round_details
         self.character_data = interview_data.character_data
         self.activity_details = interview_data.activity_details
-        self.database:DatabaseInterface = database
+        self.database: DatabaseInterface = database
         # Load starter code asynchronously
         import asyncio
+
         self.starter_code_data = asyncio.run(self.load_activity_code_info()) if database else ""
 
     async def load_activity_code_info(self) -> str | None:
         code = await self.database.fetch_starter_code_from_url() if self.database else ""
         return code
 
-    def get_speaker_determination_topic_wise_rule_prompt(self, topic:InterviewTopicData, subtopic:SubTopicData) -> str:
-         
+    def get_speaker_determination_topic_wise_rule_prompt(
+        self, topic: InterviewTopicData, subtopic: SubTopicData
+    ) -> str:
         if topic.name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value:
             rules_prompt = """
 1 **Interview Kickoff:** If the interview has not started yet, ensure that either of panelists begins by introducing themselves.
@@ -35,8 +45,10 @@ class CommonPrompts():
 4 **Transition to Interview Format:** After introductions are complete, the panel should transition into explaining the **interview structure** with either of the panelist leading the discussion.
                 """
 
-        elif topic.name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
-            
+        elif (
+            topic.name
+            == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+        ):
             if subtopic.name == SUBTOPICS_TECHNICAL_ROUND.TECHNCAL_PROBLEM_OVERVIEW.value:
                 rules_prompt = """
 1 **Initiating the Topic:** PM should begin this topic by introducing the technical problem to the candidate.
@@ -55,9 +67,8 @@ class CommonPrompts():
    - If the question is about **technical aspects (e.g., algorithms, constraints, data structures, model details)** → The MLE should respond concisely.
    - If the question is about **product-related aspects (e.g., business relevance, trade-offs, impact on users)** → The PM should respond concisely.
                 """
-        else:
-            if subtopic.name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
-                rules_prompt = """
+        elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
+            rules_prompt = """
 1 **Initiating the topic:** The MLE should begin this topic.
 2 **Candidate's Turn:** The Candidate must be given sufficient time to explain their thought process before any follow-up questions are posed.
 3 **PM's Role:** The Product Manager (PM) should only be selected as the next speaker if the discussion naturally shifts towards **product relevance, business impact, or cross-functional considerations**.
@@ -65,18 +76,16 @@ class CommonPrompts():
    - No more than **three questions** with one followup each should be asked by the panelists in this section.
                 """
 
-
-            elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
-                rules_prompt = """
+        elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
+            rules_prompt = """
 1 **Initiating the topic:** The discussion should primarily involve the Machine Learning Engineer (MLE) and the Candidate.
 2 **Limit on Questions:**
    - **Only three questions** with atleast one followup should be asked by the panelists in this section.
    - After every question, the **candidate must be given a chance to respond** before the next question is posed.
                 """
 
-
-            elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-                rules_prompt = """  
+        elif subtopic.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
+            rules_prompt = """  
 1 **Initiating the topic:** The discussion should be primarily led by the Product Manager (PM).
 2 **PM’s Focus Areas:**
    - The PM should take the lead when discussing:
@@ -93,14 +102,16 @@ class CommonPrompts():
                 """
 
         return rules_prompt
-    
 
-
-    def get_topic_completion_topic_wise_prompt(self, topic_data:InterviewTopicData, subtopic_data:SubTopicData, current_section:str, subtopic_sections:List[str]) -> str:
-
+    def get_topic_completion_topic_wise_prompt(
+        self,
+        topic_data: InterviewTopicData,
+        subtopic_data: SubTopicData,
+        current_section: str,
+        subtopic_sections: List[str],
+    ) -> str:
         if topic_data.name == TOPICS_HR_ROUND.INTRODUCTION_ROLE_FIT.value:
-
-            if (subtopic_data.name == SUBTOPICS_HR_ROUND.INTRODUCTIONS_INTERVIEW_FORMAT.value):
+            if subtopic_data.name == SUBTOPICS_HR_ROUND.INTRODUCTIONS_INTERVIEW_FORMAT.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
 1. Introduction Section:
@@ -117,8 +128,7 @@ class CommonPrompts():
    1.3 If the candidate has already addressed these points, this section is complete.
                     """
 
-            elif (subtopic_data.name == SUBTOPICS_HR_ROUND.JOB_ROLE_FIT.value):
-                
+            elif subtopic_data.name == SUBTOPICS_HR_ROUND.JOB_ROLE_FIT.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
 1. Responsibilities & Role Expectations Section:
@@ -135,8 +145,7 @@ class CommonPrompts():
    1.3 If the candidate has already provided relevant details, this section is complete.
                     """
 
-            elif (subtopic_data.name == SUBTOPICS_HR_ROUND.MOTIVATIONS_CAREER_GOALS.value):
-
+            elif subtopic_data.name == SUBTOPICS_HR_ROUND.MOTIVATIONS_CAREER_GOALS.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
 1. Reason for Job Change:
@@ -151,7 +160,7 @@ class CommonPrompts():
    1.2 If not asked, has the candidate already discussed their ambitions?
    1.3 If the candidate has already addressed these points, this section is complete.
                     """
-                    
+
                 elif current_section == subtopic_sections[2]:
                     rules_prompt = """
 1. Interest in This Role & Company:
@@ -159,9 +168,10 @@ class CommonPrompts():
    1.2 If not asked, has the candidate already mentioned why they are interested?
    1.3 If the candidate has already addressed these points, this section is complete.
                     """
-                    
-        elif topic_data.name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value:
 
+        elif (
+            topic_data.name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value
+        ):
             if subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.PANEL_MEMBER_INTRODUCTIONS.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
@@ -170,7 +180,7 @@ class CommonPrompts():
    1.2 Has the candidate responded?
    1.3 If both the panelist has introduced themselves and candidate has responded, this section is complete.
                     """
-    
+
             elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.INTERVIEW_ROUND_OVERVIEW.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
@@ -179,9 +189,11 @@ class CommonPrompts():
    1.2 Has the candidate acknowledged their readiness to proceed in some form or the other?
    1.3 If the round overview has been discussed and the candidate is ready, this section is complete.
                     """
-            
-        elif topic_data.name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
 
+        elif (
+            topic_data.name
+            == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+        ):
             if subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.TECHNCAL_PROBLEM_OVERVIEW.value:
                 if current_section == subtopic_sections[0]:
                     rules_prompt = """
@@ -191,48 +203,56 @@ class CommonPrompts():
    1.3 If the candidate has indicated their readiness to proceed in any form then this section is complete.
                     """
             elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.PROBLEM_SOLVING.value:
-                    rules_prompt = """
+                rules_prompt = """
 1. Candidate Problem-Solving:
    1.1 Has the time limit for the problem solving task exceeded?
    1.2 Has the candidate summitted the problem?
                     """
-       
-        else:
-            if subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
-                if current_section == subtopic_sections[0]:
-                    rules_prompt = """
+
+        elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
+            if current_section == subtopic_sections[0]:
+                rules_prompt = """
 1. Task Specific Discussion:
    1.1 Has any of the panelists asked the candidate regarding the task they just completed?
    1.2 Has atleast one followup question been asked by the panelist to their question?
    1.3 If total of three questions (similar or different) have been asked by the panelists, then, this section is complete.
                     """
 
-            elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
-                if current_section == subtopic_sections[0]:
-                    rules_prompt = """
+        elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
+            if current_section == subtopic_sections[0]:
+                rules_prompt = """
 1. Core ML/Data Science Concepts
   1.1 Has any of the panel members asked the candidate about machine learning or data science concepts?
   1.2 Has atleast one followup question been asked by the panelist to their question?
   1.3 If total of three questions (similar or different) have been asked by the panelists, this section is complete.
                     """
-            
-            elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-                if current_section == subtopic_sections[0]:
-                    rules_prompt = """
+
+        elif subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
+            if current_section == subtopic_sections[0]:
+                rules_prompt = """
 1. Past Experience Related Discussion:
  1.1 Has any of the panel members asked the candidate about their past work experience or related?
  1.2 Has atleast one followup question been asked by the panelist to their question?
  1.3 If total of three questions (similar or different) have been asked by the panelists, this section is complete.
  1.4 If panelist has thanked the candidate, then this section is marked as complete 
                     """
-                    
-        return rules_prompt
-    
 
-    def get_evaluation_topic_wise_question_prompt(self, interview_round, topic_name, subtopic_name, activity_progress, activity_code_from_candidate)->str:
+        return rules_prompt
+
+    def get_evaluation_topic_wise_question_prompt(
+        self,
+        interview_round,
+        topic_name,
+        subtopic_name,
+        activity_progress,
+        activity_code_from_candidate,
+    ) -> str:
         prompt = ""
         if interview_round == InterviewRound.ROUND_TWO:
-            if topic_name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
+            if (
+                topic_name
+                == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+            ):
                 prompt = f"""
 - **Technical Problem Details presented to the candidate:**
 1. Scenario: {self.activity_details.scenario}
@@ -277,9 +297,7 @@ Q4. Do they sound excited and interested in answering the questions?
                 """
 
             elif topic_name == TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value:
-
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
-                
                     prompt = f"""
 - **Technical Problem Details presented to the candidate:**
 1. Scenario: {self.activity_details.scenario}
@@ -316,8 +334,7 @@ Q4. Did the candidate show enthusiasm and genuine interest while responding to q
                     """
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
-
-                    prompt = f"""
+                    prompt = """
 This topic focuses on the candidate’s understanding of core machine learning and data science concepts, as well as their ability to communicate those concepts clearly.
 The goal is to evaluate both **technical correctness** and the **clarity of their reasoning**, especially in contexts where they might need to explain ideas to non-technical stakeholders.
 Answer the following questions to evaluate the candidate's performance:
@@ -340,8 +357,7 @@ Q4. Do they sound excited and interested in answering the questions?
                     """
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-
-                    prompt = f"""
+                    prompt = """
 This topic evaluates the candidate's ability to reflect on and communicate past experiences, especially in collaborative, technical, or ambiguous situations.
 
 Answer the following questions to evaluate the candidate's performance:
@@ -369,11 +385,13 @@ Q7. Did the candidate express humility and a willingness to learn from past chal
                     """
         return prompt
 
-    def get_evaluation_topic_wise_prompt(self, interview_round, topic_name, subtopic_name, activity_progress) -> str:
+    def get_evaluation_topic_wise_prompt(
+        self, interview_round, topic_name, subtopic_name, activity_progress
+    ) -> str:
         prompt = ""
         if interview_round == InterviewRound.ROUND_ONE:
             if topic_name == TOPICS_HR_ROUND.INTRODUCTION_ROLE_FIT.value:
-                    prompt = f"""
+                prompt = """
 ### **What to Evaluate:**
 Since this section is about introductions and role fit, you should focus on **communication** and **cultural fit**.
 - **Communication:** Assess how clearly and concisely the candidate introduced themselves.
@@ -387,13 +405,15 @@ Since this section is about introductions and role fit, you should focus on **co
 
         elif interview_round == InterviewRound.ROUND_TWO:
             if topic_name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value:
-                prompt = f"""
+                prompt = """
 - Assess how clearly and concisely the candidate introduced themselves.
 - Did they engage appropriately in the conversation?
                 """
 
-        
-            if topic_name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
+            if (
+                topic_name
+                == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+            ):
                 prompt = f"""
 - **Technical Problem Details presented to the candidate:**
 1. Scenario: {self.activity_details.scenario}
@@ -424,7 +444,6 @@ Since this section is about introductions and role fit, you should focus on **co
 
             elif topic_name == TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value:
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
-                
                     prompt = f"""
 - **Technical Problem Details presented to the candidate:**
 1. Scenario: {self.activity_details.scenario}
@@ -454,8 +473,7 @@ Since this section is about introductions and role fit, you should focus on **co
                     """
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
-
-                    prompt = f"""
+                    prompt = """
 "This topic focuses on the candidate’s understanding of core machine learning and data science concepts, as well as their ability to communicate those concepts clearly.
 "The goal is to evaluate both **technical correctness** and the **clarity of their reasoning**, especially in contexts where they might need to explain ideas to non-technical stakeholders.
 
@@ -474,8 +492,7 @@ Since this section is about introductions and role fit, you should focus on **co
                     """
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-
-                    prompt = f"""
+                    prompt = """
 "This topic evaluates the candidate's ability to reflect on and communicate past experiences, especially in collaborative, technical, or ambiguous situations.
 "The focus is on their **communication**, **self-awareness**, and **ability to navigate real-world scenarios**, particularly in team-based settings.
 
@@ -494,4 +511,4 @@ Since this section is about introductions and role fit, you should focus on **co
 "- Brief but clear responses are acceptable; focus on **quality of insight** over quantity.
                     """
 
-        return prompt    
+        return prompt

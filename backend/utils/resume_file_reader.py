@@ -1,7 +1,6 @@
-import os
-import re
 import pdfplumber
 from docx import Document
+
 
 def extract_text_from_pdf(file_path):
     """Extract text from PDF using pdfplumber."""
@@ -11,11 +10,13 @@ def extract_text_from_pdf(file_path):
             text += page.extract_text()
     return text
 
+
 def extract_text_from_docx(file_path):
     """Extract text from Word Document using python-docx."""
     doc = Document(file_path)
     text = "\n".join([para.text for para in doc.paragraphs])
     return text
+
 
 def parse_resume(file_path):
     """Main function to parse resume and extract information."""
@@ -26,7 +27,7 @@ def parse_resume(file_path):
         text = extract_text_from_docx(file_path)
     else:
         raise ValueError("Unsupported file format. Please use .pdf or .docx.")
-    '''
+    """
     print (text)
     # Extract key fields using NLP and regex
     basic_fields = extract_basic_fields(text)
@@ -40,8 +41,9 @@ def parse_resume(file_path):
     # Combine results
     final_fields = {**basic_fields, **detailed_fields}
     return final_fields
-    '''
+    """
     return text
+
 
 # Example Usage
 if __name__ == "__main__":

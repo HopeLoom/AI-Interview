@@ -4,6 +4,7 @@ Provides a unified way to instantiate different database adapters.
 """
 
 from typing import Optional
+
 from .base import DatabaseInterface, DatabaseType
 from .firebase_adapter import FirebaseAdapter
 from .postgresql_adapter import PostgreSQLAdapter
@@ -12,24 +13,24 @@ from .sqlite_adapter import SQLiteAdapter
 
 class DatabaseFactory:
     """Factory class for creating database instances"""
-    
+
     @staticmethod
     def create_database(config, logger=None) -> DatabaseInterface:
         """
         Create a database instance based on the configuration
-        
+
         Args:
             config: Database configuration object
             logger: Optional logger instance
-            
+
         Returns:
             DatabaseInterface: Database instance
-            
+
         Raises:
             ValueError: If database type is not supported
         """
         db_type = config.type.lower()
-        
+
         if db_type == DatabaseType.FIREBASE.value:
             return FirebaseAdapter(config, logger)
         elif db_type == DatabaseType.POSTGRESQL.value:
@@ -38,7 +39,7 @@ class DatabaseFactory:
             return SQLiteAdapter(config, logger)
         else:
             raise ValueError(f"Unsupported database type: {db_type}")
-    
+
     @staticmethod
     def get_supported_databases():
         """Get list of supported database types"""
@@ -63,11 +64,11 @@ def set_database(database: DatabaseInterface):
 def initialize_database(config, logger=None) -> DatabaseInterface:
     """
     Initialize and return a database instance
-    
+
     Args:
         config: Database configuration
         logger: Optional logger
-        
+
     Returns:
         DatabaseInterface: Initialized database instance
     """

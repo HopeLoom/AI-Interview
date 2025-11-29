@@ -1,12 +1,9 @@
-from typing import Any
-from pydantic import BaseModel
+
 import sendgrid
+from fastapi import APIRouter, HTTPException
+from globals import config, main_logger
+from pydantic import BaseModel
 from sendgrid.helpers.mail import Mail
-from fastapi import HTTPException, Form, UploadFile
-from core.database.db_manager import get_database
-from pathlib import Path
-from fastapi import APIRouter
-from globals import logger_manager, config, main_logger
 
 router = APIRouter()
 SENDGRID_API_KEY = config.email.api_key
@@ -16,6 +13,7 @@ FROM_EMAIL = config.email.from_email
 if not SENDGRID_API_KEY:
     raise RuntimeError("SENDGRID_API_KEY not set in environment variables")
 
+
 class DemoRequest(BaseModel):
     firstName: str
     lastName: str
@@ -23,6 +21,7 @@ class DemoRequest(BaseModel):
     company: str
     jobTitle: str
     message: str | None = None
+
 
 @router.post("/api/demo-request")
 async def handle_demo_request_api(data: DemoRequest):
@@ -37,10 +36,10 @@ async def handle_demo_request_api(data: DemoRequest):
 async def handle_demo_request(data: DemoRequest, logger):
     try:
         print("handle demo request:", data)
-        print ("key is:", SENDGRID_API_KEY)
-        print ("recipients are:", RECIPIENTS)
-        print ("from email is:", FROM_EMAIL)
-        
+        print("key is:", SENDGRID_API_KEY)
+        print("recipients are:", RECIPIENTS)
+        print("from email is:", FROM_EMAIL)
+
         content = f"""
         Name: {data.firstName} {data.lastName}
         Email: {data.email}

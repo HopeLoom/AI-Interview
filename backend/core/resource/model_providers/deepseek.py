@@ -1,68 +1,69 @@
 import enum
+from typing import Callable, Optional
+
+import tiktoken
+from openai import AsyncOpenAI
+
+from core.prompting.schema import ChatPrompt
 from core.resource.model_providers.schema import (
-    ChatModelProvider, 
-    EmbeddingModelProvider,
-    ChatModelInfo,
-    ModelInfo,
-    ModelResponse,
     AssistantChatMessage,
-    ModelProviderName,
-    ModelProviderService,
-    ModelProviderSettings,
-    SystemSettings,
-    ModelProviderBudget,
+    ChatMessage,
+    ChatModelInfo,
+    ChatModelProvider,
+    ChatModelResponse,
+    EmbeddingModelProvider,
+    EmbeddingModelResponse,
     ModelProviderConfiguration,
     ModelProviderCredentials,
-    ModelProviderUsage,
-    ChatMessage,
-    ChatModelResponse,
-    EmbeddingModelInfo,
-    EmbeddingModelResponse,
-    )
-from core.prompting.schema import ChatPrompt
+    ModelProviderName,
+    ModelProviderService,
+    SystemSettings,
+)
 
-from typing import Optional, Callable
-from openai import AsyncOpenAI 
-import tiktoken
-import yaml
 
 class DeepSeekModelNames(str, enum.Enum):
-    DEEPSEEKCHAT:str = "deepseek-chat"
+    DEEPSEEKCHAT: str = "deepseek-chat"
+
 
 DEEPSEEK_CHAT_MODELS = {
-    info.name:info 
+    info.name: info
     for info in [
         ChatModelInfo(
             name=DeepSeekModelNames.DEEPSEEKCHAT,
-            service = ModelProviderService.CHAT,
+            service=ModelProviderService.CHAT,
             provider_name=ModelProviderName.DEEPSEEK,
             max_tokens=50000,
             has_function_call_api=True,
-            completion_token_cost=0.03/1000,
-            prompt_token_cost=0.01/1000
+            completion_token_cost=0.03 / 1000,
+            prompt_token_cost=0.01 / 1000,
         ),
     ]
 }
 
+
 class DeepSeekConfiguration(ModelProviderConfiguration):
-    fix_failed_tries:int = 3
+    fix_failed_tries: int = 3
 
 
 class DeepSeekCredentials(ModelProviderCredentials):
-    api_key:str 
-    api_type:str 
-    organization:str
+    api_key: str
+    api_type: str
+    organization: str
+
 
 class DeepSeekSettings(SystemSettings):
     configuration: DeepSeekConfiguration
     credentials: Optional[DeepSeekCredentials]
-    warning_token_threshold:float = 0.75
-    #budget: ModelProviderBudget
+    warning_token_threshold: float = 0.75
+    # budget: ModelProviderBudget
+
 
 import abc
 import typing
 from typing import Generic, TypeVar
+
 S = TypeVar("S", bound=SystemSettings)
+
 
 class Configurable(abc.ABC, Generic[S]):
     """A base class for all configurable objects."""
@@ -70,17 +71,15 @@ class Configurable(abc.ABC, Generic[S]):
     prefix: str = ""
     default_settings: typing.ClassVar[S]
 
-class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, EmbeddingModelProvider):
 
+class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, EmbeddingModelProvider):
     default_settings = DeepSeekSettings(
-        name = DeepSeekModelNames.DEEPSEEKCHAT,
-        description = "DeepSeek model provider",
-        configuration = DeepSeekConfiguration(
-            retries_per_request=10, fix_failed_tries=3
-        ),
-        credentials=None    
+        name=DeepSeekModelNames.DEEPSEEKCHAT,
+        description="DeepSeek model provider",
+        configuration=DeepSeekConfiguration(retries_per_request=10, fix_failed_tries=3),
+        credentials=None,
     )
-    '''
+    """
         budget = ModelProviderBudget(
             total_budget=10,
             total_cost=0,
@@ -92,46 +91,45 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
             )
            
         )
-    '''
-    #_budget: ModelProviderBudget
+    """
+    # _budget: ModelProviderBudget
     _configuration: DeepSeekConfiguration
     _credentials: DeepSeekConfiguration
 
-    def __init__(
-            self,
-            settings
-    ):
+    def __init__(self, settings):
         if not settings:
             settings = self.default_settings
-        
+
         self.settings = settings
 
-        #self._budget = settings.budget
+        # self._budget = settings.budget
         self._configuration = settings.configuration
         self._credentials = settings.credentials
-        #print ("Credentials: ", self._credentials.api_key)
-        self._client = AsyncOpenAI(api_key=self._credentials.api_key, base_url="https://api.deepseek.com")
+        # print ("Credentials: ", self._credentials.api_key)
+        self._client = AsyncOpenAI(
+            api_key=self._credentials.api_key, base_url="https://api.deepseek.com"
+        )
 
     def get_token_limit(self, model_name):
         return DEEPSEEK_CHAT_MODELS[model_name].max_tokens
-    
+
     def get_tokenizer(self, model_name):
         return tiktoken.encoding_for_model(model_name)
-    
+
     def count_tokens(self, text, model_name):
         if model_name.startswith("deepseek"):
             encoding_model_name = "gpt-4"
         else:
             encoding_model_name = "gpt-3.5-turbo"
-        encoder = self.get_tokenizer(encoding_model_name) 
+        encoder = self.get_tokenizer(encoding_model_name)
         return len(encoder.encode(text))
-    
+
     def count_message_tokens(self, messages, model_name):
         if isinstance(messages, ChatMessage):
             messages = [messages]
 
         if model_name.startswith("gpt-3"):
-            tokens_per_message = 4 
+            tokens_per_message = 4
             tokens_per_names = -1
             encoding_model = "gpt-3.5-turbo"
         elif model_name.startswith("gpt-4"):
@@ -141,74 +139,65 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
 
         else:
             raise ValueError(f"Unknown model name {model_name}")
-        
+
         try:
             encoder = tiktoken.encoding_for_model(encoding_model)
         except KeyError:
             encoder = tiktoken.get_encoding("cl110k_base")
-        
+
         num_tokens = 0
         for message in messages:
-            num_tokens += tokens_per_message 
+            num_tokens += tokens_per_message
             content = message.content
             num_tokens += len(encoder.encode(content))
-        num_tokens += 3 
+        num_tokens += 3
         return num_tokens
-    
 
     def _get_embedding_args(self, model_name, **kwargs):
-        kwargs['model'] = model_name
+        kwargs["model"] = model_name
         return kwargs
-    
+
     _T = TypeVar("_T")
 
     async def create_chat_completion(
-        self, 
+        self,
         chat_messages: ChatPrompt,
         model_name: DeepSeekModelNames,
         completion_parser: Callable[[AssistantChatMessage], _T] = lambda _: None,
         is_json_mode: bool = True,
-        **kwargs
+        **kwargs,
     ):
-        print ("model_name: ", model_name)
-        if (is_json_mode):
+        print("model_name: ", model_name)
+        if is_json_mode:
             response_format = {"type": "json_object"}
         else:
             response_format = None
 
-        total_cost = 0 
-        attempts = 0 
+        total_cost = 0
+        attempts = 0
 
         # combine model_name and response_format into keyword arguments
 
-        kwargs = {
-            "response_format": response_format,
-            "model": model_name
-        }
-        #print ("model_prompt: ", chatmessages)  
+        kwargs = {"response_format": response_format, "model": model_name}
+        # print ("model_prompt: ", chatmessages)
 
         openai_messages = []
         for message in chat_messages.messages:
             role = message.role
             content = message.content
 
-            openai_messages.append({
-                "role": role,
-                "content": content
-            })
-
+            openai_messages.append({"role": role, "content": content})
 
         _response, _cost, t_input, t_output = await self._create_chat_completion(
-           openai_messages,kwargs
+            openai_messages, kwargs
         )
 
         total_cost += _cost
 
-        _assistant_msg = _response.choices[0].message ## get output from response
+        _assistant_msg = _response.choices[0].message  ## get output from response
 
-        assistant_msg =  AssistantChatMessage(
-            content = _assistant_msg.content,
-            role = _assistant_msg.role  
+        assistant_msg = AssistantChatMessage(
+            content=_assistant_msg.content, role=_assistant_msg.role
         )
         if completion_parser is None:
             parsed_result = assistant_msg
@@ -216,36 +205,25 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
             parsed_result = completion_parser(assistant_msg)
 
         return ChatModelResponse(
-            response = AssistantChatMessage(
-                content = assistant_msg.content
-            ),
-            parsed_response = parsed_result,
-            model_info = DEEPSEEK_CHAT_MODELS[model_name],
-            prompt_tokens_used = t_input,
-            completion_tokens_used = t_output
+            response=AssistantChatMessage(content=assistant_msg.content),
+            parsed_response=parsed_result,
+            model_info=DEEPSEEK_CHAT_MODELS[model_name],
+            prompt_tokens_used=t_input,
+            completion_tokens_used=t_output,
         )
-
-
 
     # This function calls the openai chat completion API
     async def _create_chat_completion(self, messages, kwargs):
         # if response format is not, then remove the keyword
         if kwargs.get("response_format") is None:
             kwargs.pop("response_format")
-            
-        async def _create_chat_completion_with_retry(
-                messages, kwargs
-        ):
-            return await self._client.chat.completions.create(
-                messages=messages,
-                **kwargs
-            )
-        
-        completion = await _create_chat_completion_with_retry(
-            messages, kwargs
-        )
 
-        #print ("Completion: ", completion)
+        async def _create_chat_completion_with_retry(messages, kwargs):
+            return await self._client.chat.completions.create(messages=messages, **kwargs)
+
+        completion = await _create_chat_completion_with_retry(messages, kwargs)
+
+        # print ("Completion: ", completion)
 
         if completion.usage:
             prompt_tokens_used = completion.usage.prompt_tokens
@@ -258,39 +236,23 @@ class DeepSeekProvider(Configurable[DeepSeekSettings], ChatModelProvider, Embedd
         cost = 0
 
         return completion, cost, prompt_tokens_used, completion_tokens_used
-    
 
     def _create_embedding(self, text, **kwargs):
+        async def _create_embedding_with_retry(self, text, **kwargs):
+            return await self._client.embeddings.create(text=text, **kwargs)
 
-        async def _create_embedding_with_retry(
-                self, text, **kwargs
-        ):
-            return await self._client.embeddings.create(
-                text=text,
-                **kwargs
-            )
-        
-        return _create_embedding_with_retry(
-            text, **kwargs
-        )
-    
+        return _create_embedding_with_retry(text, **kwargs)
 
-    async def create_embedding(
-            self, text, model_name, embedding_parser, **kwargs
-    ):
-        embedding_kwargs = self._get_embedding_args(
-            model_name, **kwargs
-        )
-        response = await self._create_embedding(
-            text, **embedding_kwargs
-        )   
+    async def create_embedding(self, text, model_name, embedding_parser, **kwargs):
+        embedding_kwargs = self._get_embedding_args(model_name, **kwargs)
+        response = await self._create_embedding(text, **embedding_kwargs)
 
         response = EmbeddingModelResponse(
-            embedding = embedding_parser(response.data[0].embedding),
-            model_info = DeepSeekModelNames[model_name],
-            prompt_tokens_used = response.usage.prompt_tokens,
-            completion_tokens_used = 0
+            embedding=embedding_parser(response.data[0].embedding),
+            model_info=DeepSeekModelNames[model_name],
+            prompt_tokens_used=response.usage.prompt_tokens,
+            completion_tokens_used=0,
         )
 
-        # update cost 
+        # update cost
         return response

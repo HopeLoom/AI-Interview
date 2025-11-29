@@ -1,8 +1,11 @@
-from starlette.websockets import WebSocketState
-from fastapi import WebSocket
-from master_agent.base import SystemMessageStructure, WebSocketMessageToClient
-import json 
+import json
 from typing import Any
+
+from fastapi import WebSocket
+from starlette.websockets import WebSocketState
+
+from master_agent.base import SystemMessageStructure, WebSocketMessageToClient
+
 
 class ConnectionManager:
     def __init__(self, logger):
@@ -32,19 +35,19 @@ class ConnectionManager:
         if user_id in self.user_id_mapping:
             self.logger.info(f"Removing user_id mapping for {user_id}")
             del self.user_id_mapping[user_id]
-        
+
         self.remove_user_connection(user_id)
-        
+
     def is_connected(self, websocket: WebSocket) -> bool:
         return websocket.application_state == WebSocketState.CONNECTED
-    
-    def set_master_instance(self, user_id, master_instance:Any):
+
+    def set_master_instance(self, user_id, master_instance: Any):
         self.user_id_mapping[user_id] = master_instance
 
-    def get_master_instance(self, user_id)->Any | None:
+    def get_master_instance(self, user_id) -> Any | None:
         if user_id not in self.user_id_mapping:
             return None
-        
+
         return self.user_id_mapping[user_id]
 
     async def send_message(self, message: str, websocket: WebSocket):
@@ -71,21 +74,21 @@ class ConnectionManager:
 #     await asyncio.sleep(5)  # Wait for 5 seconds to ensure WebSocket server is up
 #     await uvicorn_task
 
-async def send_data(data:WebSocketMessageToClient, manager:ConnectionManager):
+
+async def send_data(data: WebSocketMessageToClient, manager: ConnectionManager):
     json_data = data.model_dump_json()
     await manager.broadcast(json_data)
 
-async def send_system_data(system_data, system_message_type, manager:ConnectionManager):
-    if 'system_message_type' not in system_data:
-        data:SystemMessageStructure = SystemMessageStructure()
+
+async def send_system_data(system_data, system_message_type, manager: ConnectionManager):
+    if "system_message_type" not in system_data:
+        data: SystemMessageStructure = SystemMessageStructure()
         data.system_message_type = system_message_type
         data.system_message = system_data.model_dump_json()
     else:
         data = system_data
-    
+
     json_str = data.model_dump_json()
     json_data = json.loads(json_str)
     message = json.dumps(json_data)
     await manager.broadcast(message)
-
-

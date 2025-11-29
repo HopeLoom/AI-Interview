@@ -3,17 +3,19 @@ Configuration management system for the interview simulation platform.
 Replaces environment variable-based configuration with structured config files.
 """
 
-import os
 import json
-import yaml
-from typing import Dict, Any, Optional, List, Union
-from pathlib import Path
-from pydantic import BaseModel, Field, validator
+import os
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import yaml
+from pydantic import BaseModel, Field, validator
 
 
 class Environment(str, Enum):
     """Supported environments"""
+
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
@@ -21,6 +23,7 @@ class Environment(str, Enum):
 
 class DatabaseConfig(BaseModel):
     """Database configuration"""
+
     type: str = Field(..., description="Database type: firebase, postgresql, sqlite")
     host: Optional[str] = None
     port: Optional[int] = None
@@ -28,14 +31,14 @@ class DatabaseConfig(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = None
     connection_string: Optional[str] = None
-    
+
     # Firebase specific
     firebase_credentials_path: Optional[str] = None
     firebase_storage_bucket: Optional[str] = None
-    
+
     # SQLite specific
     sqlite_path: Optional[str] = None
-    
+
     # Connection pool settings
     max_connections: int = 10
     min_connections: int = 1
@@ -44,23 +47,25 @@ class DatabaseConfig(BaseModel):
 
 class StorageConfig(BaseModel):
     """Storage configuration"""
+
     type: str = Field(..., description="Storage type: firebase, local, aws_s3")
-    
+
     # Local storage
     local_path: Optional[str] = None
-    
+
     # AWS S3
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None
     aws_region: Optional[str] = None
     s3_bucket: Optional[str] = None
-    
+
     # Firebase storage
     firebase_storage_bucket: Optional[str] = None
 
 
 class LLMProviderConfig(BaseModel):
     """LLM provider configuration"""
+
     name: str
     api_key: str
     base_url: Optional[str] = None
@@ -72,11 +77,12 @@ class LLMProviderConfig(BaseModel):
 
 class EmailConfig(BaseModel):
     """Email configuration"""
+
     provider: str = "sendgrid"  # sendgrid, smtp
     api_key: Optional[str] = None
     from_email: str
     recipients: List[str] = []
-    
+
     # SMTP specific
     smtp_host: Optional[str] = None
     smtp_port: Optional[int] = None
@@ -87,9 +93,10 @@ class EmailConfig(BaseModel):
 
 class SpeechConfig(BaseModel):
     """Speech service configuration"""
+
     tts_provider: str = "openai"  # openai, elevenlabs, google
     stt_provider: str = "openai"  # openai, google, groq
-    
+
     # Provider-specific settings
     elevenlabs_api_key: Optional[str] = None
     google_credentials_path: Optional[str] = None
@@ -98,6 +105,7 @@ class SpeechConfig(BaseModel):
 
 class SecurityConfig(BaseModel):
     """Security configuration"""
+
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_expiration_hours: int = 24
@@ -108,35 +116,36 @@ class SecurityConfig(BaseModel):
 
 class ApplicationConfig(BaseModel):
     """Main application configuration"""
+
     environment: Environment = Environment.DEVELOPMENT
     debug: bool = False
     host: str = "0.0.0.0"
     port: int = 8000
-    
+
     # Core configurations
     database: DatabaseConfig
     storage: StorageConfig
     security: SecurityConfig
     email: EmailConfig
     speech: SpeechConfig
-    
+
     # LLM providers
     llm_providers: List[LLMProviderConfig] = []
-    
+
     # Feature flags
     features: Dict[str, bool] = {
         "enable_practice_mode": True,
         "enable_company_mode": True,
         "enable_video_recording": True,
         "enable_real_time_evaluation": True,
-        "enable_batch_operations": True
+        "enable_batch_operations": True,
     }
-    
+
     # Logging
     log_level: str = "INFO"
     log_file: Optional[str] = None
-    
-    @validator('llm_providers')
+
+    @validator("llm_providers")
     def validate_llm_providers(cls, v):
         """Ensure at least one LLM provider is configured"""
         if not v:
@@ -146,40 +155,40 @@ class ApplicationConfig(BaseModel):
 
 class ConfigManager:
     """Configuration manager for loading and managing application settings"""
-    
-    def __init__(self, config_path: Optional[Union[str, Path]] = None, environment: Optional[str] = None):
+
+    def __init__(
+        self, config_path: Optional[Union[str, Path]] = None, environment: Optional[str] = None
+    ):
         self.config_path = str(config_path) if config_path else self._get_default_config_path()
         # Check both ENVIRONMENT and STAGE variables, prioritize explicit parameter
         self.environment = environment or os.getenv("ENVIRONMENT") or os.getenv("STAGE", "staging")
         self._config: Optional[ApplicationConfig] = None
         self._config_cache: Dict[str, Any] = {}
-        
+
         # Load environment-specific .env file
         self._load_env_file()
-    
+
     def _load_env_file(self):
         """Load environment-specific .env file"""
         if self.environment in ["staging", "production"]:
             env_file_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), 
-                "..", "..", 
-                f".env.{self.environment}"
+                os.path.dirname(os.path.abspath(__file__)), "..", "..", f".env.{self.environment}"
             )
-            
+
             if os.path.exists(env_file_path):
                 # Load .env file manually since we're not using python-dotenv
-                with open(env_file_path, 'r') as f:
+                with open(env_file_path) as f:
                     for line in f:
                         line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
+                        if line and not line.startswith("#") and "=" in line:
+                            key, value = line.split("=", 1)
                             # Remove quotes if present
                             value = value.strip('"').strip("'")
                             os.environ[key] = value
                 print(f"Loaded environment variables from: {env_file_path}")
             else:
                 print(f"Environment file not found: {env_file_path}")
-    
+
     def _get_default_config_path(self) -> str:
         """Get the default configuration file path"""
         # Look for config in multiple locations
@@ -190,51 +199,51 @@ class ConfigManager:
             "./config/config.json",
             "./config.yaml",
             "./config.yml",
-            "./config.json"
+            "./config.json",
         ]
-        
+
         for path in possible_paths:
             if path and os.path.exists(path):
                 return path
-        
+
         # Default to config.yaml in the backend directory
         root_path = Path(__file__).parent.parent.parent.parent / "backend"
         return str(root_path / "config.yaml")
-    
+
     def load_config(self) -> ApplicationConfig:
         """Load configuration from file"""
         if self._config is not None:
             return self._config
-        
+
         if not os.path.exists(self.config_path):
             raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
-        
+
         try:
-            with open(self.config_path, 'r') as f:
-                if self.config_path.endswith('.json'):
+            with open(self.config_path) as f:
+                if self.config_path.endswith(".json"):
                     raw_config = json.load(f)
                 else:
                     raw_config = yaml.safe_load(f)
-            
+
             # Handle environment-specific overrides
-            if isinstance(raw_config, dict) and 'environments' in raw_config:
-                base_config = raw_config.get('default', {})
-                env_config = raw_config.get('environments', {}).get(self.environment, {})
-                
+            if isinstance(raw_config, dict) and "environments" in raw_config:
+                base_config = raw_config.get("default", {})
+                env_config = raw_config.get("environments", {}).get(self.environment, {})
+
                 # Merge environment-specific config with base config
                 merged_config = self._deep_merge(base_config, env_config)
             else:
                 merged_config = raw_config
-            
+
             # Override with environment variables
             merged_config = self._apply_env_overrides(merged_config)
-            
+
             self._config = ApplicationConfig(**merged_config)
             return self._config
-            
+
         except Exception as e:
             raise ValueError(f"Failed to load configuration: {e}")
-    
+
     def _deep_merge(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
         """Deep merge two dictionaries"""
         result = base.copy()
@@ -244,7 +253,7 @@ class ConfigManager:
             else:
                 result[key] = value
         return result
-    
+
     def _apply_env_overrides(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """Apply environment variable overrides to configuration"""
         # Map of environment variables to config paths
@@ -258,32 +267,27 @@ class ConfigManager:
             "FIREBASE_CREDENTIALS_PATH": ["database", "firebase_credentials_path"],
             "FIREBASE_STORAGE_BUCKET": ["database", "firebase_storage_bucket"],
             "SQLITE_PATH": ["database", "sqlite_path"],
-            
             "STORAGE_TYPE": ["storage", "type"],
             "LOCAL_STORAGE_PATH": ["storage", "local_path"],
             "AWS_ACCESS_KEY_ID": ["storage", "aws_access_key_id"],
             "AWS_SECRET_ACCESS_KEY": ["storage", "aws_secret_access_key"],
             "AWS_REGION": ["storage", "aws_region"],
             "S3_BUCKET": ["storage", "s3_bucket"],
-            
             "JWT_SECRET_KEY": ["security", "jwt_secret_key"],
             "CORS_ORIGINS": ["security", "cors_origins"],
-            
             "FROM_EMAIL": ["email", "from_email"],
             "SENDGRID_API_KEY": ["email", "api_key"],
-            
             "TTS_URL": ["speech", "tts_url"],
             "ELEVENLABS_API_KEY": ["speech", "elevenlabs_api_key"],
             "GOOGLE_CREDENTIALS_PATH": ["speech", "google_credentials_path"],
-            
             "LOG_LEVEL": ["log_level"],
             "DEBUG": ["debug"],
             "HOST": ["host"],
-            "PORT": ["port"]
+            "PORT": ["port"],
         }
-        
+
         result = config.copy()
-        
+
         for env_var, config_path in env_mappings.items():
             value = os.getenv(env_var)
             if value is not None:
@@ -293,18 +297,23 @@ class ConfigManager:
                     if key not in current:
                         current[key] = {}
                     current = current[key]
-                
+
                 # Convert value to appropriate type
                 final_key = config_path[-1]
-                if final_key in ["port", "max_connections", "min_connections", "connection_timeout"]:
+                if final_key in [
+                    "port",
+                    "max_connections",
+                    "min_connections",
+                    "connection_timeout",
+                ]:
                     value = int(value)
                 elif final_key in ["debug", "enabled", "smtp_use_tls"]:
                     value = value.lower() in ("true", "1", "yes", "on")
                 elif final_key == "cors_origins":
                     value = [origin.strip() for origin in value.split(",") if origin.strip()]
-                
+
                 current[final_key] = value
-        
+
         # Handle LLM provider API keys
         llm_providers = result.get("llm_providers", [])
         for provider in llm_providers:
@@ -313,23 +322,23 @@ class ConfigManager:
                 env_key = f"{provider_name}_API_KEY"
                 if env_key in os.environ:
                     provider["api_key"] = os.environ[env_key]
-        
+
         return result
-    
+
     def get_config(self) -> ApplicationConfig:
         """Get the loaded configuration"""
         if self._config is None:
             self.load_config()
         return self._config
-    
+
     def get_database_config(self) -> DatabaseConfig:
         """Get database configuration"""
         return self.get_config().database
-    
+
     def get_storage_config(self) -> StorageConfig:
         """Get storage configuration"""
         return self.get_config().storage
-    
+
     def get_llm_provider_config(self, provider_name: str) -> Optional[LLMProviderConfig]:
         """Get LLM provider configuration by name"""
         config = self.get_config()
@@ -337,17 +346,17 @@ class ConfigManager:
             if provider.name.lower() == provider_name.lower():
                 return provider
         return None
-    
+
     def get_enabled_llm_providers(self) -> List[LLMProviderConfig]:
         """Get all enabled LLM providers"""
         config = self.get_config()
         return [provider for provider in config.llm_providers if provider.enabled]
-    
+
     def is_feature_enabled(self, feature_name: str) -> bool:
         """Check if a feature is enabled"""
         config = self.get_config()
         return config.features.get(feature_name, False)
-    
+
     def reload_config(self):
         """Reload configuration from file"""
         self._config = None

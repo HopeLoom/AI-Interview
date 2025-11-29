@@ -1,27 +1,56 @@
-from core.prompting.base import BaseEvaluationPromptStrategy
-from core.prompting.schema import LanguageModelClassification
-from core.resource.model_providers.schema import AssistantChatMessage, ChatMessage, MasterChatMessage
-from core.prompting.schema import ChatPrompt
 import json
 from typing import List
-from panelist_agent.base import Profile
+
 from interview_details_agent.base import InterviewRoundDetails, JobDetails
-from evaluation_agent.base import  PromptInput
-from master_agent.base import BaseInterviewConfiguration, InterviewTopicData, SubTopicData, InterviewRound, EvaluationInputMessage, QuestionSpecificEvaluationOutputMessage, RulesAndRegulationsInputMessage, RulesAndRegulationsOutputMessage
-from master_agent.base import  QuestionSpecificScoring, QuestionCriteriaSpecificScoring, CriteriaSpecificScoring, TOPICS_HR_ROUND, TOPICS_TECHNICAL_ROUND, SUBTOPICS_HR_ROUND, SUBTOPICS_TECHNICAL_ROUND
+
 from activity_agent.base import ActivityProgressAnalysisSummaryForPanelistOutputMessage
+from core.prompting.base import BaseEvaluationPromptStrategy
 from core.prompting.prompt_strategies.master_common_prompts import CommonPrompts
-from evaluation_agent.base import BaseEvaluationConfiguration, SubqueryDataExtractionInputMessage, SubqueryGeneratorOutputMessage, SubqueryGeneratorInputMessage, SubqueryDataExtractionOutputMessage
-from master_agent.base import PanelistFeedbackVisualSummaryList, CriteriaScoreVisualSummaryList, CodeDimensions, CodeAnalysisVisualSummary,CodeDimensionSummary, PanelistFeedbackVisualSummary, OverallVisualSummary, CriteriaScoreVisualSummary
-from evaluation_agent.base import CodeSummaryVisualizationInputMessage, PanelistFeedbackVisualizationInputMessage, OverallVisualizationInputMessage, CriteriaVisualizationInputMessage
+from core.prompting.schema import ChatPrompt, LanguageModelClassification
+from core.resource.model_providers.schema import (
+    AssistantChatMessage,
+    ChatMessage,
+    MasterChatMessage,
+)
+from evaluation_agent.base import (
+    BaseEvaluationConfiguration,
+    CodeSummaryVisualizationInputMessage,
+    CriteriaVisualizationInputMessage,
+    OverallVisualizationInputMessage,
+    PanelistFeedbackVisualizationInputMessage,
+    PromptInput,
+    SubqueryDataExtractionInputMessage,
+    SubqueryDataExtractionOutputMessage,
+    SubqueryGeneratorInputMessage,
+    SubqueryGeneratorOutputMessage,
+)
+from master_agent.base import (
+    BaseInterviewConfiguration,
+    CodeAnalysisVisualSummary,
+    CodeDimensions,
+    CodeDimensionSummary,
+    CriteriaScoreVisualSummary,
+    CriteriaScoreVisualSummaryList,
+    EvaluationInputMessage,
+    InterviewRound,
+    InterviewTopicData,
+    OverallVisualSummary,
+    PanelistFeedbackVisualSummary,
+    PanelistFeedbackVisualSummaryList,
+    QuestionCriteriaSpecificScoring,
+    QuestionSpecificEvaluationOutputMessage,
+    QuestionSpecificScoring,
+    SubTopicData,
+)
+from panelist_agent.base import Profile
+
 
 class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
-
     def __init__(self, configuration, interview_data_config, firebase_database):
-        self.config:BaseEvaluationConfiguration = configuration 
+        self.config: BaseEvaluationConfiguration = configuration
         # load all the interview related information since its used everywhere
-        interview_data:BaseInterviewConfiguration = interview_data_config
-        self.job_details:JobDetails = interview_data.job_details
+        interview_data: BaseInterviewConfiguration = interview_data_config
+        self.job_details: JobDetails = interview_data.job_details
         self.interview_round_details: InterviewRoundDetails = interview_data.interview_round_details
         self.character_data = interview_data.character_data
         self.activity_details = interview_data.activity_details
@@ -29,19 +58,21 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
 
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
-    
+
     def convert_conversation_type(self, conversation_history: List[MasterChatMessage]):
         if conversation_history is None:
             return []
-        conversation_history_strings = [f"Speaker:{message.speaker}, dialog:{message.content}" for message in conversation_history]
+        conversation_history_strings = [
+            f"Speaker:{message.speaker}, dialog:{message.content}"
+            for message in conversation_history
+        ]
         conversation_history_combined = "\n".join(conversation_history_strings)
         return conversation_history_combined
 
-    def build_prompt(self, prompt_input:PromptInput) -> ChatPrompt:
-
+    def build_prompt(self, prompt_input: PromptInput) -> ChatPrompt:
         response_type = prompt_input.response_type
-        user_message = None 
-        
+        user_message = None
+
         if response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.EVALUATION:
             system_message = self._generate_evaluation_prompt(prompt_input)
 
@@ -50,15 +81,20 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
 
         elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.SUBQUERY_GENERATION:
             system_message = self._generate_subquery_generation_prompt(prompt_input)
-        
+
         elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.SUBQUERY_DATA_EXTRACTION:
             system_message = "Be precise and concise."
             user_message = self._generate_subquery_data_extraction_prompt(prompt_input)
 
-        elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.CODE_ANALYSIS_VISUAL_SUMMARY:
+        elif (
+            response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.CODE_ANALYSIS_VISUAL_SUMMARY
+        ):
             system_message = self._generate_code_analysis_visual_summary_prompt(prompt_input)
 
-        elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.PANELIST_FEEDBACK_VISUAL_SUMMARY:
+        elif (
+            response_type
+            == BaseEvaluationPromptStrategy.RESPONSE_TYPE.PANELIST_FEEDBACK_VISUAL_SUMMARY
+        ):
             system_message = self._generate_panelist_feedback_visual_summary_prompt(prompt_input)
 
         elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.OVERALL_VISUAL_SUMMARY:
@@ -66,90 +102,109 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
 
         elif response_type == BaseEvaluationPromptStrategy.RESPONSE_TYPE.CRITERIA_VISUAL_SUMMARY:
             system_message = self._generate_criteria_visual_summary_prompt(prompt_input)
-        
+
         if user_message is None:
             prompt = ChatPrompt(
-                messages = [
+                messages=[
                     ChatMessage.system(system_message),
                 ]
             )
         else:
             prompt = ChatPrompt(
-                messages = [
-                    ChatMessage.system(system_message),
-                    ChatMessage.user(user_message)
-                ]
+                messages=[ChatMessage.system(system_message), ChatMessage.user(user_message)]
             )
 
         return prompt
 
-    def parse_response_evaluation_content(self, response: AssistantChatMessage) -> QuestionSpecificEvaluationOutputMessage:
+    def parse_response_evaluation_content(
+        self, response: AssistantChatMessage
+    ) -> QuestionSpecificEvaluationOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
         if "error" in json_data.keys():
             return QuestionSpecificEvaluationOutputMessage()
         evaluation = QuestionSpecificEvaluationOutputMessage.model_validate(json_data)
         return evaluation
 
-    def parse_response_subquery_generation_content(self, response: AssistantChatMessage) -> SubqueryGeneratorOutputMessage:
+    def parse_response_subquery_generation_content(
+        self, response: AssistantChatMessage
+    ) -> SubqueryGeneratorOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if 'error' in json_data.keys():
+        if "error" in json_data.keys():
             return SubqueryGeneratorOutputMessage()
         return SubqueryGeneratorOutputMessage.model_validate(json_data)
-    
-    def parse_response_subquery_data_extraction_content(self, response: AssistantChatMessage) -> SubqueryDataExtractionOutputMessage:
+
+    def parse_response_subquery_data_extraction_content(
+        self, response: AssistantChatMessage
+    ) -> SubqueryDataExtractionOutputMessage:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if 'error' in json_data.keys():
+        if "error" in json_data.keys():
             return SubqueryDataExtractionOutputMessage()
         return SubqueryDataExtractionOutputMessage.model_validate(json_data)
-    
+
     def parse_response_evaluation_summary_content(self, response: AssistantChatMessage) -> str:
         json_data = json.loads(response.content) if response.content is not None else {}
-        if 'summary' not in json_data.keys():
+        if "summary" not in json_data.keys():
             return ""
-        return json_data['summary']
-    
-    def parse_response_code_analysis_visual_summary_content(self, response: AssistantChatMessage) -> CodeAnalysisVisualSummary:
+        return json_data["summary"]
+
+    def parse_response_code_analysis_visual_summary_content(
+        self, response: AssistantChatMessage
+    ) -> CodeAnalysisVisualSummary:
         json_data = json.loads(response.content) if response.content is not None else {}
         if "error" in json_data.keys():
             return CodeAnalysisVisualSummary()
-        print (f"Code analysis visual summary json data: {json_data}")
-        parsed_dimensions = [json.loads(dim) if isinstance(dim, str) else dim  for dim in json_data["code_dimension_summary"]]
+        print(f"Code analysis visual summary json data: {json_data}")
+        parsed_dimensions = [
+            json.loads(dim) if isinstance(dim, str) else dim
+            for dim in json_data["code_dimension_summary"]
+        ]
 
         # # Now build the Pydantic model correctly
         summary = CodeAnalysisVisualSummary(
             code_overall_summary=json_data["code_overall_summary"],
             code_dimension_summary=[CodeDimensionSummary(**dim) for dim in parsed_dimensions],
-            completion_percentage=json_data["completion_percentage"])
+            completion_percentage=json_data["completion_percentage"],
+        )
 
         return summary
-    
-    def parse_response_panelist_feedback_visual_summary_content(self, response: AssistantChatMessage) -> PanelistFeedbackVisualSummaryList:
+
+    def parse_response_panelist_feedback_visual_summary_content(
+        self, response: AssistantChatMessage
+    ) -> PanelistFeedbackVisualSummaryList:
         json_data = json.loads(response.content) if response.content is not None else {}
         if "error" in json_data.keys():
             return PanelistFeedbackVisualSummaryList()
         return PanelistFeedbackVisualSummaryList.model_validate(json_data)
-    
-    def parse_response_overall_visual_summary_content(self, response: AssistantChatMessage) -> OverallVisualSummary:
+
+    def parse_response_overall_visual_summary_content(
+        self, response: AssistantChatMessage
+    ) -> OverallVisualSummary:
         json_data = json.loads(response.content) if response.content is not None else {}
         if "error" in json_data.keys():
             return OverallVisualSummary()
         return OverallVisualSummary.model_validate(json_data)
-    
-    def parse_response_criteria_visual_summary_content(self, response: AssistantChatMessage) -> CriteriaScoreVisualSummaryList:
+
+    def parse_response_criteria_visual_summary_content(
+        self, response: AssistantChatMessage
+    ) -> CriteriaScoreVisualSummaryList:
         json_data = json.loads(response.content) if response.content is not None else {}
         if "error" in json_data.keys():
             return CriteriaScoreVisualSummaryList()
         return CriteriaScoreVisualSummaryList.model_validate(json_data)
 
-    def _generate_code_analysis_visual_summary_prompt(self, prompt_input:PromptInput)->str:
-        message:CodeSummaryVisualizationInputMessage = prompt_input.message
+    def _generate_code_analysis_visual_summary_prompt(self, prompt_input: PromptInput) -> str:
+        message: CodeSummaryVisualizationInputMessage = prompt_input.message
         code_written_by_candidate = message.code
-        activity_summary:ActivityProgressAnalysisSummaryForPanelistOutputMessage = message.activity_analysis
+        activity_summary: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
+            message.activity_analysis
+        )
 
         candidate_performance_summary = activity_summary.candidate_performance_summary
-        percentage_of_question_solved = activity_summary.percentage_of_question_solved*100
-        things_left_to_do_with_respect_to_question = activity_summary.things_left_to_do_with_respect_to_question
-        
+        percentage_of_question_solved = activity_summary.percentage_of_question_solved * 100
+        things_left_to_do_with_respect_to_question = (
+            activity_summary.things_left_to_do_with_respect_to_question
+        )
+
         output = CodeAnalysisVisualSummary()
         code_dimensions_summary = CodeDimensionSummary()
         code_dimensions_summary.name = ""
@@ -167,7 +222,7 @@ class EvaluationPromptStrategy(BaseEvaluationPromptStrategy):
             CodeDimensions.CODE_READABILITY.value,
             CodeDimensions.CODE_INTERPRETATION.value,
         ]
- 
+
         base_prompt = f"""
 You are tasked with generating a summary analysis of the coding part of the interview written by the candidate.
 This information has to be presented on a dashboard
@@ -200,22 +255,21 @@ Completion score can be the same as the value provided to you
 
         return base_prompt
 
-
-
-    def _generate_panelist_feedback_visual_summary_prompt(self, prompt_input:PromptInput)->str:
-
-        message:PanelistFeedbackVisualizationInputMessage = prompt_input.message
+    def _generate_panelist_feedback_visual_summary_prompt(self, prompt_input: PromptInput) -> str:
+        message: PanelistFeedbackVisualizationInputMessage = prompt_input.message
         panelist_feedback = message.panelist_feedback
         panelist_names = message.panelist_names
         panelist_occupations = message.panelist_occupations
 
-        panelist_feedback_output: PanelistFeedbackVisualSummaryList = PanelistFeedbackVisualSummaryList()
+        panelist_feedback_output: PanelistFeedbackVisualSummaryList = (
+            PanelistFeedbackVisualSummaryList()
+        )
         panelist_visual_summary: PanelistFeedbackVisualSummary = PanelistFeedbackVisualSummary()
         panelist_visual_summary.name = ""
         panelist_visual_summary.role = ""
         panelist_visual_summary.summary_bullets = [""]
-        panelist_feedback_output.panelist_feedback =  [panelist_visual_summary]
-        
+        panelist_feedback_output.panelist_feedback = [panelist_visual_summary]
+
         base_prompt = f"""
             You are responsible for summarizing the impressions already generated by set of panelists about a candidate's interview. Write a concise visual summary of their feedback.
             This visual summary will be presented on the dashboard for the hiring manager.
@@ -236,22 +290,23 @@ Completion score can be the same as the value provided to you
         """
 
         return base_prompt
-    
 
-    def _generate_criteria_visual_summary_prompt(self, prompt_input:PromptInput)->str:
-
-        message:CriteriaVisualizationInputMessage = prompt_input.message
+    def _generate_criteria_visual_summary_prompt(self, prompt_input: PromptInput) -> str:
+        message: CriteriaVisualizationInputMessage = prompt_input.message
         criteria_score_list = message.criteria_score_list
 
-        criteria_scoring_list = [criteria_score.model_dump_json() for criteria_score in criteria_score_list]
-        criteria_score_visual_summary:CriteriaScoreVisualSummaryList = CriteriaScoreVisualSummaryList()
+        criteria_scoring_list = [
+            criteria_score.model_dump_json() for criteria_score in criteria_score_list
+        ]
+        criteria_score_visual_summary: CriteriaScoreVisualSummaryList = (
+            CriteriaScoreVisualSummaryList()
+        )
         criteria_score_summary = CriteriaScoreVisualSummary()
         criteria_score_summary.criteria = ""
         criteria_score_summary.score = 0
         criteria_score_summary.reason_bullets = [""]
-        criteria_score_summary.topics_covered = ['']
+        criteria_score_summary.topics_covered = [""]
         criteria_score_visual_summary.criteria_score_list = [criteria_score_summary]
-
 
         base_prompt = f"""
 You are responsible for summarizing the criteria scores given to the candidate based on the interview that was just conducted
@@ -266,9 +321,9 @@ Only generate upto 3 to 5 bullet points for each criteria and make sure they are
         """
 
         return base_prompt
-    
-    def _generate_overall_visual_summary_prompt(self, prompt_input:PromptInput)->str:
-        message:OverallVisualizationInputMessage = prompt_input.message
+
+    def _generate_overall_visual_summary_prompt(self, prompt_input: PromptInput) -> str:
+        message: OverallVisualizationInputMessage = prompt_input.message
 
         output = OverallVisualSummary()
 
@@ -290,16 +345,20 @@ Make sure key insights is a list of strings
 
         return base_prompt
 
-    def _generate_subquery_generation_prompt(self, prompt_input:PromptInput)->str:
+    def _generate_subquery_generation_prompt(self, prompt_input: PromptInput) -> str:
         output = SubqueryGeneratorOutputMessage()
-        message:SubqueryGeneratorInputMessage = prompt_input.message
+        message: SubqueryGeneratorInputMessage = prompt_input.message
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
-        converted_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+        converted_conversation_history = self.convert_conversation_type(
+            last_completed_conversation_history
+        )
         conversation_history = "\n".join(converted_conversation_history)
-        panelists:List[Profile] = message.panelists       
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
 
         base_prompt = f"""
@@ -317,14 +376,13 @@ You should consider both the candidate and the panelist responses to figure out 
 Ensure each of the SERP queries is different from the other.
 Generate atmost 10 such as SERP queries but you can also generate less if you believe you have covered all the aspects needed covering the factual information regarding the conversation
 """
-        
+
         return base_prompt
-    
-    def _generate_subquery_data_extraction_prompt(self, prompt_input:PromptInput)->str:
-        
+
+    def _generate_subquery_data_extraction_prompt(self, prompt_input: PromptInput) -> str:
         output = SubqueryDataExtractionOutputMessage()
 
-        message:SubqueryDataExtractionInputMessage = prompt_input.message
+        message: SubqueryDataExtractionInputMessage = prompt_input.message
         subqueries = message.subqueries
 
         base_prompt = f"""
@@ -334,10 +392,10 @@ Please output a JSON object with the following structure:
 {output.model_dump_json()}
 Make sure the facts are relevant to the subquery and are not too long
 """
-        
+
         return base_prompt
 
-    def _generate_summary_prompt(self, prompt_input:PromptInput)->str:
+    def _generate_summary_prompt(self, prompt_input: PromptInput) -> str:
         original_message = prompt_input.message
 
         base_prompt = f"""
@@ -352,27 +410,35 @@ Also, if the input contains information which says not enough information then t
 If the text input contains paragraphs, then make sure summary contains information from all the paragraphs
 Do not miss important details. This summary will be read by the hiring manager, so it should be **professional and polished**.
 """
-        
+
         return base_prompt
-    
-    def _generate_evaluation_verification_prompt(self, prompt_input:PromptInput)->str:
-        message:EvaluationInputMessage = prompt_input.message
-        panelists:List[Profile] = message.panelists       
+
+    def _generate_evaluation_verification_prompt(self, prompt_input: PromptInput) -> str:
+        message: EvaluationInputMessage = prompt_input.message
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
-        activity_analysis:ActivityProgressAnalysisSummaryForPanelistOutputMessage = prompt_input.activity_analysis
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
+        activity_analysis: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
+            prompt_input.activity_analysis
+        )
         activity_code_from_candidate = prompt_input.activity_code_from_candidate
         evaluation_output = prompt_input.evaluation_output
 
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_description = self.interview_round_details.rounds['interview_round_1'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_1"
+            ].description
         else:
-            interview_round_description = self.interview_round_details.rounds['interview_round_2'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_2"
+            ].description
 
         evaluation_criteria = message.evaluation_criteria
 
@@ -388,10 +454,9 @@ Do not miss important details. This summary will be read by the hiring manager, 
 
         output_message = QuestionSpecificEvaluationOutputMessage()
         output_message.question_criteria_specific_scoring = [questionCriteriaSpecificQuestion]
-        
-        if interview_round == InterviewRound.ROUND_TWO:
 
-           base_prompt = f"""
+        if interview_round == InterviewRound.ROUND_TWO:
+            base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
                 
 ### **Interview Context:**
@@ -433,13 +498,20 @@ The previous evaluation is mentioned here: {evaluation_output.model_dump_json()}
 - Ensure the evaluation is **objective, structured, and aligned** with the provided criteria.
 """
 
-        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(interview_round, topic_data.name, subtopic_data.name, activity_analysis, activity_code_from_candidate) 
-        
+        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(
+            interview_round,
+            topic_data.name,
+            subtopic_data.name,
+            activity_analysis,
+            activity_code_from_candidate,
+        )
+
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
-        converted_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+        converted_conversation_history = self.convert_conversation_type(
+            last_completed_conversation_history
+        )
         conversation_history = "\n".join(converted_conversation_history)
         additional_prompt = "##### Here is the interview transcript:\n" + conversation_history
-
 
         output_prompt = f"""
 Respond in JSON format using the structure defined here: {output_message.model_dump_json()}.
@@ -469,26 +541,34 @@ You have to be critical in your evaluation since you are part of the hiring team
 Also, don't be too optmistic in your evaluation. You have to be realistic in your evaluation and ensure that the candidate is not getting over evaluated.
 Now, using the data, proceed with your assessment and consider the following information:
 """
-        
+
         return base_prompt + additional_prompt + output_prompt + round_specific_prompt
 
-    def _generate_evaluation_prompt(self, prompt_input:PromptInput)->str:
-        message:EvaluationInputMessage = prompt_input.message
-        panelists:List[Profile] = message.panelists       
+    def _generate_evaluation_prompt(self, prompt_input: PromptInput) -> str:
+        message: EvaluationInputMessage = prompt_input.message
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
-        subqueries_data:SubqueryDataExtractionOutputMessage  = message.subqueries_data
-        activity_analysis:ActivityProgressAnalysisSummaryForPanelistOutputMessage = prompt_input.activity_analysis
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
+        subqueries_data: SubqueryDataExtractionOutputMessage = message.subqueries_data
+        activity_analysis: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
+            prompt_input.activity_analysis
+        )
         activity_code_from_candidate = prompt_input.activity_code_from_candidate
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_description = self.interview_round_details.rounds['interview_round_1'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_1"
+            ].description
         else:
-            interview_round_description = self.interview_round_details.rounds['interview_round_2'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_2"
+            ].description
 
         evaluation_criteria = message.evaluation_criteria
 
@@ -506,8 +586,7 @@ Now, using the data, proceed with your assessment and consider the following inf
         output_message.question_criteria_specific_scoring = [questionCriteriaSpecificQuestion]
 
         if interview_round == InterviewRound.ROUND_TWO:
-
-           base_prompt = f"""
+            base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
                 
 ### **Interview Context:**
@@ -553,13 +632,20 @@ You are a hiring manager responsible for monitoring and evaluating an interview 
 - Ensure the evaluation is **objective, structured, and aligned** with the provided criteria.
 """
 
-        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(interview_round, topic_data.name, subtopic_data.name, activity_analysis, activity_code_from_candidate) 
-        
+        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(
+            interview_round,
+            topic_data.name,
+            subtopic_data.name,
+            activity_analysis,
+            activity_code_from_candidate,
+        )
+
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
-        converted_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+        converted_conversation_history = self.convert_conversation_type(
+            last_completed_conversation_history
+        )
         conversation_history = "\n".join(converted_conversation_history)
         additional_prompt = "##### Here is the interview transcript:\n" + conversation_history
-
 
         output_prompt = f"""
 Respond in JSON format using the structure defined here: {output_message.model_dump_json()}.
@@ -593,7 +679,6 @@ You must only use the facts provided to determine the accuracy of the responses.
 Now, using the following data, proceed with your assessment:
 """
         return base_prompt + additional_prompt + output_prompt + round_specific_prompt
-
 
     def parse_response_content(self, response: AssistantChatMessage):
         # Assistant chat message consists of the following

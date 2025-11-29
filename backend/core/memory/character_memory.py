@@ -1,6 +1,12 @@
 from typing import List
+
 from pydantic import BaseModel
-from core.resource.model_providers.schema import ChatMessage, ReflectionChatMessage, ReasoningChatMessage 
+
+from core.resource.model_providers.schema import (
+    ChatMessage,
+    ReasoningChatMessage,
+    ReflectionChatMessage,
+)
 
 
 class SimpleMemory(BaseModel):
@@ -22,7 +28,7 @@ class SimpleMemory(BaseModel):
             return self.conversation_memory[-1]
         else:
             return None
-        
+
     def recall_last_reasoning(self):
         if self.reasoning_memory:
             return self.reasoning_memory[-1]
@@ -39,13 +45,12 @@ class SimpleMemory(BaseModel):
         self.conversation_memory.clear()
         self.reflection_memory.clear()
         self.reasoning_memory.clear()
-        
 
     def get_all_from_memory(self):
         return self.conversation_memory
-    
+
     def get_all_reflection_from_memory(self):
         return self.reflection_memory
-    
+
     def get_all_reasoning_from_memory(self):
         return self.reasoning_memory

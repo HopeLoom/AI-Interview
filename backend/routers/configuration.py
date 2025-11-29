@@ -2,36 +2,33 @@
 Comprehensive Configuration Router for Interview Simulation Platform
 Handles both static configuration data and dynamic configuration generation
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
-from fastapi.responses import JSONResponse
-from typing import List, Dict, Any, Optional
+
 import json
 import os
 import shutil
 from pathlib import Path
-from datetime import datetime
-import re
+from typing import Any, Dict, List, Optional
 
-from providers.provider_factory import ProviderFactory
-from utils.resume_file_reader import parse_resume
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from globals import main_logger
+from interview_configuration.database_service import InterviewConfigurationDatabase
+from interview_configuration.models import (
+    ConfigurationGenerationResponse,
+    FrontendConfigurationInput,
+    ResumeUploadData,
+)
 
 # Import interview configuration service and models
 from interview_configuration.service import InterviewConfigurationService
-from interview_configuration.database_service import InterviewConfigurationDatabase
-from interview_configuration.models import (
-    FrontendConfigurationInput,
-    ConfigurationGenerationResponse,
-    ResumeUploadData,
-    CompanyData,
-    CandidateData
-)
+from providers.provider_factory import ProviderFactory
+from utils.resume_file_reader import parse_resume
 
 router = APIRouter(prefix="/api/configurations", tags=["Configuration"])
 
 # ============================================================================
 # DEPENDENCIES
 # ============================================================================
+
 
 def get_configuration_service():
     """Dependency to get configuration service with LLM provider"""
@@ -40,25 +37,28 @@ def get_configuration_service():
     llm_provider = providers["openai"]  # Use OpenAI as default
     return InterviewConfigurationService(llm_provider)
 
+
 # ============================================================================
 # STATIC CONFIGURATION ENDPOINTS
 # ============================================================================
+
 
 def load_static_data(filename: str) -> Dict[str, Any]:
     """Load static configuration data from JSON files"""
     try:
         template_file_path = Path(__file__).parent.parent / "templates" / filename
-        
+
         if not template_file_path.exists():
             main_logger.warning(f"Template file {filename} not found")
             return {}
-        
-        with open(template_file_path, 'r') as f:
+
+        with open(template_file_path) as f:
             return json.load(f)
-            
+
     except Exception as e:
         main_logger.error(f"Failed to load {filename}: {e}")
         return {}
+
 
 @router.get("/character-templates")
 async def get_character_templates():
@@ -66,15 +66,13 @@ async def get_character_templates():
     try:
         data = load_static_data("character_templates.json")
         templates = data.get("templates", [])
-        
-        return {
-            "success": True,
-            "templates": templates
-        }
-        
+
+        return {"success": True, "templates": templates}
+
     except Exception as e:
         main_logger.error(f"Failed to get character templates: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get character templates: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get character templates: {e!s}")
+
 
 @router.get("/question-templates")
 async def get_question_templates():
@@ -82,15 +80,13 @@ async def get_question_templates():
     try:
         data = load_static_data("question_templates.json")
         templates = data.get("templates", [])
-        
-        return {
-            "success": True,
-            "templates": templates
-        }
-        
+
+        return {"success": True, "templates": templates}
+
     except Exception as e:
         main_logger.error(f"Failed to get question templates: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get question templates: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get question templates: {e!s}")
+
 
 @router.get("/interview-templates")
 async def get_interview_templates():
@@ -98,15 +94,13 @@ async def get_interview_templates():
     try:
         data = load_static_data("interview_templates.json")
         templates = data.get("templates", [])
-        
-        return {
-            "success": True,
-            "templates": templates
-        }
-        
+
+        return {"success": True, "templates": templates}
+
     except Exception as e:
         main_logger.error(f"Failed to get interview templates: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get interview templates: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get interview templates: {e!s}")
+
 
 @router.get("/programming-languages")
 async def get_programming_languages():
@@ -128,17 +122,17 @@ async def get_programming_languages():
             {"id": "kotlin", "name": "Kotlin", "description": "JVM programming language"},
             {"id": "scala", "name": "Scala", "description": "Functional programming language"},
             {"id": "r", "name": "R", "description": "Statistical computing language"},
-            {"id": "matlab", "name": "MATLAB", "description": "Numerical computing language"}
+            {"id": "matlab", "name": "MATLAB", "description": "Numerical computing language"},
         ]
-        
-        return {
-            "success": True,
-            "languages": languages
-        }
-        
+
+        return {"success": True, "languages": languages}
+
     except Exception as e:
         main_logger.error(f"Failed to get programming languages: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get programming languages: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get programming languages: {e!s}"
+        )
+
 
 @router.get("/difficulty-levels")
 async def get_difficulty_levels():
@@ -149,62 +143,98 @@ async def get_difficulty_levels():
                 "value": "beginner",
                 "label": "Beginner",
                 "description": "Basic problems, suitable for junior positions",
-                "color": "green"
+                "color": "green",
             },
             {
                 "value": "intermediate",
                 "label": "Intermediate",
                 "description": "Moderate problems, suitable for mid-level positions",
-                "color": "blue"
+                "color": "blue",
             },
             {
                 "value": "advanced",
                 "label": "Advanced",
                 "description": "Complex problems, suitable for senior positions",
-                "color": "purple"
+                "color": "purple",
             },
             {
                 "value": "expert",
                 "label": "Expert",
                 "description": "Very complex problems, suitable for lead/architect positions",
-                "color": "red"
-            }
+                "color": "red",
+            },
         ]
-        
-        return {
-            "success": True,
-            "difficulty_levels": difficulty_levels
-        }
-        
+
+        return {"success": True, "difficulty_levels": difficulty_levels}
+
     except Exception as e:
         main_logger.error(f"Failed to get difficulty levels: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get difficulty levels: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get difficulty levels: {e!s}")
+
 
 @router.get("/personality-traits")
 async def get_personality_traits():
     """Get available personality traits for AI interviewers"""
     try:
         personality_traits = [
-            {"id": "friendly", "trait": "Friendly", "description": "Warm and approachable interviewer"},
-            {"id": "professional", "trait": "Professional", "description": "Formal and business-like interviewer"},
-            {"id": "challenging", "trait": "Challenging", "description": "Pushes candidates to think deeper"},
-            {"id": "supportive", "trait": "Supportive", "description": "Encouraging and helpful interviewer"},
-            {"id": "analytical", "trait": "Analytical", "description": "Focuses on logical thinking and analysis"},
-            {"id": "creative", "trait": "Creative", "description": "Encourages innovative and out-of-the-box thinking"},
-            {"id": "detail-oriented", "trait": "Detail-Oriented", "description": "Focuses on precision and thoroughness"},
-            {"id": "big-picture", "trait": "Big Picture", "description": "Focuses on high-level strategic thinking"},
-            {"id": "collaborative", "trait": "Collaborative", "description": "Emphasizes teamwork and cooperation"},
-            {"id": "independent", "trait": "Independent", "description": "Focuses on individual problem-solving"}
+            {
+                "id": "friendly",
+                "trait": "Friendly",
+                "description": "Warm and approachable interviewer",
+            },
+            {
+                "id": "professional",
+                "trait": "Professional",
+                "description": "Formal and business-like interviewer",
+            },
+            {
+                "id": "challenging",
+                "trait": "Challenging",
+                "description": "Pushes candidates to think deeper",
+            },
+            {
+                "id": "supportive",
+                "trait": "Supportive",
+                "description": "Encouraging and helpful interviewer",
+            },
+            {
+                "id": "analytical",
+                "trait": "Analytical",
+                "description": "Focuses on logical thinking and analysis",
+            },
+            {
+                "id": "creative",
+                "trait": "Creative",
+                "description": "Encourages innovative and out-of-the-box thinking",
+            },
+            {
+                "id": "detail-oriented",
+                "trait": "Detail-Oriented",
+                "description": "Focuses on precision and thoroughness",
+            },
+            {
+                "id": "big-picture",
+                "trait": "Big Picture",
+                "description": "Focuses on high-level strategic thinking",
+            },
+            {
+                "id": "collaborative",
+                "trait": "Collaborative",
+                "description": "Emphasizes teamwork and cooperation",
+            },
+            {
+                "id": "independent",
+                "trait": "Independent",
+                "description": "Focuses on individual problem-solving",
+            },
         ]
-        
-        return {
-            "success": True,
-            "traits": personality_traits
-        }
-        
+
+        return {"success": True, "traits": personality_traits}
+
     except Exception as e:
         main_logger.error(f"Failed to get personality traits: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get personality traits: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get personality traits: {e!s}")
+
 
 @router.get("/predefined-topics")
 async def get_predefined_topics():
@@ -214,56 +244,127 @@ async def get_predefined_topics():
             {
                 "category": "Technical Skills",
                 "topics": {
-                    "Programming": ["Data Structures", "Algorithms", "System Design", "Database Design", "API Design"],
-                    "Computer Science": ["Operating Systems", "Networks", "Security", "Architecture", "Performance"],
-                    "Software Engineering": ["Design Patterns", "Testing", "Code Quality", "Version Control", "CI/CD"],
-                    "Data & ML": ["Machine Learning", "Data Analysis", "Statistics", "Big Data", "AI Ethics"]
-                }
+                    "Programming": [
+                        "Data Structures",
+                        "Algorithms",
+                        "System Design",
+                        "Database Design",
+                        "API Design",
+                    ],
+                    "Computer Science": [
+                        "Operating Systems",
+                        "Networks",
+                        "Security",
+                        "Architecture",
+                        "Performance",
+                    ],
+                    "Software Engineering": [
+                        "Design Patterns",
+                        "Testing",
+                        "Code Quality",
+                        "Version Control",
+                        "CI/CD",
+                    ],
+                    "Data & ML": [
+                        "Machine Learning",
+                        "Data Analysis",
+                        "Statistics",
+                        "Big Data",
+                        "AI Ethics",
+                    ],
+                },
             },
             {
                 "category": "Problem Solving",
                 "topics": {
-                    "Analytical": ["Problem Analysis", "Solution Design", "Trade-offs", "Optimization", "Scalability"],
-                    "Creative": ["Innovation", "User Experience", "Design Thinking", "Prototyping", "Iteration"],
-                    "Critical": ["Code Review", "Debugging", "Performance Analysis", "Security Review", "Architecture Review"]
-                }
+                    "Analytical": [
+                        "Problem Analysis",
+                        "Solution Design",
+                        "Trade-offs",
+                        "Optimization",
+                        "Scalability",
+                    ],
+                    "Creative": [
+                        "Innovation",
+                        "User Experience",
+                        "Design Thinking",
+                        "Prototyping",
+                        "Iteration",
+                    ],
+                    "Critical": [
+                        "Code Review",
+                        "Debugging",
+                        "Performance Analysis",
+                        "Security Review",
+                        "Architecture Review",
+                    ],
+                },
             },
             {
                 "category": "Soft Skills",
                 "topics": {
-                    "Communication": ["Technical Writing", "Presentation", "Documentation", "Team Collaboration", "Stakeholder Management"],
-                    "Leadership": ["Project Management", "Mentoring", "Decision Making", "Conflict Resolution", "Strategic Thinking"],
-                    "Adaptability": ["Learning Agility", "Change Management", "Problem Adaptation", "Technology Adoption", "Process Improvement"]
-                }
+                    "Communication": [
+                        "Technical Writing",
+                        "Presentation",
+                        "Documentation",
+                        "Team Collaboration",
+                        "Stakeholder Management",
+                    ],
+                    "Leadership": [
+                        "Project Management",
+                        "Mentoring",
+                        "Decision Making",
+                        "Conflict Resolution",
+                        "Strategic Thinking",
+                    ],
+                    "Adaptability": [
+                        "Learning Agility",
+                        "Change Management",
+                        "Problem Adaptation",
+                        "Technology Adoption",
+                        "Process Improvement",
+                    ],
+                },
             },
             {
                 "category": "Domain Knowledge",
                 "topics": {
-                    "Web Development": ["Frontend", "Backend", "Full Stack", "Mobile", "Progressive Web Apps"],
+                    "Web Development": [
+                        "Frontend",
+                        "Backend",
+                        "Full Stack",
+                        "Mobile",
+                        "Progressive Web Apps",
+                    ],
                     "Cloud & DevOps": ["AWS", "Azure", "GCP", "Docker", "Kubernetes", "Terraform"],
-                    "Data Engineering": ["ETL", "Data Warehousing", "Streaming", "Data Governance", "Data Quality"]
-                }
-            }
+                    "Data Engineering": [
+                        "ETL",
+                        "Data Warehousing",
+                        "Streaming",
+                        "Data Governance",
+                        "Data Quality",
+                    ],
+                },
+            },
         ]
-        
-        return {
-            "success": True,
-            "topics": predefined_topics
-        }
-        
+
+        return {"success": True, "topics": predefined_topics}
+
     except Exception as e:
         main_logger.error(f"Failed to get predefined topics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get predefined topics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get predefined topics: {e!s}")
+
 
 # ============================================================================
 # DYNAMIC CONFIGURATION GENERATION ENDPOINTS
 # ============================================================================
 
+
 @router.post("/generate", response_model=ConfigurationGenerationResponse)
 async def generate_full_configuration(
     config_input: FrontendConfigurationInput,
     user_id: str = "default_user",  # In real implementation, get from auth
-    service: InterviewConfigurationService = Depends(get_configuration_service)
+    service: InterviewConfigurationService = Depends(get_configuration_service),
 ):
     """
     Generate complete interview configuration from frontend input
@@ -271,18 +372,18 @@ async def generate_full_configuration(
     try:
         main_logger.info(f"Generating configuration for user: {user_id}")
         response = await service.generate_full_configuration(config_input, user_id)
-        
+
         if not response.success:
-            raise HTTPException(status_code=400, detail={
-                "errors": response.errors,
-                "warnings": response.warnings
-            })
-        
+            raise HTTPException(
+                status_code=400, detail={"errors": response.errors, "warnings": response.warnings}
+            )
+
         return response
-        
+
     except Exception as e:
         main_logger.error(f"Configuration generation failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Configuration generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Configuration generation failed: {e!s}")
+
 
 @router.get("/templates")
 async def get_configuration_templates():
@@ -298,7 +399,7 @@ async def get_configuration_templates():
                 "description": "Comprehensive frontend development interview covering React, JavaScript, and web fundamentals",
                 "category": "frontend",
                 "difficulty": "intermediate",
-                "estimated_duration": 60
+                "estimated_duration": 60,
             },
             {
                 "template_id": "backend-dev",
@@ -306,7 +407,7 @@ async def get_configuration_templates():
                 "description": "Backend development interview focusing on APIs, databases, and system design",
                 "category": "backend",
                 "difficulty": "intermediate",
-                "estimated_duration": 75
+                "estimated_duration": 75,
             },
             {
                 "template_id": "fullstack-dev",
@@ -314,7 +415,7 @@ async def get_configuration_templates():
                 "description": "End-to-end development interview covering both frontend and backend technologies",
                 "category": "fullstack",
                 "difficulty": "advanced",
-                "estimated_duration": 90
+                "estimated_duration": 90,
             },
             {
                 "template_id": "ml-engineer",
@@ -322,7 +423,7 @@ async def get_configuration_templates():
                 "description": "ML-focused interview covering algorithms, data science, and practical ML applications",
                 "category": "machine-learning",
                 "difficulty": "advanced",
-                "estimated_duration": 80
+                "estimated_duration": 80,
             },
             {
                 "template_id": "data-scientist",
@@ -330,7 +431,7 @@ async def get_configuration_templates():
                 "description": "Data science interview covering statistics, analysis, and data manipulation",
                 "category": "data-science",
                 "difficulty": "intermediate",
-                "estimated_duration": 70
+                "estimated_duration": 70,
             },
             {
                 "template_id": "product-manager",
@@ -338,7 +439,7 @@ async def get_configuration_templates():
                 "description": "Product management interview covering strategy, user research, and product development",
                 "category": "product-management",
                 "difficulty": "intermediate",
-                "estimated_duration": 60
+                "estimated_duration": 60,
             },
             {
                 "template_id": "ui-ux-designer",
@@ -346,7 +447,7 @@ async def get_configuration_templates():
                 "description": "Design interview covering user experience, visual design, and design thinking",
                 "category": "design",
                 "difficulty": "intermediate",
-                "estimated_duration": 65
+                "estimated_duration": 65,
             },
             {
                 "template_id": "devops-engineer",
@@ -354,18 +455,16 @@ async def get_configuration_templates():
                 "description": "DevOps interview covering infrastructure, CI/CD, and cloud technologies",
                 "category": "devops",
                 "difficulty": "advanced",
-                "estimated_duration": 75
-            }
+                "estimated_duration": 75,
+            },
         ]
-        
-        return {
-            "success": True,
-            "templates": templates
-        }
-        
+
+        return {"success": True, "templates": templates}
+
     except Exception as e:
         main_logger.error(f"Failed to get templates: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get templates: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get templates: {e!s}")
+
 
 @router.get("/templates/{template_id}")
 async def get_template_by_id(template_id: str):
@@ -383,17 +482,15 @@ async def get_template_by_id(template_id: str):
             "difficulty": "intermediate",
             "estimated_duration": 60,
             "rounds": [],
-            "job_details": {}
+            "job_details": {},
         }
-        
-        return {
-            "success": True,
-            "template": template
-        }
-        
+
+        return {"success": True, "template": template}
+
     except Exception as e:
         main_logger.error(f"Failed to get template {template_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get template: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get template: {e!s}")
+
 
 @router.get("/job-templates")
 async def get_job_templates():
@@ -410,9 +507,9 @@ async def get_job_templates():
                         {"name": "Technical Screening", "duration": 30},
                         {"name": "Coding Challenge", "duration": 45},
                         {"name": "System Design", "duration": 60},
-                        {"name": "Behavioral", "duration": 30}
+                        {"name": "Behavioral", "duration": 30},
                     ]
-                }
+                },
             },
             {
                 "job_title": "Data Scientist",
@@ -422,68 +519,64 @@ async def get_job_templates():
                         {"name": "Statistics & ML", "duration": 45},
                         {"name": "Coding Challenge", "duration": 60},
                         {"name": "Case Study", "duration": 45},
-                        {"name": "Behavioral", "duration": 30}
+                        {"name": "Behavioral", "duration": 30},
                     ]
-                }
-            }
+                },
+            },
         ]
-        
-        return {
-            "success": True,
-            "job_templates": job_templates
-        }
-        
+
+        return {"success": True, "job_templates": job_templates}
+
     except Exception as e:
         main_logger.error(f"Failed to get job templates: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get job templates: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get job templates: {e!s}")
+
 
 # ============================================================================
 # RESUME AND JOB PARSING ENDPOINTS
 # ============================================================================
 
+
 @router.post("/upload-resume")
-async def upload_resume(
-    user_id: str = Form(...),
-    resume: UploadFile = File(...)
-):
+async def upload_resume(user_id: str = Form(...), resume: UploadFile = File(...)):
     """
     Upload and parse resume file
     """
     try:
         main_logger.info(f"Uploading resume for user: {user_id}")
-        
+
         # Validate file type
-        if not resume.filename.lower().endswith(('.pdf', '.docx', '.doc')):
+        if not resume.filename.lower().endswith((".pdf", ".docx", ".doc")):
             raise HTTPException(
-                status_code=400, 
-                detail="Invalid file format. Only PDF and Word documents are supported."
+                status_code=400,
+                detail="Invalid file format. Only PDF and Word documents are supported.",
             )
-        
+
         # Create upload directory
         upload_dir = f"static/{user_id}/resumes"
         os.makedirs(upload_dir, exist_ok=True)
-        
+
         # Save uploaded file
         file_path = os.path.join(upload_dir, resume.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(resume.file, buffer)
-        
+
         # Parse resume content
         try:
             parsed_content = parse_resume(file_path)
-            
+
             resume_data = ResumeUploadData(
                 filename=resume.filename,
                 content=str(parsed_content),  # Convert to string for now
-                file_path=file_path
+                file_path=file_path,
             )
-            
+
             return {
                 "success": True,
                 "message": "Resume uploaded and parsed successfully",
-                "resume_data": resume_data.model_dump()
+                "resume_data": resume_data.model_dump(),
             }
-            
+
         except Exception as parse_error:
             main_logger.error(f"Resume parsing failed: {parse_error}")
             # Still return success but with raw text
@@ -493,63 +586,62 @@ async def upload_resume(
                 "resume_data": ResumeUploadData(
                     filename=resume.filename,
                     content=f"Resume file: {resume.filename} (parsing failed)",
-                    file_path=file_path
+                    file_path=file_path,
                 ).model_dump(),
-                "warning": "Resume parsing failed, using filename only"
+                "warning": "Resume parsing failed, using filename only",
             }
-        
+
     except Exception as e:
         main_logger.error(f"Resume upload failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Resume upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Resume upload failed: {e!s}")
+
 
 @router.post("/enhanced-resume-upload")
 async def enhanced_resume_upload(
     user_id: str = Form(...),
     resume: UploadFile = File(...),
-    service: InterviewConfigurationService = Depends(get_configuration_service)
+    service: InterviewConfigurationService = Depends(get_configuration_service),
 ):
     """
     Enhanced resume upload with AI-powered parsing
     """
     try:
         main_logger.info(f"Enhanced resume upload for user: {user_id}")
-        
+
         # Validate file type
-        if not resume.filename.lower().endswith(('.pdf', '.docx', '.doc')):
+        if not resume.filename.lower().endswith((".pdf", ".docx", ".doc")):
             raise HTTPException(
-                status_code=400, 
-                detail="Invalid file format. Only PDF and Word documents are supported."
+                status_code=400,
+                detail="Invalid file format. Only PDF and Word documents are supported.",
             )
-        
+
         # Create upload directory
         upload_dir = f"static/{user_id}/resumes"
         os.makedirs(upload_dir, exist_ok=True)
-        
+
         # Save uploaded file
         file_path = os.path.join(upload_dir, resume.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(resume.file, buffer)
-        
+
         # Parse resume content
         try:
             parsed_content = parse_resume(file_path)
-            
+
             # Use AI service to extract structured information
             extracted_info = await service._extract_resume_information_llm(str(parsed_content))
-            
+
             resume_data = ResumeUploadData(
-                filename=resume.filename,
-                content=str(parsed_content),
-                file_path=file_path
+                filename=resume.filename, content=str(parsed_content), file_path=file_path
             )
-            
+
             return {
                 "success": True,
                 "message": "Resume uploaded and AI-parsed successfully",
                 "resume_data": resume_data.model_dump(),
-                "extracted_info": extracted_info
+                "extracted_info": extracted_info,
             }
-            
+
         except Exception as parse_error:
             main_logger.error(f"Enhanced resume parsing failed: {parse_error}")
             # Fall back to basic parsing
@@ -559,26 +651,27 @@ async def enhanced_resume_upload(
                 "resume_data": ResumeUploadData(
                     filename=resume.filename,
                     content=f"Resume file: {resume.filename} (AI parsing failed)",
-                    file_path=file_path
+                    file_path=file_path,
                 ).model_dump(),
-                "warning": "AI parsing failed, using basic parsing"
+                "warning": "AI parsing failed, using basic parsing",
             }
-        
+
     except Exception as e:
         main_logger.error(f"Enhanced resume upload failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Enhanced resume upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Enhanced resume upload failed: {e!s}")
+
 
 @router.post("/parse-job-url")
 async def parse_job_url(
     job_url: str = Form(...),
-    service: InterviewConfigurationService = Depends(get_configuration_service)
+    service: InterviewConfigurationService = Depends(get_configuration_service),
 ):
     """
     Parse job posting from URL
     """
     try:
         main_logger.info(f"Parsing job URL: {job_url}")
-        
+
         # This would typically use a web scraping service
         # For now, return mock data
         job_data = {
@@ -587,29 +680,27 @@ async def parse_job_url(
             "location": "San Francisco, CA",
             "description": "We are looking for a talented software engineer...",
             "requirements": ["Python", "JavaScript", "React", "3+ years experience"],
-            "url": job_url
+            "url": job_url,
         }
-        
-        return {
-            "success": True,
-            "job_data": job_data
-        }
-        
+
+        return {"success": True, "job_data": job_data}
+
     except Exception as e:
         main_logger.error(f"Job URL parsing failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Job URL parsing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Job URL parsing failed: {e!s}")
+
 
 @router.post("/parse-job-description")
 async def parse_job_description(
     job_description: str = Form(...),
-    service: InterviewConfigurationService = Depends(get_configuration_service)
+    service: InterviewConfigurationService = Depends(get_configuration_service),
 ):
     """
     Parse and analyze job description text
     """
     try:
         main_logger.info("Parsing job description")
-        
+
         # This would typically use AI to extract structured information
         # For now, return mock data
         parsed_job = {
@@ -617,26 +708,23 @@ async def parse_job_description(
             "skills": ["Python", "JavaScript", "React"],
             "experience_level": "Mid-level",
             "responsibilities": ["Develop web applications", "Collaborate with team"],
-            "requirements": ["Bachelor's degree", "3+ years experience"]
+            "requirements": ["Bachelor's degree", "3+ years experience"],
         }
-        
-        return {
-            "success": True,
-            "parsed_job": parsed_job
-        }
-        
+
+        return {"success": True, "parsed_job": parsed_job}
+
     except Exception as e:
         main_logger.error(f"Job description parsing failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Job description parsing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Job description parsing failed: {e!s}")
+
 
 # ============================================================================
 # USER MANAGEMENT ENDPOINTS
 # ============================================================================
 
+
 @router.post("/register-user")
-async def register_user(
-    user_data: Dict[str, Any]
-):
+async def register_user(user_data: Dict[str, Any]):
     """
     Register a new user (company or candidate)
     """
@@ -644,9 +732,9 @@ async def register_user(
         main_logger.info(f"Registering user: {user_data.get('email', 'unknown')}")
 
         db_service = InterviewConfigurationDatabase()
-        user_type = user_data.get('userType', 'candidate')
+        user_type = user_data.get("userType", "candidate")
 
-        if user_type == 'company':
+        if user_type == "company":
             # Register as company
             user_id = await db_service.create_company(user_data)
             main_logger.info(f"Company registered successfully: {user_id}")
@@ -659,16 +747,18 @@ async def register_user(
             "success": True,
             "user_id": user_id,
             "user_type": user_type,
-            "message": "User registered successfully"
+            "message": "User registered successfully",
         }
 
     except Exception as e:
         main_logger.error(f"User registration failed: {e}")
-        raise HTTPException(status_code=500, detail=f"User registration failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"User registration failed: {e!s}")
+
 
 # ============================================================================
 # CONFIGURATION RETRIEVAL ENDPOINTS
 # ============================================================================
+
 
 @router.get("/{config_id}")
 async def get_configuration_by_id(config_id: str):
@@ -684,16 +774,14 @@ async def get_configuration_by_id(config_id: str):
         if not config_data:
             raise HTTPException(status_code=404, detail="Configuration not found")
 
-        return {
-            "success": True,
-            "configuration": config_data
-        }
+        return {"success": True, "configuration": config_data}
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to get configuration {config_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get configuration: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get configuration: {e!s}")
+
 
 @router.post("/join-by-code")
 async def join_interview_by_code(request_data: Dict[str, str]):
@@ -721,7 +809,9 @@ async def join_interview_by_code(request_data: Dict[str, str]):
         if not candidate_id:
             raise HTTPException(status_code=400, detail="Candidate ID is required")
 
-        main_logger.info(f"Candidate {candidate_id} attempting to join with code: {invitation_code}")
+        main_logger.info(
+            f"Candidate {candidate_id} attempting to join with code: {invitation_code}"
+        )
 
         db_service = InterviewConfigurationDatabase()
 
@@ -729,56 +819,66 @@ async def join_interview_by_code(request_data: Dict[str, str]):
         result = await db_service.create_interview_session_from_code(
             invitation_code=invitation_code,
             candidate_id=candidate_id,
-            candidate_email=candidate_email or candidate_id  # Fallback to candidate_id if email not provided
+            candidate_email=candidate_email
+            or candidate_id,  # Fallback to candidate_id if email not provided
         )
 
-        if not result or not result.get('success'):
+        if not result or not result.get("success"):
             raise HTTPException(
-                status_code=404,
-                detail="Invalid invitation code or interview not available"
+                status_code=404, detail="Invalid invitation code or interview not available"
             )
 
-        config = result['configuration']
-        company = result.get('company')
-        job_posting = result.get('job_posting')
-        session_id = result['session_id']
+        config = result["configuration"]
+        company = result.get("company")
+        job_posting = result.get("job_posting")
+        session_id = result["session_id"]
 
         main_logger.info(f"Interview session {session_id} created for candidate {candidate_id}")
 
         return {
             "success": True,
             "message": "Successfully joined interview",
-            "configuration_id": config.get('id'),
+            "configuration_id": config.get("id"),
             "session_id": session_id,
             "configuration": config,
             "company": {
-                "id": company.get('id') if company else None,
-                "name": company.get('name') if company else 'Unknown Company',
-                "contact_email": company.get('contact_email') if company else None,
-                "industry": company.get('industry') if company else None,
-                "location": company.get('location') if company else None,
-                "website": company.get('website') if company else None,
-            } if company else None,
+                "id": company.get("id") if company else None,
+                "name": company.get("name") if company else "Unknown Company",
+                "contact_email": company.get("contact_email") if company else None,
+                "industry": company.get("industry") if company else None,
+                "location": company.get("location") if company else None,
+                "website": company.get("website") if company else None,
+            }
+            if company
+            else None,
             "job_posting": {
-                "id": job_posting.get('id') if job_posting else None,
-                "title": job_posting.get('title') if job_posting else config.get('job_title', 'Interview'),
-                "description": job_posting.get('description') if job_posting else None,
-                "requirements": job_posting.get('requirements') if job_posting else None,
-            } if job_posting else None
+                "id": job_posting.get("id") if job_posting else None,
+                "title": job_posting.get("title")
+                if job_posting
+                else config.get("job_title", "Interview"),
+                "description": job_posting.get("description") if job_posting else None,
+                "requirements": job_posting.get("requirements") if job_posting else None,
+            }
+            if job_posting
+            else None,
         }
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to join interview by code: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to join interview: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to join interview: {e!s}")
+
 
 # ============================================================================
 # INTERVIEW SESSIONS & EVALUATIONS
 # ============================================================================
 
+
 @router.get("/sessions")
-async def get_interview_sessions(configuration_id: Optional[str] = None, candidate_id: Optional[str] = None):
+async def get_interview_sessions(
+    configuration_id: Optional[str] = None, candidate_id: Optional[str] = None
+):
     """
     Get interview sessions by configuration or candidate
 
@@ -802,54 +902,55 @@ async def get_interview_sessions(configuration_id: Optional[str] = None, candida
             main_logger.info(f"Getting sessions for candidate: {candidate_id}")
             sessions = await db_service.get_interview_sessions_by_candidate(candidate_id)
         else:
-            raise HTTPException(status_code=400, detail="Either configuration_id or candidate_id is required")
+            raise HTTPException(
+                status_code=400, detail="Either configuration_id or candidate_id is required"
+            )
 
         # Enrich sessions with candidate information
         enriched_sessions = []
         for session in sessions:
             candidate_id_value = (
-                session.get('candidate_id')
-                or session.get('candidateId')
-                or session.get('candidateDetails', {}).get('id')
+                session.get("candidate_id")
+                or session.get("candidateId")
+                or session.get("candidateDetails", {}).get("id")
             )
-            candidate = await db_service.get_candidate(candidate_id_value) if candidate_id_value else None
+            candidate = (
+                await db_service.get_candidate(candidate_id_value) if candidate_id_value else None
+            )
 
             session_identifier = (
-                session.get('id')
-                or session.get('session_id')
-                or session.get('sessionId')
+                session.get("id") or session.get("session_id") or session.get("sessionId")
             )
 
-            status = session.get('status') or session.get('current_status') or 'unknown'
+            status = session.get("status") or session.get("current_status") or "unknown"
             score = (
-                session.get('overall_score')
-                or session.get('score')
-                or session.get('finalScore')
+                session.get("overall_score") or session.get("score") or session.get("finalScore")
             )
 
             enriched_session = {
                 **session,
                 "session_id": session_identifier,
                 "candidate_id": candidate_id_value,
-                "candidate_name": candidate.get('name') if candidate else session.get('candidate_name', 'Unknown'),
-                "candidate_email": candidate.get('email') if candidate else session.get('candidate_email', 'Unknown'),
+                "candidate_name": candidate.get("name")
+                if candidate
+                else session.get("candidate_name", "Unknown"),
+                "candidate_email": candidate.get("email")
+                if candidate
+                else session.get("candidate_email", "Unknown"),
                 "status": status,
                 "overall_score": score,
             }
 
             enriched_sessions.append(enriched_session)
 
-        return {
-            "success": True,
-            "sessions": enriched_sessions,
-            "total": len(enriched_sessions)
-        }
+        return {"success": True, "sessions": enriched_sessions, "total": len(enriched_sessions)}
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to get interview sessions: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get interview sessions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get interview sessions: {e!s}")
+
 
 @router.put("/sessions/{session_id}/end")
 async def end_interview_session(session_id: str, request_data: Dict[str, Any]):
@@ -878,37 +979,35 @@ async def end_interview_session(session_id: str, request_data: Dict[str, Any]):
             raise HTTPException(status_code=404, detail="Session not found")
 
         # Check if already completed
-        if session.get('status') in ['completed', 'evaluated']:
-            return {
-                "success": True,
-                "message": "Session already completed",
-                "session": session
-            }
+        if session.get("status") in ["completed", "evaluated"]:
+            return {"success": True, "message": "Session already completed", "session": session}
 
         # Prepare update data
         from datetime import datetime
+
         update_data = {
-            'status': 'completed',
-            'completedAt': datetime.utcnow(),
-            'endReason': request_data.get('reason', 'completed')
+            "status": "completed",
+            "completedAt": datetime.utcnow(),
+            "endReason": request_data.get("reason", "completed"),
         }
 
         # Save final code if provided
-        if request_data.get('final_code'):
-            update_data['finalCode'] = request_data.get('final_code')
+        if request_data.get("final_code"):
+            update_data["finalCode"] = request_data.get("final_code")
 
         # Save candidate feedback if provided
-        if request_data.get('feedback'):
-            update_data['candidateFeedback'] = request_data.get('feedback')
+        if request_data.get("feedback"):
+            update_data["candidateFeedback"] = request_data.get("feedback")
 
         # Calculate duration if possible
-        if session.get('startedAt'):
-            start_time = session.get('startedAt')
+        if session.get("startedAt"):
+            start_time = session.get("startedAt")
             if isinstance(start_time, str):
                 from dateutil import parser
+
                 start_time = parser.parse(start_time)
             duration_seconds = (datetime.utcnow() - start_time).total_seconds()
-            update_data['durationMinutes'] = round(duration_seconds / 60, 2)
+            update_data["durationMinutes"] = round(duration_seconds / 60, 2)
 
         # Update session in database
         success = await db_service.update_interview_session(session_id, update_data)
@@ -924,14 +1023,15 @@ async def end_interview_session(session_id: str, request_data: Dict[str, Any]):
         return {
             "success": True,
             "message": "Interview session ended successfully",
-            "session": updated_session
+            "session": updated_session,
         }
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to end interview session {session_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to end interview session: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to end interview session: {e!s}")
+
 
 @router.get("/sessions/{session_id}/evaluation")
 async def get_session_evaluation(session_id: str):
@@ -955,7 +1055,7 @@ async def get_session_evaluation(session_id: str):
             raise HTTPException(status_code=404, detail="Session not found")
 
         # Get candidate details
-        candidate_id = session.get('candidate_id')
+        candidate_id = session.get("candidate_id")
         candidate = await db_service.get_candidate(candidate_id) if candidate_id else None
 
         # Get evaluation data (if exists)
@@ -966,19 +1066,19 @@ async def get_session_evaluation(session_id: str):
             "session": {
                 "session_id": session_id,
                 "candidate_id": candidate_id,
-                "candidate_name": candidate.get('name') if candidate else 'Unknown',
-                "candidate_email": candidate.get('email') if candidate else 'Unknown',
-                "status": session.get('status'),
-                "started_at": session.get('started_at') or session.get('startedAt'),
-                "completed_at": session.get('completed_at') or session.get('completedAt'),
-                "created_at": session.get('created_at') or session.get('createdAt'),
+                "candidate_name": candidate.get("name") if candidate else "Unknown",
+                "candidate_email": candidate.get("email") if candidate else "Unknown",
+                "status": session.get("status"),
+                "started_at": session.get("started_at") or session.get("startedAt"),
+                "completed_at": session.get("completed_at") or session.get("completedAt"),
+                "created_at": session.get("created_at") or session.get("createdAt"),
             },
             "evaluation": evaluation,
-            "configuration_id": session.get('configuration_id')
+            "configuration_id": session.get("configuration_id"),
         }
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to get evaluation for session {session_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get evaluation: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get evaluation: {e!s}")

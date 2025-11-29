@@ -2,8 +2,10 @@
 Applications router for managing candidate applications to job postings.
 Handles application submission, status updates, and retrieval.
 """
-from fastapi import APIRouter, HTTPException, Depends
-from typing import List, Dict, Any, Optional
+
+from typing import Dict, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
 from globals import main_logger
 from interview_configuration.database_service import InterviewConfigurationDatabase
 from interview_configuration.models import CandidateApplicationData
@@ -14,18 +16,21 @@ router = APIRouter(prefix="/api/applications", tags=["applications"])
 # DEPENDENCY INJECTION
 # ============================================================================
 
+
 def get_db_service():
     """Get database service instance"""
     return InterviewConfigurationDatabase()
+
 
 # ============================================================================
 # APPLICATION CRUD OPERATIONS
 # ============================================================================
 
+
 @router.post("")
 async def create_application(
     application_data: CandidateApplicationData,
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
     Submit a new application
@@ -48,32 +53,38 @@ async def create_application(
             raise HTTPException(status_code=404, detail="Job posting not found")
 
         # Check if application already exists
-        existing_applications = await db_service.get_candidate_applications_by_candidate(application_data.candidate_id)
+        existing_applications = await db_service.get_candidate_applications_by_candidate(
+            application_data.candidate_id
+        )
         for app in existing_applications:
-            if app.get('jobPostingId') == application_data.job_posting_id:
-                raise HTTPException(status_code=400, detail="Application already submitted for this job")
+            if app.get("jobPostingId") == application_data.job_posting_id:
+                raise HTTPException(
+                    status_code=400, detail="Application already submitted for this job"
+                )
 
         # Create application
-        application_id = await db_service.create_candidate_application(application_data.dict(exclude_none=True))
+        application_id = await db_service.create_candidate_application(
+            application_data.dict(exclude_none=True)
+        )
 
         main_logger.info(f"Application created successfully: {application_id}")
 
         return {
             "success": True,
             "application_id": application_id,
-            "message": "Application submitted successfully"
+            "message": "Application submitted successfully",
         }
 
     except HTTPException:
         raise
     except Exception as e:
         main_logger.error(f"Failed to create application: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to submit application: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to submit application: {e!s}")
+
 
 @router.get("/{application_id}")
 async def get_application(
-    application_id: str,
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    application_id: str, db_service: InterviewConfigurationDatabase = Depends(get_db_service)
 ):
     """
     Get application details by ID
@@ -90,7 +101,7 @@ async def get_application(
         # This is a limitation of the current database service
         raise HTTPException(
             status_code=501,
-            detail="Get application by ID not yet implemented. Use get by candidate or job posting instead."
+            detail="Get application by ID not yet implemented. Use get by candidate or job posting instead.",
         )
 
     except HTTPException:
@@ -99,11 +110,12 @@ async def get_application(
         main_logger.error(f"Failed to get application {application_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 @router.put("/{application_id}/status")
 async def update_application_status(
     application_id: str,
     status_data: Dict[str, str],
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
     Update application status
@@ -116,16 +128,16 @@ async def update_application_status(
         Success status
     """
     try:
-        new_status = status_data.get('status')
+        new_status = status_data.get("status")
         if not new_status:
             raise HTTPException(status_code=400, detail="Status is required")
 
         # Validate status
-        valid_statuses = ['applied', 'screening', 'interviewing', 'offered', 'rejected', 'accepted']
+        valid_statuses = ["applied", "screening", "interviewing", "offered", "rejected", "accepted"]
         if new_status not in valid_statuses:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
+                detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}",
             )
 
         # Update application status
@@ -136,10 +148,7 @@ async def update_application_status(
 
         main_logger.info(f"Application status updated: {application_id} -> {new_status}")
 
-        return {
-            "success": True,
-            "message": "Application status updated successfully"
-        }
+        return {"success": True, "message": "Application status updated successfully"}
 
     except HTTPException:
         raise
@@ -147,15 +156,17 @@ async def update_application_status(
         main_logger.error(f"Failed to update application status {application_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 # ============================================================================
 # APPLICATION QUERIES
 # ============================================================================
+
 
 @router.get("/job/{job_id}")
 async def get_applications_by_job(
     job_id: str,
     status: Optional[str] = None,
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
     Get all applications for a job posting
@@ -178,13 +189,9 @@ async def get_applications_by_job(
 
         # Filter by status if provided
         if status:
-            applications = [app for app in applications if app.get('status') == status]
+            applications = [app for app in applications if app.get("status") == status]
 
-        return {
-            "success": True,
-            "applications": applications,
-            "total": len(applications)
-        }
+        return {"success": True, "applications": applications, "total": len(applications)}
 
     except HTTPException:
         raise
@@ -192,11 +199,12 @@ async def get_applications_by_job(
         main_logger.error(f"Failed to get applications for job {job_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 @router.get("/candidate/{candidate_id}")
 async def get_applications_by_candidate(
     candidate_id: str,
     status: Optional[str] = None,
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    db_service: InterviewConfigurationDatabase = Depends(get_db_service),
 ):
     """
     Get all applications submitted by a candidate
@@ -219,13 +227,9 @@ async def get_applications_by_candidate(
 
         # Filter by status if provided
         if status:
-            applications = [app for app in applications if app.get('status') == status]
+            applications = [app for app in applications if app.get("status") == status]
 
-        return {
-            "success": True,
-            "applications": applications,
-            "total": len(applications)
-        }
+        return {"success": True, "applications": applications, "total": len(applications)}
 
     except HTTPException:
         raise
@@ -233,14 +237,15 @@ async def get_applications_by_candidate(
         main_logger.error(f"Failed to get applications for candidate {candidate_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 # ============================================================================
 # APPLICATION STATISTICS
 # ============================================================================
 
+
 @router.get("/job/{job_id}/statistics")
 async def get_job_application_statistics(
-    job_id: str,
-    db_service: InterviewConfigurationDatabase = Depends(get_db_service)
+    job_id: str, db_service: InterviewConfigurationDatabase = Depends(get_db_service)
 ):
     """
     Get application statistics for a job posting
@@ -264,19 +269,16 @@ async def get_job_application_statistics(
         stats = {
             "total_applications": len(applications),
             "by_status": {
-                "applied": len([a for a in applications if a.get('status') == 'applied']),
-                "screening": len([a for a in applications if a.get('status') == 'screening']),
-                "interviewing": len([a for a in applications if a.get('status') == 'interviewing']),
-                "offered": len([a for a in applications if a.get('status') == 'offered']),
-                "rejected": len([a for a in applications if a.get('status') == 'rejected']),
-                "accepted": len([a for a in applications if a.get('status') == 'accepted'])
-            }
+                "applied": len([a for a in applications if a.get("status") == "applied"]),
+                "screening": len([a for a in applications if a.get("status") == "screening"]),
+                "interviewing": len([a for a in applications if a.get("status") == "interviewing"]),
+                "offered": len([a for a in applications if a.get("status") == "offered"]),
+                "rejected": len([a for a in applications if a.get("status") == "rejected"]),
+                "accepted": len([a for a in applications if a.get("status") == "accepted"]),
+            },
         }
 
-        return {
-            "success": True,
-            "statistics": stats
-        }
+        return {"success": True, "statistics": stats}
 
     except HTTPException:
         raise

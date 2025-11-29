@@ -1,7 +1,9 @@
 import os
 import sys
+from typing import Any, Dict
+
 from loguru import logger as base_logger
-from typing import Dict, Any
+
 
 class LoggerManager:
     def __init__(self, base_log_dir: str = "logs"):
@@ -15,7 +17,7 @@ class LoggerManager:
         base_logger.add(
             sys.stderr,
             level="INFO",
-            format="{time} | {level} | {extra[user_id]} | {extra[session_id]} | {message}"
+            format="{time} | {level} | {extra[user_id]} | {extra[session_id]} | {message}",
         )
 
     def get_logger_for_user(self, user_id: str, session_id: str):
@@ -27,7 +29,7 @@ class LoggerManager:
 
         # Define custom filter for this user's log sink
         def filter_for_user(record):
-            #print(f"FILTER DEBUG: {record['message']} | {record['extra']}")
+            # print(f"FILTER DEBUG: {record['message']} | {record['extra']}")
             return (
                 record["extra"].get("user_id") == user_id
                 and record["extra"].get("session_id") == session_id
@@ -63,7 +65,7 @@ class LoggerManager:
 
     def get_main_logger(self):
         return self.get_logger_for_user("main", "main")
-    
+
     def remove_user_logger(self, user_id: str, session_id: str):
         key = f"{user_id}:{session_id}"
         if key in self._user_loggers:

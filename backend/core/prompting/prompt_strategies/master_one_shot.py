@@ -1,48 +1,76 @@
-from core.prompting.base import BaseMasterPromptStrategy
-from core.prompting.schema import LanguageModelClassification
-from core.resource.model_providers.schema import AssistantChatMessage, ChatMessage, MasterChatMessage
-from core.prompting.schema import ChatPrompt
 import json
 from typing import List
-from panelist_agent.base import Profile
+
 from interview_details_agent.base import InterviewRoundDetails, JobDetails
-from master_agent.base import  SpeakerDeterminationInputMessage, TopicSectionCompletionInputMessage, ConversationalAdviceInputMessage, SimulationIntroductionInputMessage, PanelData
-from master_agent.base import SpeakerDeterminationOutputMessage, ConversationalAdviceOutputMessage, TopicSectionCompletionOutputMessage, RulesAndRegulationsMessage, SimulationIntroductionOutputMessage, PromptInput
-from master_agent.base import BaseInterviewConfiguration, InterviewTopicData, SubTopicData, InterviewRound, EvaluationInputMessage, QuestionSpecificEvaluationOutputMessage, RulesAndRegulationsInputMessage, RulesAndRegulationsOutputMessage
-from master_agent.base import  BaseMasterConfiguration, QuestionSpecificScoring, QuestionCriteriaSpecificScoring, CriteriaSpecificScoring, TOPICS_HR_ROUND, TOPICS_TECHNICAL_ROUND, SUBTOPICS_HR_ROUND, SUBTOPICS_TECHNICAL_ROUND
+
 from activity_agent.base import ActivityProgressAnalysisSummaryForPanelistOutputMessage
+from core.prompting.base import BaseMasterPromptStrategy
 from core.prompting.prompt_strategies.master_common_prompts import CommonPrompts
+from core.prompting.schema import ChatPrompt, LanguageModelClassification
+from core.resource.model_providers.schema import (
+    AssistantChatMessage,
+    ChatMessage,
+    MasterChatMessage,
+)
+from master_agent.base import (
+    SUBTOPICS_TECHNICAL_ROUND,
+    TOPICS_TECHNICAL_ROUND,
+    BaseInterviewConfiguration,
+    BaseMasterConfiguration,
+    ConversationalAdviceInputMessage,
+    ConversationalAdviceOutputMessage,
+    EvaluationInputMessage,
+    InterviewRound,
+    InterviewTopicData,
+    PanelData,
+    PromptInput,
+    QuestionCriteriaSpecificScoring,
+    QuestionSpecificEvaluationOutputMessage,
+    QuestionSpecificScoring,
+    RulesAndRegulationsInputMessage,
+    RulesAndRegulationsMessage,
+    RulesAndRegulationsOutputMessage,
+    SimulationIntroductionInputMessage,
+    SimulationIntroductionOutputMessage,
+    SpeakerDeterminationInputMessage,
+    SpeakerDeterminationOutputMessage,
+    SubTopicData,
+    TopicSectionCompletionInputMessage,
+    TopicSectionCompletionOutputMessage,
+)
+from panelist_agent.base import Profile
+
 
 class MasterPromptStrategy(BaseMasterPromptStrategy):
-
     def __init__(self, configuration, firebase_database=None):
-        self.config:BaseMasterConfiguration = configuration 
+        self.config: BaseMasterConfiguration = configuration
         # load all the interview related information since its used everywhere
-        interview_data:BaseInterviewConfiguration = self.config.interview_data
-        self.job_details:JobDetails = interview_data.job_details
+        interview_data: BaseInterviewConfiguration = self.config.interview_data
+        self.job_details: JobDetails = interview_data.job_details
         self.interview_round_details: InterviewRoundDetails = interview_data.interview_round_details
         self.character_data = interview_data.character_data
         self.activity_details = interview_data.activity_details
         self.common_prompts = CommonPrompts(configuration, firebase_database)
 
-
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
-    
+
     def convert_conversation_type(self, conversation_history: List[MasterChatMessage]):
-        conversation_history_strings = [f"Speaker:{message.speaker}, dialog:{message.content}" for message in conversation_history]
+        conversation_history_strings = [
+            f"Speaker:{message.speaker}, dialog:{message.content}"
+            for message in conversation_history
+        ]
         return conversation_history_strings
 
-    def build_prompt(self, prompt_input:PromptInput) -> ChatPrompt:
-
+    def build_prompt(self, prompt_input: PromptInput) -> ChatPrompt:
         response_type = prompt_input.response_type
-    
+
         if response_type == BaseMasterPromptStrategy.RESPONSE_TYPE.INTRO:
-            system_message =  self._generate_introductory_prompt(prompt_input)
+            system_message = self._generate_introductory_prompt(prompt_input)
 
         elif response_type == BaseMasterPromptStrategy.RESPONSE_TYPE.SPEAKER_DETERMINATION:
             system_message = self._generate_speaker_determination_prompt(prompt_input)
-        
+
         elif response_type == BaseMasterPromptStrategy.RESPONSE_TYPE.TOPIC_SECTION_COMPLETION:
             system_message = self._generate_topic_section_completion_prompt(prompt_input)
 
@@ -57,25 +85,27 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
 
         elif response_type == BaseMasterPromptStrategy.RESPONSE_TYPE.TOPIC_SUMMARY:
             system_message = self._generate_topic_summary_prompt(prompt_input)
-        
+
         prompt = ChatPrompt(
-            messages = [
+            messages=[
                 ChatMessage.system(system_message),
             ]
         )
 
         return prompt
 
-    def parse_response_summarized_conversation_content(self, response: AssistantChatMessage)->str:
+    def parse_response_summarized_conversation_content(self, response: AssistantChatMessage) -> str:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if 'summary' not in json_data.keys():
+            if "summary" not in json_data.keys():
                 return "No summary provided"
-            return json_data['summary']
+            return json_data["summary"]
         else:
             return "No summary provided"
 
-    def parse_response_introduction_content(self, response: AssistantChatMessage) -> SimulationIntroductionOutputMessage:
+    def parse_response_introduction_content(
+        self, response: AssistantChatMessage
+    ) -> SimulationIntroductionOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
             if "error" in json_data.keys():
@@ -84,8 +114,10 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
             return introduction
         else:
             return SimulationIntroductionOutputMessage()
-    
-    def parse_response_speaker_determination_content(self, response: AssistantChatMessage) -> SpeakerDeterminationOutputMessage: 
+
+    def parse_response_speaker_determination_content(
+        self, response: AssistantChatMessage
+    ) -> SpeakerDeterminationOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
             if "error" in json_data.keys():
@@ -94,18 +126,22 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
             return speakerDetermination
         else:
             return SpeakerDeterminationOutputMessage()
-    
-    def parse_response_advice_content(self, response: AssistantChatMessage) -> ConversationalAdviceOutputMessage:
+
+    def parse_response_advice_content(
+        self, response: AssistantChatMessage
+    ) -> ConversationalAdviceOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
             if "error" in json_data.keys():
                 return ConversationalAdviceOutputMessage()
-            conversationalAdvice= ConversationalAdviceOutputMessage.model_validate(json_data)
+            conversationalAdvice = ConversationalAdviceOutputMessage.model_validate(json_data)
             return conversationalAdvice
         else:
             return ConversationalAdviceOutputMessage()
-    
-    def parse_rules_and_regulation_content(self, response:AssistantChatMessage) -> RulesAndRegulationsOutputMessage:
+
+    def parse_rules_and_regulation_content(
+        self, response: AssistantChatMessage
+    ) -> RulesAndRegulationsOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
             if "error" in json_data.keys():
@@ -114,8 +150,10 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
             return rulesAndRegulations
         else:
             return RulesAndRegulationsOutputMessage()
-    
-    def parse_topic_section_completion_content(self, response: AssistantChatMessage) -> TopicSectionCompletionOutputMessage:
+
+    def parse_topic_section_completion_content(
+        self, response: AssistantChatMessage
+    ) -> TopicSectionCompletionOutputMessage:
         if response.content is not None:
             json_data = json.loads(response.content)
             if "error" in json_data.keys():
@@ -124,60 +162,60 @@ class MasterPromptStrategy(BaseMasterPromptStrategy):
             return output
         else:
             return TopicSectionCompletionOutputMessage()
-    
+
     def parse_summary_content(self, response: AssistantChatMessage) -> str:
         if response.content is not None:
             json_data = json.loads(response.content)
-            if 'summary' not in json_data.keys():
+            if "summary" not in json_data.keys():
                 return "No summary provided"
             # "we need to make sure summary is a string. If its a list, then we need to convert it to a string"
-            if isinstance(json_data['summary'], list):
-                return "\n".join(json_data['summary'])
-            elif isinstance(json_data['summary'], str):
-                return json_data['summary']
+            if isinstance(json_data["summary"], list):
+                return "\n".join(json_data["summary"])
+            elif isinstance(json_data["summary"], str):
+                return json_data["summary"]
             else:
                 return "No summary provided"
         else:
             return "No summary provided"
 
-    def _generate_summary_prompt(self, prompt_input:PromptInput)->str:
+    def _generate_summary_prompt(self, prompt_input: PromptInput) -> str:
         original_message = prompt_input.message
 
-        base_prompt = ("Your goal is to summarize the provided text input in a concise and coherent manner.\n"
-                       "You must **retain the key information** while **rephrasing the content** in your own words.\n"
-                       "The summary should be **brief, clear, and well-structured**.\n\n"
-                       "Here is the text you need to summarize:\n\n"
-                       f"{original_message}\n"
-                       "Respond in JSON format with key being the summary and value being the summary text.\n"
-                       "Make sure summary is short and precise with utmost 4 sentences. Also don't include any irrelevant information\n"
-                       "Also, if the input contains information which says not enough information then try to keep that out of the summary\n"
-                       "If the text input contains paragraphs, then make sure summary contains information from all the paragraphs\n"
-                       "Do not miss important details. This summary will be read by the hiring manager, so it should be **professional and polished**.\n\n"
-                       )
-        
+        base_prompt = (
+            "Your goal is to summarize the provided text input in a concise and coherent manner.\n"
+            "You must **retain the key information** while **rephrasing the content** in your own words.\n"
+            "The summary should be **brief, clear, and well-structured**.\n\n"
+            "Here is the text you need to summarize:\n\n"
+            f"{original_message}\n"
+            "Respond in JSON format with key being the summary and value being the summary text.\n"
+            "Make sure summary is short and precise with utmost 4 sentences. Also don't include any irrelevant information\n"
+            "Also, if the input contains information which says not enough information then try to keep that out of the summary\n"
+            "If the text input contains paragraphs, then make sure summary contains information from all the paragraphs\n"
+            "Do not miss important details. This summary will be read by the hiring manager, so it should be **professional and polished**.\n\n"
+        )
+
         return base_prompt
-    
+
     # this is only used once when the candidate logs in to the system
     # we are generating both the introduction as well as the question information that will be asked to the candidate
-    def _generate_introductory_prompt(self,prompt_input:PromptInput)->str:        
+    def _generate_introductory_prompt(self, prompt_input: PromptInput) -> str:
         interview_rounds = self.interview_round_details.rounds
-        round_description = interview_rounds['interview_round_2'].description
-        message:SimulationIntroductionInputMessage = prompt_input.message
+        round_description = interview_rounds["interview_round_2"].description
+        message: SimulationIntroductionInputMessage = prompt_input.message
         panelists = message.panelists
         panelist_profiles = [panelist.model_dump_json() for panelist in panelists]
-        panelists = ', '.join(panelist_profiles)
+        panelists = ", ".join(panelist_profiles)
         simulationintroductionoutputmessage = SimulationIntroductionOutputMessage()
         simulationintroductionoutputmessage.introduction = ""
         paneldata = PanelData()
         paneldata.avatar = ""
-        paneldata.interview_round_part_of = InterviewRound.ROUND_ONE    
+        paneldata.interview_round_part_of = InterviewRound.ROUND_ONE
         paneldata.intro = ""
         paneldata.name = ""
         paneldata.id = ""
         simulationintroductionoutputmessage.panelists = [paneldata]
-       
-        base_prompt = (
-f"""
+
+        base_prompt = f"""
 ### **Candidate Interview Introduction Generation**
 You are responsible for generating an introduction for a candidate about the **prescreening interview** they are about to participate in.\n\n
             
@@ -203,22 +241,22 @@ This interview process consists of a **technical interview** to ensure you are a
 Your interview will be conducted by **A and B panelists** who are AI agents representing the company. You can learn more about them below.
 Good luck!
             """
-        )
 
         return base_prompt
 
     # who gets to speak next is decided here
-    def _generate_speaker_determination_prompt(self, prompt_input:PromptInput)->str:
-        
-        message:SpeakerDeterminationInputMessage = prompt_input.message        
-        interview_round:InterviewRound = message.interview_round
-        subtopic:SubTopicData = message.current_subtopic
-        topic:InterviewTopicData = message.current_topic
-        current_section = message.current_section 
-        panelists:List[Profile] = message.panelists       
+    def _generate_speaker_determination_prompt(self, prompt_input: PromptInput) -> str:
+        message: SpeakerDeterminationInputMessage = prompt_input.message
+        interview_round: InterviewRound = message.interview_round
+        subtopic: SubTopicData = message.current_subtopic
+        topic: InterviewTopicData = message.current_topic
+        current_section = message.current_section
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
         topic_completion_output = message.topic_completion_message
         topic_time_remaining = prompt_input.topic_time_remaining
@@ -226,11 +264,13 @@ Good luck!
         last_speaker = message.last_speaker
 
         speaker_det_output = SpeakerDeterminationOutputMessage()
-        
+
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_description = self.interview_round_details.rounds['interview_round_1'].description
-            
-            base_prompt =  f"""
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_1"
+            ].description
+
+            base_prompt = f"""
 You are a hiring manager conducting an interview session consisting of HR manager and a candidate.
 While the candidate name is:{candidate_name}, HR Manager name is:{interviewer_names[0]}
             """
@@ -252,9 +292,11 @@ You are responsible for determining the next speaker between the **HR Manager** 
 ⚡ **Goal:** Facilitate a **structured, efficient, and engaging** interview process by selecting the most appropriate next speaker at each step
             """
         else:
-            interview_round_description = self.interview_round_details.rounds['interview_round_2'].description
-            
-            base_prompt =  f"""
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_2"
+            ].description
+
+            base_prompt = f"""
 You are a Hiring manager overseeing an interview session involving multiple interviewers and a candidate.
 
 ### **Interview Context:**
@@ -311,8 +353,9 @@ However, during the **Problem Solving section (coding phase),** the candidate ca
 Additionally, follow the topic specific rules provided here:
             """
 
-            rules_prompt = self.common_prompts.get_speaker_determination_topic_wise_rule_prompt(topic, subtopic)
-
+            rules_prompt = self.common_prompts.get_speaker_determination_topic_wise_rule_prompt(
+                topic, subtopic
+            )
 
         output_prompt = f"""
 **JSON Format Compliance:**
@@ -320,62 +363,73 @@ Additionally, follow the topic specific rules provided here:
 - The **reason field** should provide a **short and precise** explanation for selecting the speaker.
         """
 
-        conversation_history_for_current_subtopic = prompt_input.conversation_history_for_current_subtopic
+        conversation_history_for_current_subtopic = (
+            prompt_input.conversation_history_for_current_subtopic
+        )
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
         conversation_summary_for_current_topic = prompt_input.conversation_summary_for_current_topic
-        conversation_summary_for_completed_topics = prompt_input.conversation_summary_for_completed_topics
+        conversation_summary_for_completed_topics = (
+            prompt_input.conversation_summary_for_completed_topics
+        )
 
-        additional_prompt = ''
-        conversation_data = ''
-        
+        additional_prompt = ""
+        conversation_data = ""
+
         if len(conversation_summary_for_completed_topics) > 0:
             for i in range(len(conversation_summary_for_completed_topics)):
                 conversation_data += str(conversation_summary_for_completed_topics[i])
             additional_prompt = f"##### Here is the summary of the conversation before the current topic: {conversation_data}"
-        
-        conversation_data = ''
+
+        conversation_data = ""
         if len(conversation_summary_for_current_topic) > 0:
             for i in range(len(conversation_summary_for_current_topic)):
                 conversation_data += str(conversation_summary_for_current_topic[i])
             additional_prompt += f"###### Here is the summary of the conversation until now for the current topic: {conversation_data}"
 
         if len(last_completed_conversation_history) > 0:
-            last_completed_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+            last_completed_conversation_history = self.convert_conversation_type(
+                last_completed_conversation_history
+            )
 
         else:
             last_completed_conversation_history = []
 
         if len(conversation_history_for_current_subtopic) > 0:
-            converted_conversation_history = self.convert_conversation_type(conversation_history_for_current_subtopic)
+            converted_conversation_history = self.convert_conversation_type(
+                conversation_history_for_current_subtopic
+            )
             last_completed_conversation_history.extend(converted_conversation_history)
         else:
             additional_prompt += "Conversation has not started for the current section\n"
         if len(last_completed_conversation_history) > 0:
             last_completed_conversation_history = "\n".join(last_completed_conversation_history)
-            additional_prompt += (f"##### Here are the most recent exchange of messages from the conversation including messages from the previous section:{last_completed_conversation_history}\n")
-        
+            additional_prompt += f"##### Here are the most recent exchange of messages from the conversation including messages from the previous section:{last_completed_conversation_history}\n"
+
         else:
-            additional_prompt += "Conversation has not started yet so this is beginning of a new topic\n"
+            additional_prompt += (
+                "Conversation has not started yet so this is beginning of a new topic\n"
+            )
 
         return base_prompt + common_rules_prompt + rules_prompt + additional_prompt + output_prompt
-        
-    def _generate_topic_section_completion_prompt(self, prompt_input:PromptInput)->str:
-        
-        message:TopicSectionCompletionInputMessage = prompt_input.message
 
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
+    def _generate_topic_section_completion_prompt(self, prompt_input: PromptInput) -> str:
+        message: TopicSectionCompletionInputMessage = prompt_input.message
+
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
         current_section = message.section
         subtopic_sections = subtopic_data.sections
         remaining_subtopics = prompt_input.remaining_subtopics
         topic_time_remaining = prompt_input.topic_time_remaining
         topic_just_got_completed = message.topic_just_got_completed
 
-        panelists:List[Profile] = message.panelists       
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
 
         topic_completion_output = TopicSectionCompletionOutputMessage()
@@ -387,7 +441,7 @@ Additionally, follow the topic specific rules provided here:
 You are responsible for monitoring the interview process between the candidate and HR manager in an HR round.
 While the candidate name is: {candidate_name}, HR Manager name is: {interviewer_names[0]}
             """
-            
+
         else:
             base_prompt = f"""
 You are responsible for monitoring conversation between the candidate and two interviewers.
@@ -396,16 +450,18 @@ Conversation is structured into **multiple topics**, each with specific **sectio
 - **Candidate Name:** {candidate_name}.
 - **Interviewers:** {interviewer_names}.
             """
-            
-        if (topic_data.name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value):
 
+        if (
+            topic_data.name
+            == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+        ):
             common_prompt = f"""
 ### **Current Topic Context:**
 - **Topic:** {subtopic_data.name}
 - **Description:** {subtopic_data.description}
 ### **Your Task:**
 "- Determine whether the **current section should be marked as complete** based on the conversation between the candidate and interviewers.\n"
-            """ 
+            """
 
         else:
             common_prompt = f"""
@@ -439,22 +495,27 @@ Respond in JSON format following the structure mentioned here: {topic_completion
 Do not judge/evaluate candidate's responses. We must follow the topic structure and ruleset
         """
 
+        rules_prompt = self.common_prompts.get_topic_completion_topic_wise_prompt(
+            topic_data, subtopic_data, current_section, subtopic_sections
+        )
 
-        rules_prompt = self.common_prompts.get_topic_completion_topic_wise_prompt(topic_data, subtopic_data, current_section, subtopic_sections)
-
-        conversation_history_for_current_subtopic = prompt_input.conversation_history_for_current_subtopic
+        conversation_history_for_current_subtopic = (
+            prompt_input.conversation_history_for_current_subtopic
+        )
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
         conversation_summary_for_current_topic = prompt_input.conversation_summary_for_current_topic
-        conversation_summary_for_completed_topics = prompt_input.conversation_summary_for_completed_topics
+        conversation_summary_for_completed_topics = (
+            prompt_input.conversation_summary_for_completed_topics
+        )
 
-        additional_prompt = ''
-        conversation_data = ''
+        additional_prompt = ""
+        conversation_data = ""
         if len(conversation_summary_for_completed_topics) > 0:
             for i in range(len(conversation_summary_for_completed_topics)):
                 conversation_data += str(conversation_summary_for_completed_topics[i])
             additional_prompt = f"##### Here is the summary of the conversation before the current topic: {conversation_data}"
-        
-        conversation_data = ''
+
+        conversation_data = ""
         if len(conversation_summary_for_current_topic) > 0:
             for i in range(len(conversation_summary_for_current_topic)):
                 conversation_data += str(conversation_summary_for_current_topic[i])
@@ -469,36 +530,46 @@ Do not judge/evaluate candidate's responses. We must follow the topic structure 
         last_completed_conversation_history = []
 
         if len(conversation_history_for_current_subtopic) > 0:
-            converted_conversation_history = self.convert_conversation_type(conversation_history_for_current_subtopic)
+            converted_conversation_history = self.convert_conversation_type(
+                conversation_history_for_current_subtopic
+            )
             last_completed_conversation_history.extend(converted_conversation_history)
 
         if len(last_completed_conversation_history) > 0:
             last_completed_conversation_history = "\n".join(last_completed_conversation_history)
-            additional_prompt += (f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n")
-        
+            additional_prompt += f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n"
+
         else:
             additional_prompt += "Conversation has not started yet for this topic.\n"
 
         return base_prompt + rules_prompt + common_prompt + additional_prompt + output_prompt
-    
-    def _generate_evaluation_verification_prompt(self, prompt_input:PromptInput)->str:
-        message:EvaluationInputMessage = prompt_input.message
-        panelists:List[Profile] = message.panelists       
+
+    def _generate_evaluation_verification_prompt(self, prompt_input: PromptInput) -> str:
+        message: EvaluationInputMessage = prompt_input.message
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
-        activity_analysis:ActivityProgressAnalysisSummaryForPanelistOutputMessage = prompt_input.activity_analysis
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
+        activity_analysis: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
+            prompt_input.activity_analysis
+        )
         activity_code_from_candidate = prompt_input.activity_code_from_candidate
         evaluation_output = prompt_input.evaluation_output
 
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_description = self.interview_round_details.rounds['interview_round_1'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_1"
+            ].description
         else:
-            interview_round_description = self.interview_round_details.rounds['interview_round_2'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_2"
+            ].description
 
         evaluation_criteria = message.evaluation_criteria
 
@@ -514,10 +585,9 @@ Do not judge/evaluate candidate's responses. We must follow the topic structure 
 
         output_message = QuestionSpecificEvaluationOutputMessage()
         output_message.question_criteria_specific_scoring = [questionCriteriaSpecificQuestion]
-        
-        if interview_round == InterviewRound.ROUND_TWO:
 
-           base_prompt = f"""
+        if interview_round == InterviewRound.ROUND_TWO:
+            base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
 
 ### **Interview Context:**
@@ -560,13 +630,20 @@ The previous evaluation is mentioned here: {evaluation_output.model_dump_json()}
 - Ensure the evaluation is **objective, structured, and aligned** with the provided criteria.
             """
 
-        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(interview_round, topic_data.name, subtopic_data.name, activity_analysis, activity_code_from_candidate) 
-        
+        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(
+            interview_round,
+            topic_data.name,
+            subtopic_data.name,
+            activity_analysis,
+            activity_code_from_candidate,
+        )
+
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
-        converted_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+        converted_conversation_history = self.convert_conversation_type(
+            last_completed_conversation_history
+        )
         conversation_history = "\n".join(converted_conversation_history)
         additional_prompt = "##### Here is the interview transcript:\n" + conversation_history
-
 
         output_prompt = f"""
 Respond in JSON format using the structure defined here: {output_message.model_dump_json()}.
@@ -597,27 +674,32 @@ Also, don't be too optmistic in your evaluation. You have to be realistic in you
 Now, using the data, proceed with your assessment and consider the following information:
         """
 
+        return base_prompt + additional_prompt + output_prompt + round_specific_prompt
 
-        return base_prompt + additional_prompt + output_prompt + round_specific_prompt 
-
-
-
-    def _generate_evaluation_prompt(self, prompt_input:PromptInput)->str:
-        message:EvaluationInputMessage = prompt_input.message
-        panelists:List[Profile] = message.panelists       
+    def _generate_evaluation_prompt(self, prompt_input: PromptInput) -> str:
+        message: EvaluationInputMessage = prompt_input.message
+        panelists: List[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        interview_occupation = [f"{profile.background.current_occupation.occupation}" for profile in panelists]
-        candidate_profile:Profile = message.candidate_profile
+        interview_occupation = [
+            f"{profile.background.current_occupation.occupation}" for profile in panelists
+        ]
+        candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
-        activity_analysis:ActivityProgressAnalysisSummaryForPanelistOutputMessage = prompt_input.activity_analysis
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
+        activity_analysis: ActivityProgressAnalysisSummaryForPanelistOutputMessage = (
+            prompt_input.activity_analysis
+        )
         activity_code_from_candidate = prompt_input.activity_code_from_candidate
         if interview_round == InterviewRound.ROUND_ONE:
-            interview_round_description = self.interview_round_details.rounds['interview_round_1'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_1"
+            ].description
         else:
-            interview_round_description = self.interview_round_details.rounds['interview_round_2'].description
+            interview_round_description = self.interview_round_details.rounds[
+                "interview_round_2"
+            ].description
 
         evaluation_criteria = message.evaluation_criteria
 
@@ -635,8 +717,7 @@ Now, using the data, proceed with your assessment and consider the following inf
         output_message.question_criteria_specific_scoring = [questionCriteriaSpecificQuestion]
 
         if interview_round == InterviewRound.ROUND_TWO:
-
-           base_prompt = f"""
+            base_prompt = f"""
 You are a hiring manager responsible for evaluating a candidate in a technical interview.
 
 ### **Interview Context:**
@@ -682,13 +763,20 @@ You are a hiring manager responsible for monitoring and evaluating an interview 
 - Ensure the evaluation is **objective, structured, and aligned** with the provided criteria.
             """
 
-        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(interview_round, topic_data.name, subtopic_data.name, activity_analysis, activity_code_from_candidate) 
-        
+        round_specific_prompt = self.common_prompts.get_evaluation_topic_wise_question_prompt(
+            interview_round,
+            topic_data.name,
+            subtopic_data.name,
+            activity_analysis,
+            activity_code_from_candidate,
+        )
+
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
-        converted_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+        converted_conversation_history = self.convert_conversation_type(
+            last_completed_conversation_history
+        )
         conversation_history = "\n".join(converted_conversation_history)
         additional_prompt = "##### Here is the interview transcript:\n" + conversation_history
-
 
         output_prompt = f"""
 Respond in JSON format using the structure defined here: {output_message.model_dump_json()}.
@@ -719,25 +807,26 @@ Also, don't be too optmistic in your evaluation. You have to be realistic in you
 Now, using the following data, proceed with your assessment:
         """
 
-
         return base_prompt + additional_prompt + output_prompt + round_specific_prompt
 
-
-    def _generate_conversational_advice_prompt(self, prompt_input:PromptInput)->str:
-        
+    def _generate_conversational_advice_prompt(self, prompt_input: PromptInput) -> str:
         topic_time_remaining = str(prompt_input.topic_time_remaining)
 
-        message:ConversationalAdviceInputMessage = prompt_input.message
-        next_speaker:Profile = message.next_speaker
-        topic_data:InterviewTopicData = message.topic_data
-        subtopic_data:SubTopicData = message.subtopic_data
-        interview_round:InterviewRound = message.interview_round
+        message: ConversationalAdviceInputMessage = prompt_input.message
+        next_speaker: Profile = message.next_speaker
+        topic_data: InterviewTopicData = message.topic_data
+        subtopic_data: SubTopicData = message.subtopic_data
+        interview_round: InterviewRound = message.interview_round
         topic_just_got_completed = message.topic_just_got_completed
         current_section = message.section
         subtopic_sections = subtopic_data.sections
         remaining_subtopics = prompt_input.remaining_subtopics
-        speaker_determination_output:SpeakerDeterminationOutputMessage = message.speaker_determination_output
-        topic_completion_output:TopicSectionCompletionOutputMessage = message.topic_completion_output
+        speaker_determination_output: SpeakerDeterminationOutputMessage = (
+            message.speaker_determination_output
+        )
+        topic_completion_output: TopicSectionCompletionOutputMessage = (
+            message.topic_completion_output
+        )
 
         conversational_advice_output = ConversationalAdviceOutputMessage()
         conversational_advice_output.advice_for_speaker = ""
@@ -745,19 +834,23 @@ Now, using the following data, proceed with your assessment:
         conversational_advice_output.should_ask_completely_new_question = False
         conversational_advice_output.should_end_the_interview = False
 
-        conversation_history_for_current_subtopic = prompt_input.conversation_history_for_current_subtopic
+        conversation_history_for_current_subtopic = (
+            prompt_input.conversation_history_for_current_subtopic
+        )
         last_completed_conversation_history = prompt_input.last_completed_conversation_history
         conversation_summary_for_current_topic = prompt_input.conversation_summary_for_current_topic
-        conversation_summary_for_completed_topics = prompt_input.conversation_summary_for_completed_topics
+        conversation_summary_for_completed_topics = (
+            prompt_input.conversation_summary_for_completed_topics
+        )
 
-        additional_prompt = ''
-        conversation_data = ''
+        additional_prompt = ""
+        conversation_data = ""
         if len(conversation_summary_for_completed_topics) > 0:
             for i in range(len(conversation_summary_for_completed_topics)):
                 conversation_data += str(conversation_summary_for_completed_topics[i])
             additional_prompt = f"##### Here is the summary of the conversation before the current topic: {conversation_data}"
-        
-        conversation_data = ''
+
+        conversation_data = ""
         if len(conversation_summary_for_current_topic) > 0:
             for i in range(len(conversation_summary_for_current_topic)):
                 conversation_data += str(conversation_summary_for_current_topic[i])
@@ -768,24 +861,24 @@ Now, using the following data, proceed with your assessment:
 
         # else:
         #     last_completed_conversation_history = []
-        
+
         last_completed_conversation_history = []
 
         if len(conversation_history_for_current_subtopic) > 0:
-            converted_conversation_history = self.convert_conversation_type(conversation_history_for_current_subtopic)
+            converted_conversation_history = self.convert_conversation_type(
+                conversation_history_for_current_subtopic
+            )
             last_completed_conversation_history.extend(converted_conversation_history)
 
         if len(last_completed_conversation_history) > 0:
             last_completed_conversation_history = "\n".join(last_completed_conversation_history)
-            additional_prompt += (f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n")
-        
+            additional_prompt += f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n"
+
         else:
             additional_prompt += "Conversation has not started yet within this topic\n"
 
-
-        if interview_round ==  InterviewRound.ROUND_ONE:
-
-            base_prompt =  f"""
+        if interview_round == InterviewRound.ROUND_ONE:
+            base_prompt = f"""
 You are responsible for guiding the **HR Manager** through the interview process with the candidate.
 **Next Speaker:** The HR Manager **({next_speaker.background.name})** is now expected to continue the conversation.
 
@@ -862,21 +955,23 @@ When the current topic is about Problem solving and it has just started, then en
 Do not judge/evaluate candidate's responses. We must follow the interview structure and address all the topics
 Everything has to be grounded to the current discussion topic and its description with the current section within it.
             """
-        
+
         if subtopic_data.name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
-            output_prompt += "This is the last part of the interview. Interview has to end after this section"
-        
+            output_prompt += (
+                "This is the last part of the interview. Interview has to end after this section"
+            )
+
         return base_prompt + additional_prompt + output_prompt
-        
-    def _generate_conversation_summary_prompt(self, prompt_input:PromptInput)->str:
-        simulation_chat_message = MasterChatMessage()   
+
+    def _generate_conversation_summary_prompt(self, prompt_input: PromptInput) -> str:
+        simulation_chat_message = MasterChatMessage()
         conversation_history = prompt_input.conversation_history_for_current_subtopic
         if len(conversation_history) > 0:
             conversation_data = self.convert_conversation_type(conversation_history)
-            conversation_data = ("\n".join(conversation_data))
+            conversation_data = "\n".join(conversation_data)
         else:
             conversation_data = "No conversation history available"
-        
+
         summary_prompt = f"""
 You are an agent responsible for summarizing the conversation between the panelists and the candidate in an interview.
 
@@ -901,15 +996,16 @@ Summary must be stringified and not a list of strings
 
         return summary_prompt
 
-    def _generate_topic_summary_prompt(self, prompt_input:PromptInput)->str:
-        
+    def _generate_topic_summary_prompt(self, prompt_input: PromptInput) -> str:
         conversation_summary = prompt_input.conversation_summary_for_current_topic
 
         if len(conversation_summary) > 0:
-            conversation_data = ''
+            conversation_data = ""
             for i in range(len(conversation_summary)):
                 conversation_data += str(conversation_summary[i])
-            additional_prompt = f"######### Here is the past conversation summary: {conversation_data}"
+            additional_prompt = (
+                f"######### Here is the past conversation summary: {conversation_data}"
+            )
         else:
             additional_prompt = "#### No conversation summary available"
 
@@ -934,59 +1030,70 @@ You are an agent responsible for summarizing multiple rounds of conversation bet
         overall_prompt = base_prompt + additional_prompt
         return overall_prompt
 
-
     # Not using this right now
-    def _generate_rules_and_regulations_prompt(self, prompt_details:PromptInput)->str:
-        
-        message:RulesAndRegulationsInputMessage = prompt_details.message
-        panelist_profiles:List[Profile] = message.panelists_profile
+    def _generate_rules_and_regulations_prompt(self, prompt_details: PromptInput) -> str:
+        message: RulesAndRegulationsInputMessage = prompt_details.message
+        panelist_profiles: List[Profile] = message.panelists_profile
         candidate_profile = message.candidate_profile
-        interview_round:InterviewRound = message.interview_round
-        topic:InterviewTopicData = message.topic
-        subtopic:SubTopicData = message.subtopic 
+        interview_round: InterviewRound = message.interview_round
+        topic: InterviewTopicData = message.topic
+        subtopic: SubTopicData = message.subtopic
 
-        panelist_background_info = [f"background_info for panelists with name: {profile.background.name}, {profile.background}" for profile in panelist_profiles]
+        panelist_background_info = [
+            f"background_info for panelists with name: {profile.background.name}, {profile.background}"
+            for profile in panelist_profiles
+        ]
         rules_and_regulations = RulesAndRegulationsOutputMessage()
         item1 = RulesAndRegulationsMessage(character_name="", reason="")
         item2 = RulesAndRegulationsMessage(character_name="", reason="")
         rules_and_regulations.data = [item1, item2]
 
-        conversation_history_for_current_subtopic = prompt_details.conversation_history_for_current_subtopic
+        conversation_history_for_current_subtopic = (
+            prompt_details.conversation_history_for_current_subtopic
+        )
         last_completed_conversation_history = prompt_details.last_completed_conversation_history
-        conversation_summary_for_current_topic = prompt_details.conversation_summary_for_current_topic
-        conversation_summary_for_completed_topics = prompt_details.conversation_summary_for_completed_topics
+        conversation_summary_for_current_topic = (
+            prompt_details.conversation_summary_for_current_topic
+        )
+        conversation_summary_for_completed_topics = (
+            prompt_details.conversation_summary_for_completed_topics
+        )
 
-        additional_prompt = ''
-        conversation_data = ''
+        additional_prompt = ""
+        conversation_data = ""
         if len(conversation_summary_for_completed_topics) > 0:
             for i in range(len(conversation_summary_for_completed_topics)):
                 conversation_data += str(conversation_summary_for_completed_topics[i])
             additional_prompt = f"##### Here is the summary of the conversation before the current topic: {conversation_data}"
-        
-        conversation_data = ''
+
+        conversation_data = ""
         if len(conversation_summary_for_current_topic) > 0:
             for i in range(len(conversation_summary_for_current_topic)):
                 conversation_data += str(conversation_summary_for_current_topic[i])
             additional_prompt += f"###### Here is the summary of the conversation until now for the current topic: {conversation_data}"
 
         if len(last_completed_conversation_history) > 0:
-            last_completed_conversation_history = self.convert_conversation_type(last_completed_conversation_history)
+            last_completed_conversation_history = self.convert_conversation_type(
+                last_completed_conversation_history
+            )
 
         else:
             last_completed_conversation_history = []
 
         if len(conversation_history_for_current_subtopic) > 0:
-            converted_conversation_history = self.convert_conversation_type(conversation_history_for_current_subtopic)
+            converted_conversation_history = self.convert_conversation_type(
+                conversation_history_for_current_subtopic
+            )
             last_completed_conversation_history.extend(converted_conversation_history)
 
         if len(last_completed_conversation_history) > 0:
             last_completed_conversation_history = "\n".join(last_completed_conversation_history)
-            additional_prompt += (f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n")
-        
+            additional_prompt += f"##### Here are the most recent exchange of messages from the conversation:{last_completed_conversation_history}\n"
+
         else:
             additional_prompt += "Conversation has not started yet\n"
 
-        base_prompt =  f"""
+        base_prompt = f"""
 Your goal is to ensure all characters adhere to the rules and regulations of the simulation given the conversation history.
 Basic profiles describing the background for all NPCs is mentioned here: {panelist_background_info}.
 Rules and regulations include:
@@ -996,7 +1103,6 @@ While npc_name denotes the character name, reason contains one line of reason as
         """
 
         return base_prompt + additional_prompt
-
 
     def parse_response_content(self, response: AssistantChatMessage):
         # Assistant chat message consists of the following

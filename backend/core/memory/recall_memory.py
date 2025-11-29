@@ -1,7 +1,6 @@
-import datetime
-import uuid
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union
+from typing import List
+
 from core.memory.base import Passage
 from core.memory.storage_connector import StorageConnector
 
@@ -30,15 +29,17 @@ class BaseRecallMemory(RecallMemory):
     def __init__(self, agent_settings, restrict_search_to_summaries=False):
         # If true, the pool of messages that can be queried are the automated summaries only
         # (generated when the conversation window needs to be shortened)
-        #self.restrict_search_to_summaries = restrict_search_to_summaries
+        # self.restrict_search_to_summaries = restrict_search_to_summaries
         self.agent_settings = agent_settings
 
         # create embedding model
-        #self.embed_model = embedding_model(agent_state.embedding_config)
-        #self.embedding_chunk_size = agent_state.embedding_config.embedding_chunk_size
+        # self.embed_model = embedding_model(agent_state.embedding_config)
+        # self.embedding_chunk_size = agent_state.embedding_config.embedding_chunk_size
 
         # create storage backend
-        self.storage = StorageConnector.get_short_memory_storage_connector(user_id=agent_settings.user_id, agent_id=agent_settings.id)
+        self.storage = StorageConnector.get_short_memory_storage_connector(
+            user_id=agent_settings.user_id, agent_id=agent_settings.id
+        )
         # TODO: have some mechanism for cleanup otherwise will lead to OOM
         self.cache = {}
 
@@ -66,7 +67,7 @@ class BaseRecallMemory(RecallMemory):
         other_count = total - (system_count + user_count + assistant_count + function_count)
 
         memory_str = (
-            f"Statistics:"
+            "Statistics:"
             + f"\n{total} total messages"
             + f"\n{system_count} system"
             + f"\n{user_count} user"
@@ -74,7 +75,7 @@ class BaseRecallMemory(RecallMemory):
             + f"\n{function_count} function"
             + f"\n{other_count} other"
         )
-        return f"\n### RECALL MEMORY ###" + f"\n{memory_str}"
+        return "\n### RECALL MEMORY ###" + f"\n{memory_str}"
 
     def insert(self, message: Passage):
         self.storage.insert(message)

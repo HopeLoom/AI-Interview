@@ -1,24 +1,23 @@
-
-
-from core.speech.base import VoiceBase, SpeechConfig
-from openai import OpenAI
 import base64
-import json
-import httpx
+import os
 import tempfile
-import os 
+from typing import Any, Dict
+
 from google.cloud import speech
-from typing import Dict, Any
+
+from core.speech.base import SpeechConfig, VoiceBase
+
 
 class GoogleSpeechToText(VoiceBase):
-
-    def __init__(self, config:SpeechConfig, main_logger):
+    def __init__(self, config: SpeechConfig, main_logger):
         super().__init__(config, main_logger)
         self.client = speech.SpeechClient()
 
-    async def _text_to_speech(self, websocket_connection_manager, user_id, text, voice_name) -> Dict[str, Any]:
-        return {"user_id":user_id, "status":False}
-                        
+    async def _text_to_speech(
+        self, websocket_connection_manager, user_id, text, voice_name
+    ) -> Dict[str, Any]:
+        return {"user_id": user_id, "status": False}
+
     async def _speech_to_text(self, audio_data: str, user_id: str) -> Dict[str, Any]:
         audio_bytes = base64.b64decode(audio_data)
         # Save to temporary file
@@ -41,4 +40,4 @@ class GoogleSpeechToText(VoiceBase):
         transcript = " ".join(result.alternatives[0].transcript for result in response.results)
         self.main_logger.info(f"Transcription result: {transcript}")
         os.unlink(temp_audio_path)
-        return {"result": transcript, "user_id":user_id, "status": True}   
+        return {"result": transcript, "user_id": user_id, "status": True}

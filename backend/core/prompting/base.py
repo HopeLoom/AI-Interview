@@ -1,30 +1,28 @@
-import abc 
-from core.resource.model_providers.schema import AssistantChatMessage
-from typing import Any
-from .schema import ChatPrompt, LanguageModelClassification
+import abc
 import enum
+from typing import Any
+
+from core.resource.model_providers.schema import AssistantChatMessage
+
+from .schema import ChatPrompt
 
 
 class BaseActivityPromptStrategy(abc.ABC):
-
     class RESPONSE_TYPE(str, enum.Enum):
         ACTIVITY_HIGH_LEVEL_ANALYSIS = "ACTIVITY_HIGH_LEVEL_ANALYSIS"
-        ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION= "ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION"
+        ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION = "ACTIVITY_ANALYSIS_WITH_RESPECT_TO_QUESTION"
         ACTIVITY_ANALYSIS_SUMMARY_FOR_PANELIST = "ACTIVITY_ANALYSIS_SUMMARY_FOR_PANELIST"
-        
+
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
 
 
 class BaseInterviewPromptStrategy(abc.ABC):
-
     class RESPONSE_TYPE(str, enum.Enum):
         ACTIVITY_DETAILS = "ACTIVITY_DETAILS"
         CHARACTER_INFO = "CHARACTER_INFO"
@@ -32,16 +30,14 @@ class BaseInterviewPromptStrategy(abc.ABC):
 
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
+
 
 class BaseDiscussionPromptStrategy(abc.ABC):
-
     class RESPONSE_TYPE(str, enum.Enum):
         FEEDBACK_INFO = "FEEDBACK_INFO"
         ACTIVITY_INFO = "ACTIVITY_INFO"
@@ -50,16 +46,14 @@ class BaseDiscussionPromptStrategy(abc.ABC):
 
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any):
-        ...
+    def build_prompt(self, prompt_input: Any): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
+
 
 class BaseMasterPromptStrategy(abc.ABC):
-
     class RESPONSE_TYPE(str, enum.Enum):
         INTRO = "INTRO"
         SPEAKER_DETERMINATION = "SPEAKER_DETERMINATION"
@@ -71,13 +65,12 @@ class BaseMasterPromptStrategy(abc.ABC):
 
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
+
 
 class BaseEvaluationPromptStrategy(abc.ABC):
     class RESPONSE_TYPE(str, enum.Enum):
@@ -92,74 +85,61 @@ class BaseEvaluationPromptStrategy(abc.ABC):
 
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_subquery_generation_content(self, response):
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_subquery_data_extraction_content(self, response):
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_evaluation_content(self, response):
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_evaluation_summary_content(self, response):
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_code_analysis_visual_summary_content(self, response):
-        ...
-    
-    @abc.abstractmethod
-    # the callback that will be used to parse the response from the model provider
-    def parse_response_overall_visual_summary_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_panelist_feedback_visual_summary_content(self, response):
-        ...
+    def parse_response_subquery_generation_content(self, response): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_criteria_visual_summary_content(self, response):
-        ...
-    
+    def parse_response_subquery_data_extraction_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_evaluation_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_evaluation_summary_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_code_analysis_visual_summary_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_overall_visual_summary_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_panelist_feedback_visual_summary_content(self, response): ...
+
+    @abc.abstractmethod
+    # the callback that will be used to parse the response from the model provider
+    def parse_response_criteria_visual_summary_content(self, response): ...
+
+
 class BaseCandidatePromptStrategy(abc.ABC):
-    
     class RESPONSE_TYPE(str, enum.Enum):
         REASON = "REASON"
         DOMAIN_KNOWLEDGE = "DOMAIN_KNOWLEDGE"
         RESPOND = "RESPOND"
 
-    
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_content(self, response):
-        ...
+    def parse_response_content(self, response): ...
+
 
 class BasePanelistPromptStrategy(abc.ABC):
-
     class RESPONSE_TYPE(str, enum.Enum):
         REASON = "REASON"
         DOMAIN_KNOWLEDGE = "DOMAIN_KNOWLEDGE"
@@ -167,39 +147,31 @@ class BasePanelistPromptStrategy(abc.ABC):
         REFLECT = "REFLECT"
         EVALUATE = "EVALUATE"
         RESPOND_WITH_REASONING = "RESPOND_WITH_REASONING"
-        
 
     @abc.abstractmethod
     # this method should return ChatPrompt Instance after building the prompt
-    def build_prompt(self, prompt_input:Any) -> ChatPrompt:
-        ...
+    def build_prompt(self, prompt_input: Any) -> ChatPrompt: ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_process_response_model(self, response: AssistantChatMessage):
-        ...
+    def parse_process_response_model(self, response: AssistantChatMessage): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_domain_knowledge_content(self, response: AssistantChatMessage):
-        ...
+    def parse_response_domain_knowledge_content(self, response: AssistantChatMessage): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_evaluate_content(self, response: AssistantChatMessage):
-        ...
+    def parse_response_evaluate_content(self, response: AssistantChatMessage): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_reflect_content(self, response: AssistantChatMessage):
-        ...
+    def parse_response_reflect_content(self, response: AssistantChatMessage): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_response_reason_content(self, response: AssistantChatMessage):
-        ...
+    def parse_response_reason_content(self, response: AssistantChatMessage): ...
 
     @abc.abstractmethod
     # the callback that will be used to parse the response from the model provider
-    def parse_process_respond_with_reasoning_model(self, response: AssistantChatMessage):
-        ...
+    def parse_process_respond_with_reasoning_model(self, response: AssistantChatMessage): ...

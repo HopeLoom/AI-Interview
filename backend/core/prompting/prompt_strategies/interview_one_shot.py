@@ -1,51 +1,56 @@
 import json
 from typing import List
+
+from interview_details_agent.base import (
+    ActivityDetailsOutputMessage,
+    CharacterData,
+    CharacterDataOutput,
+    JobDetails,
+    PromptInput,
+    StarterCodeData,
+)
+
 from core.prompting.base import BaseInterviewPromptStrategy
-from core.prompting.schema import LanguageModelClassification
+from core.prompting.schema import ChatPrompt, LanguageModelClassification
 from core.resource.model_providers.schema import AssistantChatMessage, ChatMessage
-from core.prompting.schema import ChatPrompt
-from interview_details_agent.base import PromptInput
-from interview_details_agent.base import CharacterDataOutput, CharacterData, JobDetails, InterviewRoundDetails
-from interview_details_agent.base import StarterCodeData, ActivityDetailsOutputMessage
+
 
 class InterviewGenerationPromptStrategy(BaseInterviewPromptStrategy):
-
     def __init__(self, configuration):
-        self.config = configuration 
-        self.response_schema = None                                  
+        self.config = configuration
+        self.response_schema = None
 
     def model_classification(self):
         return LanguageModelClassification.SMART_MODEL
-    
-    def build_prompt(self, prompt_input:PromptInput):
+
+    def build_prompt(self, prompt_input: PromptInput):
         response_type = prompt_input.response_type
         if response_type == BaseInterviewPromptStrategy.RESPONSE_TYPE.ACTIVITY_DETAILS.value:
             system_message = self._generate_activity_details_prompt(prompt_input)
         elif response_type == BaseInterviewPromptStrategy.RESPONSE_TYPE.CHARACTER_INFO.value:
             system_message = self._generate_character_info_prompt(prompt_input)
-        elif response_type == BaseInterviewPromptStrategy.RESPONSE_TYPE.STARTER_CODE_GENERATION.value:
+        elif (
+            response_type == BaseInterviewPromptStrategy.RESPONSE_TYPE.STARTER_CODE_GENERATION.value
+        ):
             system_message = self._generate_starter_code_generation_prompt(prompt_input)
-        
-        prompt = ChatPrompt(
-            messages = [
-                ChatMessage.system(system_message)
-            ]
-        ) 
+
+        prompt = ChatPrompt(messages=[ChatMessage.system(system_message)])
         return prompt
-    
-    def _generate_activity_details_prompt(self, prompt_input:PromptInput):
-        
-        job_details:JobDetails = prompt_input.job_details
+
+    def _generate_activity_details_prompt(self, prompt_input: PromptInput):
+        job_details: JobDetails = prompt_input.job_details
         job_title = job_details.job_title
         job_description = job_details.job_description
         job_requirements = job_details.job_requirements
         job_qualifications = job_details.job_qualifications
         company_name = job_details.company_name
         company_description = job_details.company_description
-        example_activity_details_output:List[ActivityDetailsOutputMessage] = prompt_input.example_activity_details_output
-        example_job_details:List[JobDetails] = prompt_input.example_job_details
+        example_activity_details_output: List[ActivityDetailsOutputMessage] = (
+            prompt_input.example_activity_details_output
+        )
+        example_job_details: List[JobDetails] = prompt_input.example_job_details
         output = ActivityDetailsOutputMessage()
-        
+
         prompt = f"""
 You are part of an interview simulation where candidate and panelists are involved.
 Candidate in this stage is supposed to perform an activity during the interview which is mainly related to coding.
@@ -85,12 +90,13 @@ Its important to understand different aspects when generating the scenario which
 5. Generate the output in a similar format as the example provided.
 """
         return prompt
-    
-    def _generate_starter_code_generation_prompt(self, prompt_input:PromptInput):
-        
+
+    def _generate_starter_code_generation_prompt(self, prompt_input: PromptInput):
         starter_code = StarterCodeData(code="", description="")
-        #job_details:JobDetails = prompt_input.job_details
-        generated_activity_details:ActivityDetailsOutputMessage = prompt_input.generated_activity_details_output
+        # job_details:JobDetails = prompt_input.job_details
+        generated_activity_details: ActivityDetailsOutputMessage = (
+            prompt_input.generated_activity_details_output
+        )
         # job_title = job_details.job_title
         # job_description = job_details.job_description
         # job_requirements = job_details.job_requirements
@@ -98,9 +104,13 @@ Its important to understand different aspects when generating the scenario which
         # company_name = job_details.company_name
         # company_description = job_details.company_description
 
-        example_activity_details_output:List[ActivityDetailsOutputMessage] = prompt_input.example_activity_details_output
-        example_starter_code_output:List[StarterCodeData] = prompt_input.example_starter_code_output
-        
+        example_activity_details_output: List[ActivityDetailsOutputMessage] = (
+            prompt_input.example_activity_details_output
+        )
+        example_starter_code_output: List[StarterCodeData] = (
+            prompt_input.example_starter_code_output
+        )
+
         prompt = f"""
 You are part of interview simulation engine responsible for generating details regarding the interview.
 Candidate in this stage is supposed to perform an activity during the interview which is mainly related to coding.
@@ -121,19 +131,19 @@ To help you with this task, here is an example of the starter code relevant to a
         """
         return prompt
 
-
-    def _generate_character_info_prompt(self, prompt_input:PromptInput):
-
+    def _generate_character_info_prompt(self, prompt_input: PromptInput):
         character_data = CharacterData()
-        character_data_output = CharacterDataOutput(
-            data = [character_data]
-        )
+        character_data_output = CharacterDataOutput(data=[character_data])
 
-        example_character_data_output:List[CharacterDataOutput] = prompt_input.example_character_data_output
-        example_job_details:List[JobDetails] = prompt_input.example_job_details
-        example_activity_output:List[ActivityDetailsOutputMessage] = prompt_input.example_activity_details_output
+        example_character_data_output: List[CharacterDataOutput] = (
+            prompt_input.example_character_data_output
+        )
+        example_job_details: List[JobDetails] = prompt_input.example_job_details
+        example_activity_output: List[ActivityDetailsOutputMessage] = (
+            prompt_input.example_activity_details_output
+        )
         generated_activity_data = prompt_input.generated_activity_details_output
-        job_details:JobDetails = prompt_input.job_details
+        job_details: JobDetails = prompt_input.job_details
         job_title = job_details.job_title
         job_description = job_details.job_description
         job_requirements = job_details.job_requirements
@@ -178,7 +188,6 @@ Please note that the HR manager and HR round is optional and hence you can ignor
 When selecting panelists, make sure to select in a way that they are not only relevant to the job but also they cover both the technical and non technical aspects of the job.
         """
         return prompt
-
 
     def parse_response_content(self, response: AssistantChatMessage):
         # Assistant chat message consists of the following

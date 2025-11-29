@@ -1,66 +1,68 @@
-
-from core.prompting.base import BasePanelistPromptStrategy
-from panelist_agent.base import BasePanelistConfiguration
-from interview_details_agent.base import BaseInterviewConfiguration, ActivityDetailsOutputMessage
-from panelist_agent.base import Profile
-from activity_agent.base import ActivityProgressAnalysisSummaryForPanelistOutputMessage
-from master_agent.base import InterviewRound
-from master_agent.base import TOPICS_HR_ROUND, TOPICS_TECHNICAL_ROUND
-from master_agent.base import SUBTOPICS_HR_ROUND, SUBTOPICS_TECHNICAL_ROUND
 from typing import Tuple
-import os 
+
+from interview_details_agent.base import ActivityDetailsOutputMessage, BaseInterviewConfiguration
+
+from activity_agent.base import ActivityProgressAnalysisSummaryForPanelistOutputMessage
 from core.database.base import DatabaseInterface
+from core.prompting.base import BasePanelistPromptStrategy
+from master_agent.base import (
+    SUBTOPICS_HR_ROUND,
+    SUBTOPICS_TECHNICAL_ROUND,
+    TOPICS_HR_ROUND,
+    TOPICS_TECHNICAL_ROUND,
+    InterviewRound,
+)
+from panelist_agent.base import BasePanelistConfiguration, Profile
 
 
-class PanelistCommonPrompts():
-
+class PanelistCommonPrompts:
     def __init__(self, configuration, interview_config, database):
-        print ("PanelistPrompt is initialized")
-        self.panelist_config:BasePanelistConfiguration = configuration
-        self.interview_config:BaseInterviewConfiguration = interview_config
+        print("PanelistPrompt is initialized")
+        self.panelist_config: BasePanelistConfiguration = configuration
+        self.interview_config: BaseInterviewConfiguration = interview_config
         self.job_details = self.interview_config.job_details
         self.interview_round_details = self.interview_config.interview_round_details
-        self.interview_round_one_details = self.interview_round_details.rounds["interview_round_1"].description
-        self.interview_round_two_details = self.interview_round_details.rounds["interview_round_2"].description
+        self.interview_round_one_details = self.interview_round_details.rounds[
+            "interview_round_1"
+        ].description
+        self.interview_round_two_details = self.interview_round_details.rounds[
+            "interview_round_2"
+        ].description
         self.character_data = self.interview_config.character_data
-        self.activity_details:ActivityDetailsOutputMessage = self.interview_config.activity_details
-        self.activity_code_path:str = self.interview_config.activity_code_path
+        self.activity_details: ActivityDetailsOutputMessage = self.interview_config.activity_details
+        self.activity_code_path: str = self.interview_config.activity_code_path
         self.activity_raw_data_path: str = self.interview_config.activity_raw_data_path
-        self.my_profile:Profile = self.panelist_config.profile
-        self.database:DatabaseInterface = database
+        self.my_profile: Profile = self.panelist_config.profile
+        self.database: DatabaseInterface = database
         # Load starter code asynchronously
         import asyncio
+
         self.starter_code_data = asyncio.run(self.load_activity_code_info()) if database else ""
 
     async def load_activity_code_info(self):
         code = await self.database.fetch_starter_code_from_url() if self.database else ""
-        return code 
-    
+        return code
+
     def get_conversation_usage_prompt(self):
         return (
             "You are provided with the interview transcript between the candidate and the interviewer.\n"
             "There are certain key points to consider when analyzing the interview transcript:\n\n"
-            
             "1 **Conversation Structure:**\n"
             "- The transcript is segmented into **topics**, each containing one or more **sections**.\n"
             "- Within each section, we track the conversation in a structured manner.\n\n"
-            
             "2 **Conversation Summarization:**\n"
             "- Once a section is completed, a summary is generated and added to the overall topic summary.\n"
             "- This means that for past topics, you only have access to their summarized conversation, not the full dialogue.\n"
             "- For the current topic, both a **summary (covering prior sections)** and a **recent exchange of messages** are available.\n\n"
-            
             "3 **How to Use the Transcript:**\n"
             "- **Use the summarized conversation** to understand the broader context of past discussions.\n"
             "- **Focus on the recent exchange of messages** for real-time conversation flow and response generation.\n"
             "- Ensure your response aligns with the current section while maintaining awareness of prior discussions.\n"
         )
 
-
-    def get_role_specific_prompt(self, role_name:str) -> Tuple[str, str]:
-
+    def get_role_specific_prompt(self, role_name: str) -> Tuple[str, str]:
         if "engineer" in role_name:
-           role_prompt = """
+            role_prompt = """
 As the Machine Learning Engineer, you represent the perspective of an MLE.
 
 **Your Perspective as an MLE:**
@@ -76,8 +78,8 @@ As the Machine Learning Engineer, you represent the perspective of an MLE.
 - Do not focus on areas outside your expertise.
 - Keep the discussion structured and logical, ensuring that each topic is explored in depth without unnecessary repetition.
             """
-           
-           domain_knowledge_prompt = """
+
+            domain_knowledge_prompt = """
 As the Machine Learning Engineer panelist, your domain expertise is key to how the interview progresses.
 Your role is to retrieve relevant ML knowledge when necessary to support structured discussion and informed questioning.
 
@@ -118,7 +120,6 @@ Your role is to retrieve relevant ML knowledge when necessary to support structu
 - Keep discussions structured and relevant, avoiding unnecessary repetition or deviations.
             """
 
-
             domain_knowledge_prompt = """
 "As the HR Manager panelist, your expertise is key to assessing the candidate’s communication skills, cultural fit, and professional alignment with company values.
 "Your role is to retrieve relevant HR knowledge when necessary to support structured discussion and informed questioning.
@@ -158,7 +159,6 @@ As the Product Manager, you represent the perspective of a PM responsible for **
 - Keep the discussion structured and logical, ensuring that each topic is explored in depth without unnecessary repetition.
             """
 
-
             domain_knowledge_prompt = """
 As the Product Manager panelist, your domain expertise is key to assessing the candidate’s ability to think strategically and align ML solutions with real-world product challenges.
 Your role is to retrieve relevant product knowledge when necessary to support structured discussion and informed questioning.
@@ -174,11 +174,16 @@ Your role is to retrieve relevant product knowledge when necessary to support st
 - Ensure that retrieved product knowledge aligns with **business objectives, user experience, and product success metrics**.
             """
 
-
         return role_prompt, domain_knowledge_prompt
-    
-    def get_topic_interview_round_specific_prompt(self, topic_name, subtopic_name, activity_progress:ActivityProgressAnalysisSummaryForPanelistOutputMessage, interview_round, response_type):
-                
+
+    def get_topic_interview_round_specific_prompt(
+        self,
+        topic_name,
+        subtopic_name,
+        activity_progress: ActivityProgressAnalysisSummaryForPanelistOutputMessage,
+        interview_round,
+        response_type,
+    ):
         if interview_round == InterviewRound.ROUND_ONE:
             if topic_name == TOPICS_HR_ROUND.INTRODUCTION_ROLE_FIT.value:
                 if subtopic_name == SUBTOPICS_HR_ROUND.INTRODUCTIONS_INTERVIEW_FORMAT.value:
@@ -209,10 +214,8 @@ At this stage, your role is to understand the candidate’s motivations for chan
                     """
 
         if interview_round == InterviewRound.ROUND_TWO:
-
             if topic_name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value:
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.PANEL_MEMBER_INTRODUCTIONS.value:
-                    
                     if response_type == BasePanelistPromptStrategy.RESPONSE_TYPE.REASON:
                         prompt = """
 ### **Stage: Structuring Your Thought Process (Reasoning Step)**
@@ -226,7 +229,6 @@ You are about to introduce yourself to the candidate. Before doing so, you must 
 - Should I wrap up the current topic based on the advice I have received? If yes, then should I use the information from why the current topic is still not completed
 - Note that there is a difference between wrapping up the topic and interview. Only if its time to wrap up the interview, I will say thanks and end the interview.
 """
- 
 
                     elif response_type == BasePanelistPromptStrategy.RESPONSE_TYPE.DOMAIN_KNOWLEDGE:
                         prompt = """
@@ -239,7 +241,6 @@ about your role, company, or relevant industry experience to make the introducti
 - Retrieve a brief description of your role in the company, if necessary.
 """
 
-                
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.INTERVIEW_ROUND_OVERVIEW.value:
                     if response_type == BasePanelistPromptStrategy.RESPONSE_TYPE.REASON:
                         prompt = f"""
@@ -278,7 +279,10 @@ Retrieve precise domain knowledge that is **necessary** to explain the interview
 3 **Be clear and concise**—only provide as much detail as is helpful for the candidate.
 """
 
-            elif topic_name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
+            elif (
+                topic_name
+                == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+            ):
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.TECHNCAL_PROBLEM_OVERVIEW.value:
                     if response_type == BasePanelistPromptStrategy.RESPONSE_TYPE.REASON:
                         prompt = f"""
@@ -392,7 +396,7 @@ Do not assume or add any additional information to the problem
             elif topic_name == TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value:
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
                     if response_type == BasePanelistPromptStrategy.RESPONSE_TYPE.REASON:
-                       prompt = f"""
+                        prompt = f"""
 ### **Stage 1: Structuring Your Thought Process (Reasoning Step)**
 You are conducting a deep dive into the candidate’s problem-solving approach based on their solution to the technical challenge.
 
@@ -441,7 +445,7 @@ Also, consider the following:
 
 """
                     else:
-                       prompt = f"""
+                        prompt = f"""
 ### **Stage 2: Generating Domain Knowledge (If Required)**
 Your reasoning has determined that domain knowledge is necessary to properly frame the next question for the candidate.
 
@@ -499,7 +503,7 @@ Also, consider the following:
 - There is one more topic to go after this.
 """
                     else:
-                        prompt = f"""
+                        prompt = """
 ### **Stage 2: Generating Domain Knowledge (If Required)**
 Your reasoning has determined that domain knowledge is necessary to properly frame the next conceptual ML/DS question for the candidate.
 
@@ -544,8 +548,8 @@ Also, consider the following:
 - Do you need **additional domain knowledge** to ensure your question is well-framed and technically accurate?
 """
 
-                    else:  
-                        prompt = f"""
+                    else:
+                        prompt = """
 ### **Stage 2: Generating Domain Knowledge (If Required)**
 Your reasoning has determined that domain knowledge is necessary to properly frame the next question about the candidate’s expertise.
 
@@ -560,20 +564,21 @@ Retrieve precise domain knowledge that is **necessary** to frame a meaningful qu
 """
 
         return prompt
-    
 
-    def get_evaluation_topic_wise_prompt(self, 
-                                         interview_round, 
-                                         topic_name, 
-                                         subtopic_name, 
-                                         activity_progress:ActivityProgressAnalysisSummaryForPanelistOutputMessage,
-                                         activity_code_from_candidate):
+    def get_evaluation_topic_wise_prompt(
+        self,
+        interview_round,
+        topic_name,
+        subtopic_name,
+        activity_progress: ActivityProgressAnalysisSummaryForPanelistOutputMessage,
+        activity_code_from_candidate,
+    ):
         prompt = ""
         speaker_occupation = self.my_profile.background.current_occupation.occupation.lower()
 
         if interview_round == InterviewRound.ROUND_ONE:
             if topic_name == TOPICS_HR_ROUND.INTRODUCTION_ROLE_FIT.value:
-                prompt = f"""
+                prompt = """
 Since this section is about introductions and role fit, you should focus on **communication** and **cultural fit**.
 - **Communication:** Assess how clearly and concisely the candidate introduced themselves
 - Did they provide relevant details about their background, experience, and interests?
@@ -585,16 +590,16 @@ Since this section is about introductions and role fit, you should focus on **co
 """
 
         if interview_round == InterviewRound.ROUND_TWO:
-
             if topic_name == TOPICS_TECHNICAL_ROUND.TEAM_INTRODUCTIONS_AND_INTERVIEW_FORMAT.value:
-            
-                prompt = f"""
+                prompt = """
 - Did the candidate introduce themselves clearly and concisely?
 - Were their responses structured, well-organized, and easy to follow?
 """
 
-            elif topic_name == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value:
-                
+            elif (
+                topic_name
+                == TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value
+            ):
                 prompt = f"""
 - **Technical Problem Details presented to the candidate:**
 1. Scenario: {self.activity_details.scenario}
@@ -611,7 +616,7 @@ Since this section is about introductions and role fit, you should focus on **co
 """
 
                 if "engineer" in speaker_occupation:
-                    prompt += f"""
+                    prompt += """
 ### **Engineer Panelist Guidelines (Coding Round):**
 You must only evaluate candidate's code and not the starter code provided to them 
 - Did the candidate follow a clear and structured approach to solving the problem in their solution apart from the starter code?
@@ -624,7 +629,7 @@ You must only evaluate candidate's code and not the starter code provided to the
 """
 
                 else:
-                    prompt += f"""
+                    prompt += """
 ### **Product Manager Panelist Guidelines (Coding Round):**
 - Do not comment on code correctness or implementation details, as that is outside your scope.
 - If the candidate asked clarifying questions, were they relevant, thoughtful, and reflective of a structured thought process?
@@ -633,7 +638,6 @@ You must only evaluate candidate's code and not the starter code provided to the
 """
 
             elif topic_name == TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value:
-
                 if subtopic_name == SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value:
                     prompt = f"""
 - **Technical Problem Details presented to the candidate:**
@@ -648,9 +652,9 @@ You must only evaluate candidate's code and not the starter code provided to the
 3. Things left to be solved: {activity_progress.things_left_to_do_with_respect_to_question}
 4. Code written by candidate within the starter code: {activity_code_from_candidate}
 """
-                    
+
                     if "product" in speaker_occupation:
-                        prompt += f"""
+                        prompt += """
 ### **Product Manager Panelist Guidelines (Task Discussion):**
 - Did the candidate explain the problem and their solution in a way that was easy for non-technical stakeholders to follow?
 - Did they demonstrate the ability to adapt their explanation for audiences like product managers, designers, or executives?
@@ -660,7 +664,7 @@ You must only evaluate candidate's code and not the starter code provided to the
 """
 
                     elif "engineer" in speaker_occupation:
-                        prompt += f"""
+                        prompt += """
 ### **Engineer Panelist Guidelines (Task Discussion):**
 - Did the candidate understand and communicate the problem and their solution accurately apart from the starter code?
 - Did they answer technical follow-up questions thoroughly and correctly?
@@ -672,7 +676,7 @@ You must only evaluate candidate's code and not the starter code provided to the
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value:
                     if "product" in speaker_occupation:
-                        prompt = f"""
+                        prompt = """
 ### **Product Manager Panelist Guidelines (ML/Data Science Discussion):**
 This section evaluates the candidate’s ability to explain core machine learning and data science concepts.
 Focus on how well the candidate communicates complex topics to non-technical stakeholders.
@@ -685,7 +689,7 @@ Focus on how well the candidate communicates complex topics to non-technical sta
 """
 
                     elif "engineer" in speaker_occupation:
-                        prompt = f"""
+                        prompt = """
 ### **Engineer Panelist Guidelines (ML/Data Science Discussion):**
 This section evaluates the candidate’s conceptual understanding of machine learning and data science topics.
 Focus on the correctness, depth, and clarity of the candidate’s technical reasoning.
@@ -699,7 +703,7 @@ Focus on the correctness, depth, and clarity of the candidate’s technical reas
 
                 elif subtopic_name == SUBTOPICS_TECHNICAL_ROUND.BROADER_EXPERTISE_ASSESMENT.value:
                     if "product" in speaker_occupation:
-                        prompt = f"""
+                        prompt = """
 ### **Product Manager Panelist Guidelines (Behavioral & Past Experience):**
 This section evaluates how the candidate has handled real-world situations, especially involving teams, communication, and problem-solving.
 Focus on how well the candidate can communicate their past experiences and collaborate across functions.
@@ -714,7 +718,7 @@ Focus on how well the candidate can communicate their past experiences and colla
 """
 
                     elif "engineer" in speaker_occupation:
-                        prompt = f"""
+                        prompt = """
 ### **Engineer Panelist Guidelines (Behavioral & Past Experience):**
 This section evaluates how the candidate has approached technical challenges and contributed in team environments.
 Focus on their ability to solve problems collaboratively, take ownership, and communicate technical ideas clearly.

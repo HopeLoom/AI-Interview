@@ -1,28 +1,27 @@
-from fastapi import APIRouter
-from fastapi import Form, UploadFile, HTTPException, Request, File
-from globals import logger_manager, config, main_logger
-from typing import Any
-from core.database.db_manager import get_database
-from pathlib import Path
 import os
 import shutil
 from uuid import uuid4
-from fastapi.responses import JSONResponse
 
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from globals import main_logger
 
 router = APIRouter()
+
 
 # This API is used when the user clicks on join call button. It captures the user's image and saves it to the static folder.
 @router.post("/upload_image/")
 async def upload_image(
-    user_id: str = Form(...),                    # Unique user/session ID
-    image: UploadFile = File(...)
+    user_id: str = Form(...),  # Unique user/session ID
+    image: UploadFile = File(...),
 ):
     main_logger.info(f"Uploading image for user: {user_id}")
     if image.content_type not in ["image/jpeg", "image/png"]:
-        raise HTTPException(status_code=400, detail="Invalid image format. Only JPEG/PNG supported.")
-    
-    upload_dir = "static/"+user_id+"/images"
+        raise HTTPException(
+            status_code=400, detail="Invalid image format. Only JPEG/PNG supported."
+        )
+
+    upload_dir = "static/" + user_id + "/images"
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         main_logger.info(f"Created directory: {upload_dir}")

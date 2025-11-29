@@ -27,17 +27,8 @@ async def create_candidate_instance(**kwargs):
     if profile_json_data:
         print("Loading user profile from database")
         candidate_profile = Profile(**profile_json_data)
-    # check if data_dir is provided and load user profile
-    # if os.path.exists(data_dir + user_id + ".json"):
-    #     print ("Loading user profile from file")
-    #     candidate_profile_file = open(data_dir + user_id + ".json", "r")
-    #     candidate_profile = Profile(**json.loads(candidate_profile_file.read()))
     else:
         print("Generating user profile as cannot find in database")
-        # candidate_profile = await CandidateProfileGenerator(llm_provider).generate_candidate_profile(resume_data)
-        # # save the profile
-        # with open(data_dir + user_id + ".json", "w") as f:
-        #     json.dump(candidate_profile.model_dump(), f, indent=4)
 
     config = BaseCandidateConfiguration()
     config.settings = settings

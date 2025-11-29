@@ -414,7 +414,6 @@ class Activity(BaseActivity):
                     await self.process_system_message(message)
 
             except asyncio.QueueEmpty:
-                # self.logger.info("Activity agent received no message from master agent")
                 pass
             except Exception as e:
                 self.logger.exception(f"Error in main loop of activity agent: {e}")

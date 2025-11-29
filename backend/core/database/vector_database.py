@@ -32,17 +32,6 @@ class VectorDatabase:
                 name=user_id, metadata={"hnsw:space": "cosine"}
             )
 
-        # # Fetch all document IDs
-        # all_docs = self.collection.get()
-        # all_ids = all_docs["ids"]
-
-        # #Ensure the collection is not empty before deleting
-        # if all_ids:
-        #     self.collection.delete(ids=all_ids)
-        #     print("All documents deleted from the collection ✅")
-        # else:
-        #     print("Collection is already empty ✅")
-
         self.counter = 0
 
     def parse_and_process_embedding_model(self, response):
@@ -82,9 +71,6 @@ class VectorDatabase:
             query_embeddings=[query_embedding], n_results=1, where={"speaker": "Soumil Chugh"}
         )
 
-        # for i, doc in enumerate(results['documents'][0]):
-        #     print ("Rank: ", i+1)
-        #     print ("doc: ", doc)
 
         return results
 

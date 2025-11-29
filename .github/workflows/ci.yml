@@ -78,7 +78,6 @@ jobs:
     - name: Lint with Ruff
       working-directory: ./backend
       run: ruff check .
-      continue-on-error: true
 
   backend-tests:
     name: Backend Tests (Python ${{ matrix.python-version }})

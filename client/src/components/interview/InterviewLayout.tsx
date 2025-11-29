@@ -20,7 +20,7 @@ import { useInterview } from '@/contexts/InterviewContext';
 import { useAudioStreaming } from '@/hooks/useAudioStreaming';
 import { useCamera } from '@/contexts/CameraContext';
 import { ExitConfirmationDialog } from './ExitConfirmationDialog';
-import { ThankYouScreen } from './ThankYouScreen';
+import ThankYouScreen from './ThankYouScreen';
 
 import {
   WebSocketMessageTypeToServer,

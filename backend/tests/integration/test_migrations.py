@@ -2,7 +2,6 @@
 Integration tests for database migrations.
 """
 
-
 import pytest
 
 from core.config.config_manager import DatabaseConfig

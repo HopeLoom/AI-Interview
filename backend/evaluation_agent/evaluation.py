@@ -828,17 +828,13 @@ class Evaluation(BaseEvaluation):
         for index, criteria in enumerate(criteria_scoring_list):
             if criteria_counter_list[index] > 0:
                 if criteria.criteria.lower() == "coding":
-                    criteria_scoring_list[index].score = 5 * round(
-                        criteria.score, 1
-                    )
+                    criteria_scoring_list[index].score = 5 * round(criteria.score, 1)
                 else:
                     criteria_scoring_list[index].score = 5 * round(
                         criteria.score / criteria_counter_list[index], 1
                     )
 
-                self.logger.info(
-                    f"Criteria: {criteria.criteria}, Score: {criteria.score}"
-                )
+                self.logger.info(f"Criteria: {criteria.criteria}, Score: {criteria.score}")
                 overall_score += criteria.score
                 overall_analysis += criteria.reason + "\n"
                 counter += 1

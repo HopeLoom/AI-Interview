@@ -80,8 +80,6 @@ def extract_text(pdf_path):
     return pages
 
 
-
-
 def parse_contents(contents_data):
     # Define regex patterns
     chapter_pattern = re.compile(r"^(\d+)\s+(.+?)\s+(\d+)$")  # Matches chapter titles

@@ -32,13 +32,14 @@ class OPENAI(VoiceBase):
             "response_format": "mp3",
         }
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client, client.stream(
-                "POST", self.config.tts_url, json=payload, headers=headers
-            ) as response:
+            async with (
+                httpx.AsyncClient(timeout=15.0) as client,
+                client.stream(
+                    "POST", self.config.tts_url, json=payload, headers=headers
+                ) as response,
+            ):
                 if response.status_code != 200:
-                    error_msg = (
-                        f"TTS API error: {response.status_code} - {await response.aread()}"
-                    )
+                    error_msg = f"TTS API error: {response.status_code} - {await response.aread()}"
                     self.main_logger.error("error: %s", error_msg)
                     return {"user_id": user_id, "status": False}
                 async for chunk in response.aiter_bytes():
@@ -52,8 +53,8 @@ class OPENAI(VoiceBase):
                                 websocket_connection_manager is not None
                                 and websocket_connection_manager.get_master_instance(user_id)
                             ):
-                                master_instance = (
-                                    websocket_connection_manager.get_master_instance(user_id)
+                                master_instance = websocket_connection_manager.get_master_instance(
+                                    user_id
                                 )
                                 if master_instance is None:
                                     self.main_logger.error(

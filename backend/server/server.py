@@ -613,9 +613,7 @@ class WebSocketHandler:
 
         except Exception as e:
             main_logger.error(f"Configuration generation failed: {e}")
-            await self._send_configuration_error(
-                user_id, f"Configuration generation failed: {e!s}"
-            )
+            await self._send_configuration_error(user_id, f"Configuration generation failed: {e!s}")
 
         return user_id
 

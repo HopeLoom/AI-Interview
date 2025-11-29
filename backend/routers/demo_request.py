@@ -1,4 +1,3 @@
-
 import sendgrid
 from fastapi import APIRouter, HTTPException
 from globals import config, main_logger

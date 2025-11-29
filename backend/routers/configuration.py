@@ -129,9 +129,7 @@ async def get_programming_languages():
 
     except Exception as e:
         main_logger.error(f"Failed to get programming languages: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get programming languages: {e!s}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get programming languages: {e!s}")
 
 
 @router.get("/difficulty-levels")

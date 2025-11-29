@@ -514,8 +514,13 @@ export function CompanyDashboard() {
               <p className="text-slate-300">Loading dashboard...</p>
             </div>
           </div>
-        ) : error ? (
-          <ErrorDisplay error={error} onDismiss={clearError} />
+        ) : error.hasError ? (
+          <ErrorDisplay 
+            message={error.message} 
+            title={error.title}
+            showRetry={true}
+            onRetry={clearError}
+          />
         ) : (
           <div className="space-y-8">
             {/* Company Header */}

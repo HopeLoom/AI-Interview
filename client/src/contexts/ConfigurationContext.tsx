@@ -188,7 +188,7 @@ export const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ ch
           companyId = user.companyDetails.id;
           jobName = 'interview_configuration';
         } else if (user.userType === 'candidate') {
-          companyId = user.companyContext.companyId;
+          companyId = user.companyContext?.companyId ?? 'default_company';
           jobName = 'candidate_interview';
         }
       }

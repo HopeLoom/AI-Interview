@@ -31,10 +31,10 @@ export const getCompanyCandidateData = (user: CompanyProfile | CompanyCandidateP
       candidateId: user.id,
       candidateName: user.name,
       candidateEmail: user.email,
-      companyId: user.companyContext.companyId,
-      companyName: user.companyContext.companyName,
-      interviewSessionId: user.companyContext.interviewSessionId,
-      currentInterviewStep: user.companyContext.currentInterviewStep,
+      companyId: user.companyContext?.companyId,
+      companyName: user.companyContext?.companyName,
+      interviewSessionId: user.companyContext?.interviewSessionId,
+      currentInterviewStep: user.companyContext?.currentInterviewStep,
     };
   }
   
@@ -46,7 +46,7 @@ export const getCompanyId = (user: CompanyProfile | CompanyCandidateProfile | nu
   if (isCompanyProfile(user)) {
     return user.companyDetails.id;
   } else if (isCompanyCandidateProfile(user)) {
-    return user.companyContext.companyId;
+    return user.companyContext?.companyId ?? null;
   }
   
   return null;

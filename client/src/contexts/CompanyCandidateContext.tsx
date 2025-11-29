@@ -41,7 +41,16 @@ export interface CompanyCandidateProfile {
 interface CompanyCandidateContextType {
   user: CompanyCandidateProfile | null;
   isLoading: boolean;
-  login: (name: string, email: string, companyId: string, companyName: string) => Promise<void>;
+  login: (
+    name: string,
+    email: string,
+    options?: {
+      companyId?: string;
+      companyName?: string;
+      interviewSessionId?: string;
+      currentInterviewStep?: string;
+    }
+  ) => Promise<void>;
   logout: () => void;
   updateProfile: (updates: Partial<CompanyCandidateProfile>) => void;
   updateCompanyContext: (companyUpdates: Partial<CompanyCandidateProfile['companyContext']>) => void;

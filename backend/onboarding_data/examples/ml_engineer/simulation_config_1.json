@@ -1,0 +1,195 @@
+{
+    "simulation_id": "interview_Soumil Chugh",
+    "simulation_name": "Soumil Chugh",
+    "settings":{
+        "fast_llm": "gpt-4o",
+        "slow_llm": "gpt-4o",
+        "big_brain": true
+    },
+    "interview_data" : {
+        "interview_id": "interview_Soumil Chugh",
+        "settings": {
+            "fast_llm": "gpt-4o",
+            "slow_llm": "gpt-4o",
+            "big_brain": true
+        },
+        "job_details": {
+            "job_title": "Senior Machine Learning Engineer",
+            "job_description": "We are looking for a sr MLE to develop systems that extract data from webpages and text.\nOur ML Engineers research and develop ML systems that understand webpages. This problem space has many interesting approaches including graph neural networks, LLMs, NLP, computer vision and simple linear models. \nWe\u2019ve recently focused on using LLMs to create classification, generative and instruct model solutions. As an end to end team, we manage the entire ML lifecycle from data gathering to model training and serving.\n\nWhat You\u2019ll Do\n\nUse Python, HuggingFace and PyTorch to train/develop models to extract data from webpages & text\nDevelop features to represent webpages\nEmploy strong software engineering skills to develop frameworks or tools to help productionize our models\nResearch ML/AI techniques to apply to our models\nEvaluate accuracy and post launch impact\nMentor interns and other engineers\n\n\nWhat We\u2019re Looking For\n\n5+ years of industry experience applying machine learning methods\n-Expertise in NLP applications like NER, information extraction and LLMs\n-Experience training and optimizing DNN models\n\n\nNice To Have\n\nM.S. or PhD in Machine Learning or related areas\nPublications at top ML conferences\nExperience in large scale data processing systems like Presto or Spark\nExperience building and managing text based datasets and labels.\n",
+            "job_requirements": [
+                "5+ years of industry experience applying machine learning methods",
+                "Expertise in NLP applications like NER, information extraction and LLMs",
+                "Experience training and optimizing DNN models"
+            ],
+            "job_qualifications": [
+                "M.S. or PhD in Machine Learning or related areas",
+                "Publications at top ML conferences",
+                "Experience building and managing text based datasets and labels"
+            ],
+            "company_name": "Pinterest",
+            "company_description": "Millions of people across the world come to Pinterest to find new ideas every day.It\u2019s where they get inspiration, dream about new possibilities and plan for what matters most. \nOur mission is to help those people find their inspiration and create a life they love."
+        },
+        "interview_round_details": {
+            "rounds": {
+                "interview_round_1": {
+                    "description": "Role Alignment & Cultural Fit",
+                    "objective": "Assess the candidate’s motivations, career goals, and work preferences while providing clarity on the role and company expectations.",
+                    "metrics_covered": [
+                        "cultural and values fit",
+                        "relevant experience",
+                        "communication",
+                        "collaboration and team work"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Introduction & Role Fit",
+                            "description": "Covers the interview structure, their alignment with the role and motivation and career aspirations.",
+                            "time_limit": 10,
+                            "subtopics": [
+                                {
+                                    "name": "Introductions & Interview Overview",
+                                    "description": "Introduction followed by overview of the interview format.",
+                                    "sections": ["Introduction", "Interview Overview"] 
+                                },
+                                {
+                                    "name": "Job & Role Fit",
+                                    "description": "Discussion regarding responsibilities, required skills, and candidate’s experience.",
+                                    "sections": ["Responsibilities & Role Expectations", "Required Skills & Qualifications"]
+                                },
+                                {
+                                    "name": "Motivation & Career Goals",
+                                    "description": "Discussion regarding job change, long-term aspirations, and what excites them about the role.",
+                                    "sections": ["Reason for Job Change", "Long-Term Career Aspirations", "Interest in This Role & Company"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "interview_round_2": {
+                    "description": "Technical Problem-Solving & Deep Dive",
+                    "objective": "Evaluate the candidate’s ability to solve practical technical challenges, assess their problem-solving approach, and conduct a deep dive into their decisions and technical reasoning.",
+                    "metrics_covered": [
+                        "coding",
+                        "knowledge and problem solving",
+                        "non-technical skills"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Team Introductions and Interview Format",
+                            "description": "Team member introductions, interview format, what to expect.",
+                            "time_limit": 3,
+                            "metrics_covered": [
+                                "non-technical skills"
+                            ],
+                            "subtopics": [
+                                {
+                                  "name": "Panel Member Introductions",
+                                  "description": "Team members share their roles and experience.",
+                                  "time_limit": 1.5,
+                                  "sections": ["Panel Member Introductions"]
+                                  
+                                },
+                                {
+                                  "name": "Interview Round Overview",
+                                  "description": "Highlight the focus areas for the round.",
+                                  "time_limit": 1.5,
+                                  "sections": ["Interview Round Overview"]
+                                }     
+                            ]
+                        },
+                        {
+                            "name": "Problem Introduction, Clarification and Problem Solving Task",
+                            "description": "Candidate presented with a technical question which they have to solve via code.",
+                            "time_limit": 15,
+                            "metrics_covered": [
+                                "coding",
+                                "non-technical skills"
+                            ],
+                            "subtopics": [
+                                {
+                                "name": "Technical Problem Overview and Expectation Confirmation",
+                                "time_limit": 5,
+                                "description": "Candidate is given an explaination of the technical challenge. Candidate is allowed to ask any clarifying question until are ready to proceed.",
+                                "sections":["Problem Explanation and Clarification"]
+                                },
+                                {
+                                    "name": "Problem Solving Task",
+                                    "time_limit": 10,
+                                    "description": "Panelist observes candidate's responses and answer any of the clarifying questions.",
+                                    "sections": ["Candidate's Problem Solving"]
+                                }
+                            
+                            ]
+                        },
+                        {
+                            "name": "Deep Dive & Q&A",
+                            "description": "Ask technical questions to the candidate about the decisions they made during the problem solving task while also asking broad set of ML/AI questions on relevant topics.",
+                            "time_limit": 10,
+                            "metrics_covered": [
+                                "knowledge and problem solving",
+                                "non-technical skills"
+                            ],
+                            "subtopics": [
+                                {
+                                    "name": "Task-Specific Discussion",
+                                    "time_limit": 3,
+                                    "description": "Delve deeper into the candidate’s approach to the problem-solving task.",
+                                    "sections": ["Candidate's Approach Analysis"]
+                                },
+                                {
+                                    "name": "Conceptual Knowledge Check",
+                                    "time_limit": 4,
+                                    "description": "Explore the candidate’s understanding of core ML/data science concepts relevant to the role.",
+                                    "sections": [" Core ML/Data Science Concepts"]
+                                },
+                                {
+                                    "name": "Broader Expertise Assessment",
+                                    "time_limit": 3,
+                                    "description": "Discuss the candidate’s past experience, focusing on applied knowledge and innovative problem-solving.",
+                                    "sections": ["Past Experience Discussion"]    
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "character_data": {
+            "data": [
+                {
+                    "character_id": "1",
+                    "character_name": "Alice Thompson",
+                    "role": "Lead Machine Learning Engineer",
+                    "objective": "Evaluate the candidate's technical expertise in analysing performance metrics from data generated by an existing model. Focus on candidates ability to understand the problem, come with the right kind of metrics and write good code supporting this\n",
+                    "job_description": "Alice is part of the ml team responsible for building, deploying and evaluating models. Her works involves training new models based on the product/business requirements, monitoring issues in existing models and being updated with the state-of-the-art solution.\n",
+                    "interview_round_part_of":"TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "2",
+                    "character_name": "Ben Martinez",
+                    "role": "Product Manager",
+                    "objective": "Assess the candidate's understanding of the problem, how they communicate their thought process and their ability to come up with robust and clear solutions to the problem\n",
+                    "job_description": "Ben is the product person of the team with the main work involving ML solutions meet user needs and product goals. He acts as the bridge between the technical team and the business team, ensuring that the product developed aligns with the company's vision and goals.\n",
+                    "interview_round_part_of":"TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "3",
+                    "character_name": "Lisa Chen",
+                    "role": "HR Manager",
+                    "objective": "Evaluate candidates cultural fit and alignment with company\u2019s values, focusing on his ability to work within cross-functional teams and his motivation for seeking a role at the company. Discuss potential career development within the company.",
+                    "job_description": "Lisa being a HR manager is responsible for ensuring cultural alignment and employee satisfaction. They work on developing programs that support employee growth, foster team collaboration, and ensure adherence to company values and mission.",
+                    "interview_round_part_of":"HR_ROUND"
+                }
+            ],
+            "reason": "These roles were selected to cover the two rounds of interview: HR where the HR manager is part of and technical round where Alice, Ben and Sara from the ML team form the interview panel, aligning with the multi-disciplinary panel aimed at evaluating candidates's suitability for a senior ML engineering position."
+        },
+
+        "activity_details": {
+            "scenario": "Sales have been declining since the new video recommendation model was deployed, despite a stable number of users. Your team has collected user interaction data, and you need to analyze key metrics to diagnose the reason behind the decline.",            
+            "data_available": "user id, video id, ad impressions, ad engagement and timestamp.",
+            "task_for_the_candidate": "Starter code is provided to help structure your solution. You need to implement a function that computes key metric that assess overall system performance.\nThe second function involves you to efficiently retrieve the same metric computed earlier but within a given time window."
+        },
+        "activity_code_path": "starter_code_1.txt",
+        "activity_raw_data_path": "raw_data_1.csv"
+    }
+}

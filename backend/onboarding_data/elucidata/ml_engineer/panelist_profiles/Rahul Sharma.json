@@ -1,0 +1,86 @@
+{
+    "background": {
+        "name": "Rahul Sharma",
+        "gender": "Male",
+        "age": 35,
+        "bio": "Rahul is an experienced Product Manager with a strong background in machine learning and product development. He has a passion for technology and a commitment to creating solutions that meet user needs while aligning with business objectives. Known for his effective communication skills, Rahul excels at bridging the gap between technical and non-technical teams.",
+        "current_occupation": {
+            "occupation": "Product Manager",
+            "duration_years": 5.0
+        },
+        "education": [
+            {
+                "degree": "Master of Business Administration",
+                "major": "Business Management",
+                "university": "Indian Institute of Management (IIM) Bangalore",
+                "year_graduated": 2014.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Tech Solutions Inc.",
+                "position": "Product Manager",
+                "duration_years": 5.0
+            },
+            {
+                "company": "Data Innovations LLC",
+                "position": "Product Analyst",
+                "duration_years": 3.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Machine Learning",
+                "level": 5
+            },
+            {
+                "skill": "Product Development",
+                "level": 4
+            },
+            {
+                "skill": "Stakeholder Management",
+                "level": 4
+            },
+            {
+                "skill": "Agile Methodologies",
+                "level": 4
+            }
+        ],
+        "projects": [
+            {
+                "project": "User Behavior Analytics Tool",
+                "description": "Developed a predictive analytics tool that leverages machine learning algorithms to analyze user behavior and enhance product features based on insights.",
+                "duration_months": 12.0
+            },
+            {
+                "project": "AI-Driven Recommendation System",
+                "description": "Led the development of an AI-driven recommendation system that increased user engagement by 30%, aligning product goals with user needs.",
+                "duration_months": 10.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "description": "Rahul demonstrates high openness by exploring innovative technologies and integrating them into product development, often suggesting creative solutions during discussions."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "description": "Rahul's high conscientiousness is evident in his meticulous planning and organization, ensuring that projects meet both business objectives and user requirements."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "description": "Rahul shows medium extraversion; he communicates effectively with diverse teams but also values reflective thinking and sometimes prefers one-on-one conversations."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "description": "Rahul's high agreeableness is reflected in his ability to collaborate smoothly with stakeholders, listening attentively and fostering a cooperative work environment."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "description": "Rahul exhibits low neuroticism, remaining calm under pressure and rarely displaying anxiety, which allows him to handle challenging situations effectively."
+        }
+    },
+    "interview_round_part_of": "TECHNICAL_ROUND",
+    "character_id": "2"
+}

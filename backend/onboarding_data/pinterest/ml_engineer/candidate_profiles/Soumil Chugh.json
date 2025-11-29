@@ -1,0 +1,147 @@
+{
+    "background": {
+        "name": "Soumil Chugh",
+        "gender": "Male",
+        "age": 29,
+        "current_occupation": {
+            "occupation": "Senior Machine Learning Research Engineer",
+            "duration_years": 3
+        },
+        "education": [
+            {
+                "degree": "MASc",
+                "major": "Computer Engineering",
+                "university": "University of Toronto",
+                "year_graduated": 2020
+            },
+            {
+                "degree": "BE",
+                "major": "Electronics and Communication",
+                "university": "Punjab University",
+                "year_graduated": 2015
+            }
+        ],
+        "experience": [
+            {
+                "company": "Huawei Technologies",
+                "position": "Senior Machine Learning Research Engineer",
+                "duration_years": 3
+            },
+            {
+                "company": "General Prognostics (GPx)",
+                "position": "Machine Learning Consultant (Part-Time)",
+                "duration_years": 3
+            },
+            {
+                "company": "Jana Care",
+                "position": "Senior Software Engineer",
+                "duration_years": 3
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Deep Learning Techniques",
+                "level": 5
+            },
+            {
+                "skill": "LLMs",
+                "level": 5
+            },
+            {
+                "skill": "Computer Vision",
+                "level": 5
+            },
+            {
+                "skill": "Python",
+                "level": 5
+            },
+            {
+                "skill": "C++",
+                "level": 4
+            },
+            {
+                "skill": "Java",
+                "level": 4
+            },
+            {
+                "skill": "PyTorch",
+                "level": 5
+            },
+            {
+                "skill": "TypeScript",
+                "level": 3
+            },
+            {
+                "skill": "Android",
+                "level": 4
+            },
+            {
+                "skill": "Git",
+                "level": 4
+            },
+            {
+                "skill": "Linux",
+                "level": 4
+            },
+            {
+                "skill": "OpenCV",
+                "level": 5
+            },
+            {
+                "skill": "Scikit-learn",
+                "level": 4
+            },
+            {
+                "skill": "Jupyter",
+                "level": 4
+            },
+            {
+                "skill": "Pandas",
+                "level": 4
+            },
+            {
+                "skill": "NumPy",
+                "level": 4
+            },
+            {
+                "skill": "Matplotlib",
+                "level": 4
+            }
+        ],
+        "projects": [
+            {
+                "project": "Eye Tracking System for a Virtual Reality Headset",
+                "description": "Development of a sophisticated eye tracking system aimed at virtual reality applications.",
+                "duration_months": 2
+            },
+            {
+                "project": "Smartphone-Controlled Robotics System",
+                "description": "Created a system for automating complex blood tests, eventually securing FDA approval.",
+                "duration_months": 3
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "reason": "Soumil has extensive experience in innovative technologies and machine learning applications, indicating a strong openness to new ideas."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "reason": "His history of leading projects and developing complex systems shows a high level of responsibility and organization."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "reason": "While Soumil has leadership experience, the technical nature of his roles suggests more interaction with technology than with large teams."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "reason": "Collaboration with cross-functional teams indicates a tendency to be cooperative and accommodating."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "reason": "His accomplishments and leadership roles imply a level of stability and confidence in his abilities."
+        }
+    },
+    "character_id":"Candidate"
+}

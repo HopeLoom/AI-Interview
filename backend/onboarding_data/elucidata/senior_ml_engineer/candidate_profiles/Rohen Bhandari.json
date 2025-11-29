@@ -1,0 +1,113 @@
+{
+    "background": {
+        "name": "Rohen Bhandari",
+        "gender": "Male",
+        "age": 27,
+        "bio": "I am a Software Engineer and Machine Learning enthusiast with expertise in Python, LLM Optimization, and intelligent automation. I thrive on developing cutting-edge AI and data-driven solutions to solve complex problems and drive innovation in AI-driven industries.",
+        "current_occupation": {
+            "occupation": "Software Developer and Automation Leader",
+            "duration_years": 0.5
+        },
+        "education": [
+            {
+                "degree": "M.S",
+                "major": "Renewable Energy",
+                "university": "Uppsala University",
+                "year_graduated": 2021.0
+            },
+            {
+                "degree": "B.E",
+                "major": "Electrical and Electronics Engineering",
+                "university": "BITS Pilani",
+                "year_graduated": 2018.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Trade Collaboration Engine",
+                "position": "Software Developer and Automation Leader",
+                "duration_years": 0.5
+            },
+            {
+                "company": "EngageBud",
+                "position": "Data Analyst and Full-Stack Developer",
+                "duration_years": 2.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Python",
+                "level": 4
+            },
+            {
+                "skill": "Custom LLMs",
+                "level": 4
+            },
+            {
+                "skill": "Nemo Guardrails and Colang",
+                "level": 3
+            },
+            {
+                "skill": "HuggingFace",
+                "level": 4
+            },
+            {
+                "skill": "Machine Learning",
+                "level": 4
+            },
+            {
+                "skill": "NLP",
+                "level": 4
+            },
+            {
+                "skill": "PyTorch",
+                "level": 3
+            },
+            {
+                "skill": "Tensorflow",
+                "level": 3
+            },
+            {
+                "skill": "Kubernetes and Docker",
+                "level": 3
+            },
+            {
+                "skill": "OpenAI APIs",
+                "level": 3
+            },
+            {
+                "skill": "Microsoft Azure",
+                "level": 3
+            },
+            {
+                "skill": "Exceptional communication and teamwork",
+                "level": 5
+            }
+        ],
+        "projects": []
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "reason": "Rohen's pursuit of advanced technologies in AI and Machine Learning illustrates a high degree of openness to new experiences and innovative approaches."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "reason": "His consistent track record in developing automated solutions and leading teams shows a strong level of organization and dependability."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "reason": "While Rohen exhibits leadership skills and communication abilities, his focus on technical work suggests a balanced level of extraversion."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "reason": "Rohen's emphasis on teamwork and communication skills indicates a strong inclination toward cooperation and empathy in the workplace."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "reason": "His proactive approach to problem-solving and comfort with complex challenges suggests a low level of emotional instability or anxiety."
+        }
+    },
+    "interview_round_part_of": "",
+    "character_id": "Candidate"
+}

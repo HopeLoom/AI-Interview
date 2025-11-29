@@ -1,0 +1,96 @@
+{
+    "background": {
+        "name": "Shreya Gupta",
+        "gender": "Female",
+        "age": 32,
+        "bio": "Shreya Gupta is a dedicated and innovative Lead Machine Learning Engineer with over 8 years of experience in building and deploying sophisticated machine learning models. She is passionate about leveraging data to solve complex problems and constantly seeks to stay updated with the latest trends and technologies in the field. Shreya has a strong background in computer science and has worked on various projects that require her to analyze and improve model performance metrics.",
+        "current_occupation": {
+            "occupation": "Lead Machine Learning Engineer at Euclidata",
+            "duration_years": 3.0
+        },
+        "education": [
+            {
+                "degree": "Master's",
+                "major": "Computer Science",
+                "university": "Stanford University",
+                "year_graduated": 2015.0
+            },
+            {
+                "degree": "Bachelor's",
+                "major": "Information Technology",
+                "university": "Delhi University",
+                "year_graduated": 2013.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Euclidata",
+                "position": "Lead Machine Learning Engineer",
+                "duration_years": 3.0
+            },
+            {
+                "company": "Tech Innovations LLC",
+                "position": "Machine Learning Engineer",
+                "duration_years": 5.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Python",
+                "level": 5
+            },
+            {
+                "skill": "Machine Learning",
+                "level": 5
+            },
+            {
+                "skill": "Data Analysis",
+                "level": 4
+            },
+            {
+                "skill": "TensorFlow",
+                "level": 4
+            },
+            {
+                "skill": "Scikit-Learn",
+                "level": 4
+            }
+        ],
+        "projects": [
+            {
+                "project": "Customer Churn Prediction Model",
+                "description": "Developed a predictive model to identify potential customer churn using historical data and machine learning techniques.",
+                "duration_months": 6.0
+            },
+            {
+                "project": "Image Classification System",
+                "description": "Built and deployed an image classification model to sort product images automatically based on features.",
+                "duration_months": 5.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "description": "Shreya exhibits high openness by enthusiastically discussing new technologies and innovative approaches in machine learning during conversations."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "description": "She displays high conscientiousness through her methodical approach to problem-solving and her commitment to achieving goals in her projects."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "description": "Shreya shows medium extraversion, engaging actively in discussions but also valuing moments of reflection and deep work on complex problems."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "description": "She demonstrates high agreeableness by being cooperative and supportive, often seeking to understand others' perspectives and collaborate effectively."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "description": "Shreya exhibits low neuroticism, managing stress well and maintaining a calm demeanor even during challenging discussions or tight deadlines."
+        }
+    },
+    "interview_round_part_of": "TECHNICAL_ROUND",
+    "character_id": "1"
+}

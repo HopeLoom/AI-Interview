@@ -1,0 +1,77 @@
+{
+    "background": {
+        "name": "Ben Martinez",
+        "gender": "Male",
+        "age": 34,
+        "bio": "Ben Martinez is an experienced Product Manager with a strong background in developing machine learning solutions to meet user needs. He excels in bridging the gap between technical teams and business objectives, ensuring cohesive product vision and execution.",
+        "current_occupation": {
+            "occupation": "Product Manager",
+            "duration_years": 5.0
+        },
+        "education": [
+            {
+                "degree": "Master's",
+                "major": "Business Administration",
+                "university": "MIT Sloan School of Management",
+                "year": 2014.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Tech Innovations Inc.",
+                "position": "Product Manager",
+                "duration_years": 5.0
+            },
+            {
+                "company": "Smart Solutions Ltd.",
+                "position": "Associate Product Manager",
+                "duration_years": 2.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Machine Learning",
+                "level": 4
+            },
+            {
+                "skill": "Product Development",
+                "level": 4
+            },
+            {
+                "skill": "Cross-Functional Team Leadership",
+                "level": 5
+            }
+        ],
+        "projects": [
+            {
+                "project": "AI-Powered Analytics Tool",
+                "description": "Developed a machine learning-based analytics platform that improved user decision-making processes by providing actionable insights.",
+                "duration_months": 12.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "description": "Ben shows a strong curiosity and willingness to explore new ideas and technologies, especially in the field of machine learning."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "description": "He demonstrates a high level of organization and dependability, ensuring that product development aligns with both technical and business goals."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "description": "Ben engages effectively in conversations and collaborates well with others, but tends to be more reserved in large group settings."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "description": "He is approachable and supportive, actively listening to team members and fostering a positive working environment."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "description": "Ben maintains composure under pressure, showing resilience and a calm demeanor during discussions."
+        }
+    },
+    "interview_round_part_of": "TECHNICAL_ROUND",
+    "character_id": "2"
+}

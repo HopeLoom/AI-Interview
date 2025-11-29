@@ -1,0 +1,208 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from typing import Dict, List, Tuple, Optional
+
+# Sample dataset for e-commerce customer analysis
+def load_sample_data():
+    """
+    Load sample e-commerce customer data for analysis
+    """
+    np.random.seed(42)
+    n_customers = 1000
+    
+    data = {
+        'customer_id': range(1, n_customers + 1),
+        'age': np.random.normal(35, 10, n_customers).astype(int),
+        'income': np.random.normal(60000, 20000, n_customers).astype(int),
+        'purchase_frequency': np.random.poisson(3, n_customers),
+        'avg_order_value': np.random.normal(85, 25, n_customers),
+        'customer_satisfaction': np.random.uniform(1, 5, n_customers),
+        'days_since_last_purchase': np.random.exponential(30, n_customers).astype(int),
+        'total_purchases': np.random.poisson(8, n_customers),
+        'is_premium_member': np.random.choice([0, 1], n_customers, p=[0.7, 0.3])
+    }
+    
+    return pd.DataFrame(data)
+
+class CustomerDataAnalyzer:
+    def __init__(self, data: pd.DataFrame):
+        """
+        Initialize the analyzer with customer data
+        
+        Args:
+            data: DataFrame containing customer information
+        """
+        self.data = data
+        self.insights = {}
+    
+    def exploratory_data_analysis(self) -> Dict[str, any]:
+        """
+        Perform comprehensive exploratory data analysis
+        
+        Returns:
+            Dictionary containing key insights and statistics
+        """
+        # Basic statistics
+        basic_stats = {
+            'total_customers': len(self.data),
+            'numeric_columns': self.data.select_dtypes(include=[np.number]).columns.tolist(),
+            'categorical_columns': self.data.select_dtypes(include=['object']).columns.tolist(),
+            'missing_values': self.data.isnull().sum().to_dict()
+        }
+        
+        # Statistical summaries
+        numeric_summary = self.data.describe()
+        
+        # Correlation analysis
+        correlation_matrix = self.data.corr()
+        
+        # Key insights
+        insights = {
+            'avg_customer_age': self.data['age'].mean(),
+            'avg_income': self.data['income'].mean(),
+            'premium_member_percentage': (self.data['is_premium_member'].mean() * 100),
+            'high_value_customers': len(self.data[self.data['avg_order_value'] > self.data['avg_order_value'].quantile(0.8)]),
+            'correlation_income_purchases': correlation_matrix.loc['income', 'total_purchases']
+        }
+        
+        return {
+            'basic_stats': basic_stats,
+            'numeric_summary': numeric_summary,
+            'correlation_matrix': correlation_matrix,
+            'insights': insights
+        }
+    
+    def create_visualizations(self) -> Dict[str, plt.Figure]:
+        """
+        Create key visualizations for the dataset
+        
+        Returns:
+            Dictionary containing matplotlib figures
+        """
+        figures = {}
+        
+        # Age distribution
+        fig1, ax1 = plt.subplots(figsize=(10, 6))
+        ax1.hist(self.data['age'], bins=20, alpha=0.7, color='skyblue', edgecolor='black')
+        ax1.set_title('Customer Age Distribution')
+        ax1.set_xlabel('Age')
+        ax1.set_ylabel('Frequency')
+        figures['age_distribution'] = fig1
+        
+        # Income vs Purchase Frequency scatter
+        fig2, ax2 = plt.subplots(figsize=(10, 6))
+        ax2.scatter(self.data['income'], self.data['purchase_frequency'], alpha=0.6)
+        ax2.set_title('Income vs Purchase Frequency')
+        ax2.set_xlabel('Income')
+        ax2.set_ylabel('Purchase Frequency')
+        figures['income_vs_purchases'] = fig2
+        
+        # Correlation heatmap
+        fig3, ax3 = plt.subplots(figsize=(10, 8))
+        sns.heatmap(self.data.corr(), annot=True, cmap='coolwarm', center=0, ax=ax3)
+        ax3.set_title('Correlation Heatmap')
+        figures['correlation_heatmap'] = fig3
+        
+        return figures
+    
+    def segment_customers(self) -> Dict[str, pd.DataFrame]:
+        """
+        Perform customer segmentation analysis
+        
+        Returns:
+            Dictionary containing different customer segments
+        """
+        # RFM Analysis (Recency, Frequency, Monetary)
+        rfm_data = self.data.copy()
+        rfm_data['recency'] = rfm_data['days_since_last_purchase']
+        rfm_data['frequency'] = rfm_data['total_purchases']
+        rfm_data['monetary'] = rfm_data['avg_order_value']
+        
+        # Create segments based on RFM scores
+        rfm_data['rfm_score'] = (
+            pd.qcut(rfm_data['recency'], q=4, labels=[4, 3, 2, 1]) +
+            pd.qcut(rfm_data['frequency'], q=4, labels=[1, 2, 3, 4]) +
+            pd.qcut(rfm_data['monetary'], q=4, labels=[1, 2, 3, 4])
+        )
+        
+        # Define segments
+        segments = {
+            'high_value': rfm_data[rfm_data['rfm_score'] >= 10],
+            'medium_value': rfm_data[(rfm_data['rfm_score'] >= 7) & (rfm_data['rfm_score'] < 10)],
+            'low_value': rfm_data[rfm_data['rfm_score'] < 7],
+            'premium_members': rfm_data[rfm_data['is_premium_member'] == 1]
+        }
+        
+        return segments
+    
+    def generate_recommendations(self) -> List[str]:
+        """
+        Generate business recommendations based on analysis
+        
+        Returns:
+            List of actionable recommendations
+        """
+        segments = self.segment_customers()
+        insights = self.exploratory_data_analysis()
+        
+        recommendations = []
+        
+        # High-value customer recommendations
+        high_value_count = len(segments['high_value'])
+        if high_value_count > 0:
+            recommendations.append(f"Implement VIP program for {high_value_count} high-value customers")
+        
+        # Premium member insights
+        premium_pct = insights['insights']['premium_member_percentage']
+        if premium_pct < 30:
+            recommendations.append("Increase premium membership conversion through targeted marketing")
+        
+        # Income correlation
+        income_corr = insights['insights']['correlation_income_purchases']
+        if income_corr > 0.3:
+            recommendations.append("Focus marketing efforts on higher-income demographics")
+        
+        # Customer satisfaction
+        avg_satisfaction = self.data['customer_satisfaction'].mean()
+        if avg_satisfaction < 3.5:
+            recommendations.append("Improve customer service to increase satisfaction scores")
+        
+        return recommendations
+
+def main():
+    """
+    Main function to demonstrate the data analysis workflow
+    """
+    # Load data
+    data = load_sample_data()
+    
+    # Initialize analyzer
+    analyzer = CustomerDataAnalyzer(data)
+    
+    # Perform analysis
+    analysis_results = analyzer.exploratory_data_analysis()
+    customer_segments = analyzer.segment_customers()
+    recommendations = analyzer.generate_recommendations()
+    
+    # Print results
+    print("=== Customer Data Analysis Results ===")
+    print(f"Total customers analyzed: {analysis_results['basic_stats']['total_customers']}")
+    print(f"Average customer age: {analysis_results['insights']['avg_customer_age']:.1f}")
+    print(f"Premium member percentage: {analysis_results['insights']['premium_member_percentage']:.1f}%")
+    print(f"High-value customers: {analysis_results['insights']['high_value_customers']}")
+    
+    print("\n=== Customer Segments ===")
+    for segment_name, segment_data in customer_segments.items():
+        print(f"{segment_name}: {len(segment_data)} customers")
+    
+    print("\n=== Recommendations ===")
+    for i, rec in enumerate(recommendations, 1):
+        print(f"{i}. {rec}")
+
+if __name__ == "__main__":
+    main()

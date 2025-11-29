@@ -1,0 +1,116 @@
+import torch
+import torch.nn as nn
+from transformers import AutoTokenizer
+from typing import List, Dict, Any
+import torch.nn.functional as F
+
+def sample_inputs():
+[
+    {
+        "id": "doc1",
+        "input": "Patient has type 2 diabetes and hypertension.",
+        "prompt": "Summarize this clinical note: {input}",
+        "summary": "Patient presents with chronic conditions including diabetes and hypertension.",
+        "is_summary_valid": True,
+        "timestamp": 1700000000
+    },
+    {
+        "id": "doc2",
+        "input": "Patient has elevated blood glucose and high blood pressure.",
+        "prompt": "Summarize this clinical note: {input}",
+        "summary": "Patient has hyperglycemia and hypertension.",
+        "is_summary_valid": True,
+        "timestamp": 1700000300
+    },
+    {
+        "id": "doc3",
+        "input": "MRI reveals a left parietal lobe lesion suggestive of gliosis.",
+        "prompt": "Summarize this clinical note: {input}",
+        "summary": "Imaging results were noted in the record.",
+        "is_summary_valid": False,
+        "timestamp": 1700005000
+    },
+    {
+        "id": "doc4",
+        "input": "Administer 4 units of insulin subcutaneously and recheck blood sugar in 2 hours.",
+        "prompt": "Summarize this clinical note: {input}",
+        "summary": "Instructions were provided to manage the condition.",
+        "is_summary_valid": False,
+        "timestamp": 1700005200
+    },
+    {
+        "id": "doc5",
+        "input": "ICD-10 Code: E11.9. CPT Code: 83036. Patient eligible for HbA1c reimbursement.",
+        "prompt": "Summarize this clinical note: {input}",
+        "summary": "Relevant information about the patient was recorded.",
+        "is_summary_valid": False,
+        "timestamp": 1700005500
+    }
+]
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+def tokenize_text(text: str, max_len: int = 32):
+    encoded = tokenizer(text, padding="max_length", truncation=True, max_length=max_len, return_tensors="pt")
+    return encoded["input_ids"], encoded["attention_mask"]
+
+class LLMEncoder(nn.Module):
+    def __init__(self, vocab_size: int = 30522, dim: int = 64, heads: int = 4):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, dim)
+        self.attn = nn.MultiheadAttention(dim, heads, batch_first=True)
+        self.norm = nn.LayerNorm(dim)
+        self.out_proj = nn.Linear(dim, vocab_size)
+
+    def forward(self, ids: torch.Tensor, mask: torch.Tensor, return_embedding=False) -> torch.Tensor:
+        h = self.embedding(ids)
+        h2, _ = self.attn(h, h, h, key_padding_mask=(mask == 0))
+        h = self.norm(h + h2)
+        if return_embedding:
+            return h
+        return self.out_proj(h) 
+
+class DriftInspector:
+    def __init__(self, encoder: nn.Module, records: List[Dict[str, Any]]):
+        self.encoder = encoder.eval()
+        self.records = records
+
+    def embed_summary(self, summary: str) -> torch.Tensor:
+        ids, mask = tokenize_text(summary)
+        with torch.no_grad():
+            hidden = self.encoder(ids, mask, return_embedding=True) 
+            pooled = (hidden * mask).sum(dim=1) / mask.sum(dim=1)
+        return pooled
+
+    def detect(self) -> List[Dict[str, Any]]:
+        valid_embeddings = []
+        invalid_samples = []
+
+        for entry in self.records:
+            emb = self.embed_summary(entry["summary"])      
+            if entry["is_summary_valid"]:
+                valid_embeddings.append(emb)
+            else:
+                invalid_samples.append((entry["id"], emb))
+
+        if not valid_embeddings:
+            return []
+
+        baseline = torch.stack(valid_embeddings).mean(dim=0)
+        results = []
+
+        for sid, emb in invalid_samples:
+            score = 1 - F.cosine_similarity(emb.unsqueeze(0), baseline.unsqueeze(0)).item()
+            results.append({"id": sid, "drift_score": score})
+
+        return results
+
+        
+
+if __name__ == "__main__":
+    model = LLMEncoder()
+    records = sample_inputs()
+    monitor = DriftInspector(model, records)
+    result = monitor.detect()
+    print("Drift Results:", result)
+

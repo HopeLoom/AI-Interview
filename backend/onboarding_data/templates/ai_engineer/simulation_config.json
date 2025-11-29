@@ -1,0 +1,143 @@
+{
+    "simulation_id": "ai_engineer_interview",
+    "simulation_name": "AI Engineer Interview",
+    "settings":{
+        "fast_llm": "gpt-4o",
+        "slow_llm": "gpt-4o",
+        "big_brain": true
+    },
+    "interview_data" : {
+        "interview_id": "ai_engineer_interview",
+        "settings": {
+            "fast_llm": "gpt-4o",
+            "slow_llm": "gpt-4o",
+            "big_brain": true
+        },
+        "job_details": {
+            "job_title": "AI Engineer",
+            "job_description": "We are looking for an AI Engineer to develop and deploy artificial intelligence solutions.\nOur AI Engineers work on cutting-edge AI technologies, including machine learning models, neural networks, and AI-powered applications. This role involves research, development, and deployment of AI systems that solve real-world problems.\n\nWhat You'll Do\n\n- Design and implement AI/ML models and algorithms\n- Develop and optimize neural networks and deep learning systems\n- Deploy AI models to production environments\n- Research and experiment with new AI technologies\n- Collaborate with data scientists and software engineers\n- Optimize model performance and scalability\n\nWhat We're Looking For\n\n- 3+ years of experience in AI/ML engineering\n- Proficiency in Python and ML frameworks (TensorFlow, PyTorch)\n- Experience with deep learning and neural networks\n- Strong mathematical and statistical background\n- Experience with model deployment and MLOps\n- Knowledge of cloud platforms and distributed computing\n\nNice To Have\n\n- Experience with large language models and NLP\n- Knowledge of computer vision and image processing\n- Experience with reinforcement learning\n- Understanding of AI ethics and responsible AI\n- Experience with edge AI and mobile deployment",
+            "job_requirements": [
+                "3+ years of experience in AI/ML engineering",
+                "Proficiency in Python and ML frameworks (TensorFlow, PyTorch)",
+                "Experience with deep learning and neural networks",
+                "Strong mathematical and statistical background",
+                "Experience with model deployment and MLOps",
+                "Knowledge of cloud platforms and distributed computing"
+            ],
+            "job_qualifications": [
+                "Experience with large language models and NLP",
+                "Knowledge of computer vision and image processing",
+                "Experience with reinforcement learning",
+                "Understanding of AI ethics and responsible AI",
+                "Experience with edge AI and mobile deployment"
+            ],
+            "company_name": "AI Tech Company",
+            "company_description": "A leading AI technology company focused on developing innovative artificial intelligence solutions."
+        },
+        "interview_round_details": {
+            "rounds": {
+                "interview_round_1": {
+                    "description": "Role Alignment & Cultural Fit",
+                    "objective": "Assess the candidate's motivations, career goals, and work preferences while providing clarity on the role and company expectations.",
+                    "metrics_covered": [
+                        "cultural and values fit",
+                        "relevant experience",
+                        "communication",
+                        "collaboration and team work"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Introduction & Role Fit",
+                            "description": "Covers the interview structure, their alignment with the role and motivation and career aspirations.",
+                            "time_limit": 10,
+                            "subtopics": [
+                                {
+                                    "name": "Introductions & Interview Overview",
+                                    "description": "Introduction followed by overview of the interview format.",
+                                    "sections": ["Introduction", "Interview Overview"] 
+                                },
+                                {
+                                    "name": "Job & Role Fit",
+                                    "description": "Discussion regarding responsibilities, required skills, and candidate's experience.",
+                                    "sections": ["Responsibilities & Role Expectations", "Required Skills & Qualifications"]
+                                },
+                                {
+                                    "name": "Motivation & Career Goals",
+                                    "description": "Discussion regarding job change, long-term aspirations, and what excites them about the role.",
+                                    "sections": ["Reason for Job Change", "Long-Term Career Aspirations", "Interest in This Role & Company"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "interview_round_2": {
+                    "description": "Technical Problem-Solving & Deep Dive",
+                    "objective": "Evaluate the candidate's ability to solve practical AI engineering challenges, assess their problem-solving approach, and conduct a deep dive into their technical reasoning.",
+                    "metrics_covered": [
+                        "coding",
+                        "knowledge and problem solving",
+                        "non-technical skills"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "AI Engineering Problem Solving",
+                            "description": "Technical discussion and AI/ML exercises.",
+                            "time_limit": 20,
+                            "subtopics": [
+                                {
+                                    "name": "Deep Learning",
+                                    "description": "Discussion of neural networks and deep learning architectures.",
+                                    "sections": ["Neural Network Design", "Model Optimization"]
+                                },
+                                {
+                                    "name": "AI System Design",
+                                    "description": "Discussion of AI system architecture and deployment.",
+                                    "sections": ["System Architecture", "Model Deployment"]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "activity_details": {
+            "activity_name": "AI Model Development",
+            "activity_description": "Design and implement an AI model to solve a specific problem.",
+            "activity_instructions": "You will be given a problem and asked to design an AI solution. Focus on model architecture, implementation, and deployment considerations.",
+            "evaluation_criteria": [
+                "Model design and architecture",
+                "Implementation approach",
+                "Performance optimization",
+                "Deployment considerations"
+            ]
+        },
+        "character_data": {
+            "data": [
+                {
+                    "character_name": "Dr. David Kim",
+                    "character_role": "Senior AI Engineer",
+                    "character_background": "David is a senior AI engineer with a PhD in Computer Science and 6 years of experience in developing AI systems. He has worked on various AI applications including computer vision, NLP, and reinforcement learning.",
+                    "character_personality": "Analytical, innovative, and collaborative. David is passionate about AI research and enjoys solving complex technical challenges.",
+                    "character_expertise": [
+                        "Deep learning",
+                        "Neural network architecture",
+                        "AI model optimization",
+                        "Research and development"
+                    ]
+                },
+                {
+                    "character_name": "Dr. Maria Santos",
+                    "character_role": "AI Research Lead",
+                    "character_background": "Maria leads the AI research team and has extensive experience in cutting-edge AI research. She has published numerous papers and has expertise in multiple AI domains.",
+                    "character_personality": "Visionary, detail-oriented, and mentoring. Maria focuses on advancing AI technology and developing the next generation of AI engineers.",
+                    "character_expertise": [
+                        "AI research",
+                        "Technical leadership",
+                        "Innovation strategy",
+                        "Team development"
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,80 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.*.example
+backend/.env*
+!backend/.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+data/logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Sensitive files
+*firebase*.json
+*speech_to_text*.json
+*credentials*.json
+*.pem
+*.key
+
+# User data (should not be in repo)
+backend/data/
+backend/static/*/
+!backend/static/test.txt
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Package files
+*.tar.gz
+*.zip
+
+# Server public files
+server/public/
+
+# Vite config variants
+vite.config.ts.*
+
+# Attached assets (screenshots, etc.)
+attached_assets/

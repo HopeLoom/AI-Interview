@@ -1,0 +1,100 @@
+{
+    "background": {
+        "name": "Bhavishya Pandit",
+        "gender": "Male",
+        "age": 24,
+        "bio": "Skilled AI/ML Engineer with nearly 4 years of expertise in ML, NLP, SQL, Generative AI, and LLMs, driving enterprise AI innovation. Proven ability in AI Security, Threat Detection, and Compliance, ensuring robust AI governance and risk management. Experienced in Model Optimization, delivering high-accuracy solutions for measurable business impact.",
+        "current_occupation": {
+            "occupation": "Senior AI Engineer",
+            "duration_years": 0.0
+        },
+        "education": [
+            {
+                "degree": "Masters",
+                "major": "Machine Learning",
+                "university": "University of Arizona",
+                "year_graduated": 2025.0
+            },
+            {
+                "degree": "Bachelor of Engineering",
+                "major": "Computer Science Hons.",
+                "university": "Chandigarh University",
+                "year_graduated": 2021.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "IBM",
+                "position": "Senior AI Engineer",
+                "duration_years": 0.0
+            },
+            {
+                "company": "Rakuten",
+                "position": "Data Scientist",
+                "duration_years": 2.5
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Generative AI",
+                "level": 5
+            },
+            {
+                "skill": "Machine Learning",
+                "level": 5
+            },
+            {
+                "skill": "NLP",
+                "level": 5
+            },
+            {
+                "skill": "SQL",
+                "level": 4
+            },
+            {
+                "skill": "AI Security",
+                "level": 4
+            },
+            {
+                "skill": "Data Science",
+                "level": 5
+            }
+        ],
+        "projects": [
+            {
+                "project": "Agentic RAG Pipeline",
+                "description": "Designed and optimized retrieval heuristics for enabling retrieval and generation from over 6M IBM documents.",
+                "duration_months": 6.0
+            },
+            {
+                "project": "Time-Series Forecasting Pipeline",
+                "description": "Engineered a forecasting model that generated significant revenue through precise predictions in e-commerce.",
+                "duration_months": 6.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "reason": "Bhavishya demonstrates a strong willingness to explore new ideas and technologies in AI and machine learning."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "reason": "His proven ability to deliver accurate and impactful AI solutions indicates a high level of diligence and organization."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "reason": "While he has experience as a mentor and speaker, his primary focus on technical work suggests a balanced level of sociability."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "reason": "His role in mentoring others and providing strategic advice shows a collaborative and supportive nature."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "reason": "Bhavishya's success in high-pressure roles like threat detection indicates he handles stress and uncertainty well."
+        }
+    },
+    "interview_round_part_of": "",
+    "character_id": "Candidate"
+}

@@ -1,0 +1,100 @@
+{
+    "background": {
+        "name": "Varun Kumar",
+        "gender": "male",
+        "age": 30,
+        "bio": "Experienced Machine Learning Engineer with a strong background in software development and a focus on innovative technology solutions. Proficient in developing and deploying machine learning models with leadership experience in project execution.",
+        "current_occupation": {
+            "occupation": "Machine Learning Engineer",
+            "duration_years": 1.0
+        },
+        "education": [
+            {
+                "degree": "MS.",
+                "major": "Electrical and Computer Engineering",
+                "university": "IIT Madras",
+                "year_graduated": 2020.0
+            },
+            {
+                "degree": "BE.",
+                "major": "Computer Science",
+                "university": "VIT Chennai",
+                "year_graduated": 2015.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Google",
+                "position": "Machine Learning Engineer",
+                "duration_years": 1.0
+            },
+            {
+                "company": "Linkedin",
+                "position": "Senior Software Developer",
+                "duration_years": 2.0
+            },
+            {
+                "company": "JanaCare",
+                "position": "Senior Software Engineer",
+                "duration_years": 3.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Deep Learning Techniques",
+                "level": 4
+            },
+            {
+                "skill": "Programming Languages",
+                "level": 4
+            },
+            {
+                "skill": "Deep Learning Frameworks",
+                "level": 4
+            },
+            {
+                "skill": "Web and Mobile Development",
+                "level": 3
+            },
+            {
+                "skill": "Tools and Technologies",
+                "level": 4
+            },
+            {
+                "skill": "Data Science & Analysis",
+                "level": 4
+            }
+        ],
+        "projects": [
+            {
+                "project": "Smartphone-controlled Robotics System",
+                "description": "Automated complex blood tests, successfully securing FDA approval.",
+                "duration_months": 36.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "reason": "Varun's strong background in innovative technology solutions and machine learning indicates a willingness to explore new ideas and concepts."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "reason": "His experience in leading projects, developing complex systems, and creating comprehensive documentation reflects a high level of diligence and responsibility."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "reason": "While he exhibits leadership and collaboration in development roles, the focus on technical work suggests a balanced level of social interaction."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "reason": "His roles that require collaboration and technical leadership imply that he is likely supportive and cooperative in team settings."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "reason": "Varun's experience in managing complex projects and achieving successful outcomes suggests resilience and low levels of emotional instability."
+        }
+    },
+    "interview_round_part_of": "",
+    "character_id": "Candidate"
+}

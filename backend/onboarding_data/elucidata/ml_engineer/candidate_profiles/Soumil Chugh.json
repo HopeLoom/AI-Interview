@@ -1,0 +1,149 @@
+{
+    "background": {
+        "name": "Soumil Chugh",
+        "gender": "male",
+        "age": 28,
+        "bio": "A Senior Machine Learning Research Engineer with a strong background in computer vision and deep learning techniques. Proven experience in improving accuracy and reducing latency of existing solutions, developing innovative software for health diagnostics, and leading successful cross-functional projects. Passionate about leveraging AI and machine learning technologies to enhance user experiences and drive engagement.",
+        "current_occupation": {
+            "occupation": "Senior Machine Learning Research Engineer",
+            "duration_years": 3.0
+        },
+        "education": [
+            {
+                "degree": "MASc.",
+                "major": "Computer Engineering",
+                "university": "University of Toronto",
+                "year_graduated": 2020.0
+            },
+            {
+                "degree": "BE.",
+                "major": "Electronics and Communication",
+                "university": "Punjab University",
+                "year_graduated": 2015.0
+            }
+        ],
+        "experience": [
+            {
+                "company": "Huawei Technologies",
+                "position": "Senior Machine Learning Research Engineer",
+                "duration_years": 3.0
+            },
+            {
+                "company": "General Prognostics (GPx)",
+                "position": "Machine Learning Consultant (Part-Time)",
+                "duration_years": 3.0
+            },
+            {
+                "company": "Jana Care",
+                "position": "Senior Software Engineer",
+                "duration_years": 3.0
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Deep Learning Techniques",
+                "level": 5
+            },
+            {
+                "skill": "LLMs",
+                "level": 4
+            },
+            {
+                "skill": "Computer Vision",
+                "level": 5
+            },
+            {
+                "skill": "Python",
+                "level": 5
+            },
+            {
+                "skill": "C/C++",
+                "level": 4
+            },
+            {
+                "skill": "Java",
+                "level": 4
+            },
+            {
+                "skill": "PyTorch",
+                "level": 5
+            },
+            {
+                "skill": "TypeScript",
+                "level": 3
+            },
+            {
+                "skill": "Android",
+                "level": 4
+            },
+            {
+                "skill": "Git",
+                "level": 4
+            },
+            {
+                "skill": "Linux",
+                "level": 4
+            },
+            {
+                "skill": "OpenCV",
+                "level": 4
+            },
+            {
+                "skill": "Scikit-learn",
+                "level": 4
+            },
+            {
+                "skill": "Jupyter",
+                "level": 4
+            },
+            {
+                "skill": "Pandas",
+                "level": 4
+            },
+            {
+                "skill": "NumPy",
+                "level": 4
+            },
+            {
+                "skill": "Matplotlib",
+                "level": 4
+            }
+        ],
+        "projects": [
+            {
+                "project": "Eye Tracking System for a Virtual Reality Headset",
+                "description": "Developed and researched a tracking system using advanced technologies.",
+                "duration_months": 24.0
+            },
+            {
+                "project": "Smartphone-Controlled Robotics for Blood Testing",
+                "description": "Spearheaded the development of a robotics system securing FDA approval.",
+                "duration_months": 36.0
+            }
+        ]
+    },
+    "personality": {
+        "openness": {
+            "intensity": "HIGH",
+            "reason": "Soumil demonstrates high openness through his innovative work in AI and machine learning solutions, indicating a strong willingness to explore new ideas and technologies."
+        },
+        "conscientiousness": {
+            "intensity": "HIGH",
+            "reason": "His history of leading projects, meeting deadlines, and achieving significant accuracy improvements shows a high level of dependability and attention to detail."
+        },
+        "extraversion": {
+            "intensity": "MEDIUM",
+            "reason": "While he collaborates with cross-functional teams, his focus on research and technical areas suggests a balanced level of social interaction."
+        },
+        "agreeableness": {
+            "intensity": "HIGH",
+            "reason": "His role in leading teams and collaborating on projects reflects a high degree of cooperativeness and capacity for teamwork."
+        },
+        "neuroticism": {
+            "intensity": "LOW",
+            "reason": "Success in high-pressure projects and the consistency in his performance point to a low level of emotional instability."
+        }
+    },
+    "interview_round_part_of": "",
+    "character_id": "Candidate"
+}

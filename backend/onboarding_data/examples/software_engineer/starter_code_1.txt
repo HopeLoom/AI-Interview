@@ -1,0 +1,329 @@
+from typing import List, Dict, Optional, Tuple
+from collections import defaultdict, deque
+import heapq
+import time
+import threading
+from abc import ABC, abstractmethod
+
+# Problem 1: Design a Rate Limiter
+class RateLimiter:
+    """
+    Design a rate limiter that can handle multiple requests per user.
+    The rate limiter should allow at most N requests per user per time window.
+    """
+    
+    def __init__(self, max_requests: int, time_window: int):
+        """
+        Initialize rate limiter
+        
+        Args:
+            max_requests: Maximum number of requests allowed per time window
+            time_window: Time window in seconds
+        """
+        self.max_requests = max_requests
+        self.time_window = time_window
+        self.requests = defaultdict(list)  # user_id -> list of timestamps
+    
+    def is_allowed(self, user_id: str) -> bool:
+        """
+        Check if a request from user_id is allowed
+        
+        Args:
+            user_id: Unique identifier for the user
+            
+        Returns:
+            True if request is allowed, False otherwise
+        """
+        current_time = time.time()
+        
+        # Remove expired timestamps
+        self.requests[user_id] = [
+            timestamp for timestamp in self.requests[user_id]
+            if current_time - timestamp < self.time_window
+        ]
+        
+        # Check if under limit
+        if len(self.requests[user_id]) < self.max_requests:
+            self.requests[user_id].append(current_time)
+            return True
+        
+        return False
+
+# Problem 2: Design a Cache with LRU eviction
+class LRUCache:
+    """
+    Design and implement a data structure for Least Recently Used (LRU) cache.
+    It should support the following operations: get and put.
+    """
+    
+    def __init__(self, capacity: int):
+        """
+        Initialize LRU cache
+        
+        Args:
+            capacity: Maximum number of items in cache
+        """
+        self.capacity = capacity
+        self.cache = {}  # key -> value
+        self.access_order = deque()  # tracks access order
+    
+    def get(self, key: int) -> int:
+        """
+        Get value for key, return -1 if key doesn't exist
+        
+        Args:
+            key: Cache key
+            
+        Returns:
+            Value associated with key, or -1 if not found
+        """
+        if key in self.cache:
+            # Move to end of access order (most recently used)
+            self.access_order.remove(key)
+            self.access_order.append(key)
+            return self.cache[key]
+        return -1
+    
+    def put(self, key: int, value: int) -> None:
+        """
+        Put key-value pair in cache
+        
+        Args:
+            key: Cache key
+            value: Value to store
+        """
+        if key in self.cache:
+            # Update existing key
+            self.access_order.remove(key)
+        elif len(self.cache) >= self.capacity:
+            # Remove least recently used item
+            lru_key = self.access_order.popleft()
+            del self.cache[lru_key]
+        
+        self.cache[key] = value
+        self.access_order.append(key)
+
+# Problem 3: Design a Task Scheduler
+class Task:
+    """Represents a task with priority and dependencies"""
+    
+    def __init__(self, id: str, priority: int, duration: int, dependencies: List[str] = None):
+        self.id = id
+        self.priority = priority
+        self.duration = duration
+        self.dependencies = dependencies or []
+        self.completed = False
+
+class TaskScheduler:
+    """
+    Design a task scheduler that can handle tasks with dependencies and priorities.
+    Tasks should be executed in the correct order respecting dependencies.
+    """
+    
+    def __init__(self):
+        self.tasks = {}  # task_id -> Task
+        self.completed_tasks = set()
+        self.execution_order = []
+    
+    def add_task(self, task: Task) -> None:
+        """Add a task to the scheduler"""
+        self.tasks[task.id] = task
+    
+    def get_executable_tasks(self) -> List[Task]:
+        """Get tasks that have all dependencies completed"""
+        executable = []
+        for task in self.tasks.values():
+            if task.id not in self.completed_tasks:
+                if all(dep in self.completed_tasks for dep in task.dependencies):
+                    executable.append(task)
+        return executable
+    
+    def execute_tasks(self) -> List[str]:
+        """
+        Execute all tasks in dependency order
+        
+        Returns:
+            List of task IDs in execution order
+        """
+        while len(self.completed_tasks) < len(self.tasks):
+            executable = self.get_executable_tasks()
+            
+            if not executable:
+                # Circular dependency detected
+                raise ValueError("Circular dependency detected")
+            
+            # Sort by priority (higher priority first)
+            executable.sort(key=lambda x: x.priority, reverse=True)
+            
+            # Execute the highest priority task
+            task = executable[0]
+            self.completed_tasks.add(task.id)
+            self.execution_order.append(task.id)
+            
+        return self.execution_order
+
+# Problem 4: Design a Message Queue System
+class Message:
+    """Represents a message in the queue"""
+    
+    def __init__(self, id: str, content: str, priority: int = 0):
+        self.id = id
+        self.content = content
+        self.priority = priority
+        self.timestamp = time.time()
+
+class MessageQueue:
+    """
+    Design a message queue system that supports priority-based message processing.
+    Higher priority messages should be processed first.
+    """
+    
+    def __init__(self):
+        self.queue = []  # min-heap for priority queue
+        self.message_count = 0
+        self.lock = threading.Lock()
+    
+    def enqueue(self, message: Message) -> None:
+        """Add message to queue"""
+        with self.lock:
+            # Use negative priority for max-heap behavior (higher priority first)
+            heapq.heappush(self.queue, (-message.priority, self.message_count, message))
+            self.message_count += 1
+    
+    def dequeue(self) -> Optional[Message]:
+        """Remove and return highest priority message"""
+        with self.lock:
+            if not self.queue:
+                return None
+            return heapq.heappop(self.queue)[2]  # Return the message object
+    
+    def peek(self) -> Optional[Message]:
+        """View highest priority message without removing it"""
+        with self.lock:
+            if not self.queue:
+                return None
+            return self.queue[0][2]
+    
+    def size(self) -> int:
+        """Get current queue size"""
+        with self.lock:
+            return len(self.queue)
+
+# Problem 5: Design a URL Shortener
+class URLShortener:
+    """
+    Design a URL shortening service that can convert long URLs to short URLs.
+    The service should be able to handle collisions and provide analytics.
+    """
+    
+    def __init__(self):
+        self.url_mapping = {}  # short_url -> long_url
+        self.reverse_mapping = {}  # long_url -> short_url
+        self.analytics = defaultdict(int)  # short_url -> access_count
+        self.counter = 0
+    
+    def _generate_short_url(self, long_url: str) -> str:
+        """Generate a short URL using hash of long URL"""
+        import hashlib
+        hash_object = hashlib.md5(long_url.encode())
+        hash_hex = hash_object.hexdigest()
+        return hash_hex[:8]  # Use first 8 characters
+    
+    def shorten_url(self, long_url: str) -> str:
+        """
+        Convert long URL to short URL
+        
+        Args:
+            long_url: Original long URL
+            
+        Returns:
+            Short URL
+        """
+        if long_url in self.reverse_mapping:
+            return self.reverse_mapping[long_url]
+        
+        short_url = self._generate_short_url(long_url)
+        
+        # Handle collisions by appending counter
+        original_short = short_url
+        while short_url in self.url_mapping:
+            self.counter += 1
+            short_url = f"{original_short}{self.counter}"
+        
+        self.url_mapping[short_url] = long_url
+        self.reverse_mapping[long_url] = short_url
+        
+        return short_url
+    
+    def get_long_url(self, short_url: str) -> Optional[str]:
+        """
+        Get original long URL from short URL
+        
+        Args:
+            short_url: Short URL
+            
+        Returns:
+            Original long URL or None if not found
+        """
+        if short_url in self.url_mapping:
+            self.analytics[short_url] += 1
+            return self.url_mapping[short_url]
+        return None
+    
+    def get_analytics(self, short_url: str) -> int:
+        """Get access count for a short URL"""
+        return self.analytics.get(short_url, 0)
+
+def main():
+    """Demonstrate the implemented solutions"""
+    print("=== Software Engineering Coding Challenge Solutions ===\n")
+    
+    # Test Rate Limiter
+    print("1. Testing Rate Limiter:")
+    limiter = RateLimiter(max_requests=3, time_window=60)
+    user_id = "user123"
+    for i in range(5):
+        allowed = limiter.is_allowed(user_id)
+        print(f"   Request {i+1}: {'Allowed' if allowed else 'Blocked'}")
+    
+    # Test LRU Cache
+    print("\n2. Testing LRU Cache:")
+    cache = LRUCache(capacity=2)
+    cache.put(1, 1)
+    cache.put(2, 2)
+    print(f"   Get(1): {cache.get(1)}")
+    cache.put(3, 3)
+    print(f"   Get(2): {cache.get(2)}")  # Should return -1
+    
+    # Test Task Scheduler
+    print("\n3. Testing Task Scheduler:")
+    scheduler = TaskScheduler()
+    scheduler.add_task(Task("A", 1, 2, []))
+    scheduler.add_task(Task("B", 2, 3, ["A"]))
+    scheduler.add_task(Task("C", 1, 1, ["A"]))
+    execution_order = scheduler.execute_tasks()
+    print(f"   Execution order: {execution_order}")
+    
+    # Test Message Queue
+    print("\n4. Testing Message Queue:")
+    queue = MessageQueue()
+    queue.enqueue(Message("1", "Low priority", 1))
+    queue.enqueue(Message("2", "High priority", 3))
+    queue.enqueue(Message("3", "Medium priority", 2))
+    
+    while queue.size() > 0:
+        msg = queue.dequeue()
+        print(f"   Dequeued: {msg.content} (priority: {msg.priority})")
+    
+    # Test URL Shortener
+    print("\n5. Testing URL Shortener:")
+    shortener = URLShortener()
+    long_url = "https://www.example.com/very/long/url/with/many/parameters"
+    short_url = shortener.shorten_url(long_url)
+    print(f"   Long URL: {long_url}")
+    print(f"   Short URL: {short_url}")
+    print(f"   Retrieved: {shortener.get_long_url(short_url)}")
+    print(f"   Analytics: {shortener.get_analytics(short_url)} accesses")
+
+if __name__ == "__main__":
+    main()

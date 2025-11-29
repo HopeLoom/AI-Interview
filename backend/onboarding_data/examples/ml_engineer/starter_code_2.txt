@@ -1,0 +1,41 @@
+class SalesPerformanceTracker:
+    def __init__(self, user_interaction_logs):
+        """        
+        Expected data format:
+        [
+            {"user_id": 1, "video_id": 101, "ad_impressions": 3, "ad_engagement": 1, "timestamp": 1700001234},
+            {"user_id": 2, "video_id": 201, "ad_impressions": 1, "ad_engagement": 0, "timestamp": 1700002234},
+            {"user_id": 3, "video_id": 305, "ad_impressions": 7, "ad_engagement": 3, "timestamp": 1700003234},
+            {"user_id": 4, "video_id": 410, "ad_impressions": 5, "ad_engagement": 2, "timestamp": 1700004234},
+            {"user_id": 5, "video_id": 522, "ad_impressions": 0, "ad_engagement": 0, "timestamp": 1700005234}, 
+            ...
+        ]
+        
+        Implement an efficient way to store and process this data for fast retrieval.
+        """
+    
+    def overall_sales_performance(self) -> float:
+        """
+        Compute the overall system performance.
+        
+        Expected Output: 
+        {
+            "performance_score": float
+            - **Performance Score** reflects overall sales performance.
+        }
+        
+        """
+        pass
+
+    def query_time_window(self, start_time: int, end_time: int) -> float:
+        """
+        Retrieve sales performance score for a given time window.
+        
+        Expected Output:
+        {
+            "time_window": (int, int),
+            "window_score": float  # A metric representing sales performance score in this time range
+        }
+        
+        """
+        pass

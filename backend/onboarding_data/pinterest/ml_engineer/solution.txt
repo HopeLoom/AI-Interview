@@ -1,0 +1,129 @@
+import bisect
+
+class SalesPerformanceTracker:
+    def __init__(self, engagement_logs):
+        """
+        Initialize the system with engagement logs.
+
+        Expected data format:
+        [
+            {"user_id": 1, "video_id": 101, "ad_impressions": 3, "ad_engagement": 1, "timestamp": 1700001234},
+            {"user_id": 2, "video_id": 201, "ad_impressions": 1, "ad_engagement": 0, "timestamp": 1700002234},
+            {"user_id": 3, "video_id": 305, "ad_impressions": 7, "ad_engagement": 3, "timestamp": 1700003234},
+            {"user_id": 4, "video_id": 410, "ad_impressions": 5, "ad_engagement": 2, "timestamp": 1700004234},
+            {"user_id": 5, "video_id": 522, "ad_impressions": 0, "ad_engagement": 0, "timestamp": 1700005234},  
+            {"user_id": 6, "video_id": 634, "ad_impressions": 10, "ad_engagement": 8, "timestamp": 1700006234}, 
+            {"user_id": 7, "video_id": 742, "ad_impressions": 12, "ad_engagement": 1, "timestamp": 1700007234}, 
+            {"user_id": 8, "video_id": 858, "ad_impressions": 6, "ad_engagement": 0, "timestamp": 1700008234},  
+            {"user_id": 9, "video_id": 915, "ad_impressions": 4, "ad_engagement": 2, "timestamp": 1700009234},
+            {"user_id": 10, "video_id": 103, "ad_impressions": 0, "ad_engagement": 0, "timestamp": 1700010234}  
+        ]
+        
+        The data is sorted by timestamp for efficient range queries.
+        """
+
+        # Sort logs by timestamp
+        self.logs = sorted(engagement_logs, key=lambda x: x["timestamp"])
+
+        # Extract timestamps and initialize prefix sum arrays
+        self.timestamps = [log["timestamp"] for log in self.logs]
+        self.prefix_ad_impressions = [0] * len(self.logs)
+        self.prefix_ad_engagements = [0] * len(self.logs)
+
+        # Compute prefix sums
+        for i, log in enumerate(self.logs):
+            self.prefix_ad_impressions[i] = log["ad_impressions"] + (self.prefix_ad_impressions[i-1] if i > 0 else 0)
+            self.prefix_ad_engagements[i] = log["ad_engagement"] + (self.prefix_ad_engagements[i-1] if i > 0 else 0)
+
+        # Track high-engagement users
+        self.high_engagement_users = self.identify_high_engagement_users()
+
+    def identify_high_engagement_users(self, engagement_threshold=0.2):
+        """
+        Identify high-engagement users who have a historical engagement rate above a threshold.
+        """
+        user_stats = {}
+        for log in self.logs:
+            user_id = log["user_id"]
+            if user_id not in user_stats:
+                user_stats[user_id] = {"total_ads": 0, "total_engagements": 0}
+            user_stats[user_id]["total_ads"] += log["ad_impressions"]
+            user_stats[user_id]["total_engagements"] += log["ad_engagement"]
+
+        return {
+            user_id for user_id, stats in user_stats.items()
+            if stats["total_ads"] > 0 and (stats["total_engagements"] / stats["total_ads"]) > engagement_threshold
+        }
+
+    def overall_sales_performance(self) -> dict:
+        """
+        Compute the overall system performance based on sales impact.
+
+        Expected Output: 
+        {
+            "performance_score": float,  # A measure of total ad-driven sales
+            "targeting_effectiveness_score": float  # A measure of how efficiently ads contribute to revenue
+        }
+        """
+        total_impressions = self.prefix_ad_impressions[-1]
+        total_engagements = self.prefix_ad_engagements[-1]
+
+        # Compute performance score
+        performance_score = total_engagements / total_impressions if total_impressions > 0 else 0.0
+
+        # Compute precision & recall for targeting effectiveness
+        tp = sum(1 for log in self.logs if log["user_id"] in self.high_engagement_users and log["ad_engagement"] > 0)
+        fn = sum(1 for user_id in self.high_engagement_users if not any(log["user_id"] == user_id and log["ad_impressions"] > 0 for log in self.logs))
+        fp = sum(1 for log in self.logs if log["user_id"] not in self.high_engagement_users and log["ad_impressions"] > 0)
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        effectiveness_score = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+
+        return {
+            "performance_score": performance_score,
+            "targeting_effectiveness_score": effectiveness_score
+        }
+
+    def query_time_window(self, start_time: int, end_time: int) -> dict:
+        """
+        Retrieve sales performance metrics for a given time window.
+
+        Expected Output:
+        {
+            "time_window": (int, int),
+            "window_score": float  # A metric representing sales performance in this time range
+        }
+
+        Uses binary search + prefix sums for fast retrieval.
+        Expected Time Complexity: O(log N) + O(1).
+        """
+        start_idx = bisect.bisect_left(self.timestamps, start_time)
+        end_idx = bisect.bisect_right(self.timestamps, end_time) - 1
+
+        # Edge case: No valid data in the range
+        if start_idx > end_idx or start_idx >= len(self.logs) or end_idx < 0:
+            return {"time_window": (start_time, end_time), "window_score": 0.0}
+
+        # Compute total impressions and engagements in the window using prefix sum
+        total_ad_impressions = self.prefix_ad_impressions[end_idx] - (self.prefix_ad_impressions[start_idx-1] if start_idx > 0 else 0)
+        total_ad_engagements = self.prefix_ad_engagements[end_idx] - (self.prefix_ad_engagements[start_idx-1] if start_idx > 0 else 0)
+
+        # Compute engagement rate
+        window_score = total_ad_engagements / total_ad_impressions if total_ad_impressions > 0 else 0.0
+
+        return {
+            "time_window": (start_time, end_time),
+            "window_score": window_score
+        }
+
+# Example Usage:
+engagement_logs = [
+    {"user_id": 1, "video_id": 101, "ad_impressions": 3, "ad_engagement": 1, "timestamp": 1700001234},
+    {"user_id": 2, "video_id": 201, "ad_impressions": 1, "ad_engagement": 0, "timestamp": 1700002234},
+    {"user_id": 3, "video_id": 305, "ad_impressions": 7, "ad_engagement": 3, "timestamp": 1700003234},
+]
+
+tracker = SalesPerformanceTracker(engagement_logs)
+print(tracker.overall_sales_performance())
+print(tracker.query_time_window(1700001000, 1700003000))

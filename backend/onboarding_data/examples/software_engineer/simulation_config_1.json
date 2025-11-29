@@ -1,0 +1,140 @@
+{
+    "simulation_id": "software_engineer_interview",
+    "simulation_name": "Software Engineer Interview",
+    "settings":{
+        "fast_llm": "gpt-4o",
+        "slow_llm": "gpt-4o",
+        "big_brain": true
+    },
+    "interview_data" : {
+        "interview_id": "software_engineer_interview",
+        "settings": {
+            "fast_llm": "gpt-4o",
+            "slow_llm": "gpt-4o",
+            "big_brain": true
+        },
+        "job_details": {
+            "job_title": "Software Engineer",
+            "job_description": "We are looking for a Software Engineer to build scalable, high-performance applications and systems.\nOur Software Engineers design, develop, and maintain software solutions that power our platform. This role involves working with modern technologies, writing clean and efficient code, and collaborating with cross-functional teams.\n\nWhat You'll Do\n\n- Design and implement scalable software solutions\n- Write clean, maintainable, and well-tested code\n- Collaborate with product managers, designers, and other engineers\n- Participate in code reviews and technical discussions\n- Debug and resolve complex technical issues\n- Contribute to architectural decisions and system design\n\nWhat We're Looking For\n\n- 3+ years of software development experience\n- Proficiency in one or more programming languages (Python, Java, JavaScript, etc.)\n- Experience with web technologies and frameworks\n- Strong problem-solving and analytical skills\n- Experience with version control systems (Git)\n- Knowledge of software design patterns and best practices\n\nNice To Have\n\n- Experience with cloud platforms (AWS, Azure, GCP)\n- Knowledge of containerization and microservices\n- Experience with CI/CD pipelines\n- Understanding of database design and optimization\n- Experience with agile development methodologies",
+            "job_requirements": [
+                "3+ years of software development experience",
+                "Proficiency in one or more programming languages (Python, Java, JavaScript, etc.)",
+                "Experience with web technologies and frameworks",
+                "Strong problem-solving and analytical skills",
+                "Experience with version control systems (Git)",
+                "Knowledge of software design patterns and best practices"
+            ],
+            "job_qualifications": [
+                "Experience with cloud platforms (AWS, Azure, GCP)",
+                "Knowledge of containerization and microservices",
+                "Experience with CI/CD pipelines",
+                "Understanding of database design and optimization",
+                "Experience with agile development methodologies"
+            ],
+            "company_name": "Tech Company",
+            "company_description": "A leading technology company focused on building innovative software solutions."
+        },
+        "interview_round_details": {
+            "rounds": {
+                "interview_round_1": {
+                    "description": "Role Alignment & Cultural Fit",
+                    "objective": "Assess the candidate's motivations, career goals, and work preferences while providing clarity on the role and company expectations.",
+                    "metrics_covered": [
+                        "cultural and values fit",
+                        "relevant experience",
+                        "communication",
+                        "collaboration and team work"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Introduction & Role Fit",
+                            "description": "Covers the interview structure, their alignment with the role and motivation and career aspirations.",
+                            "time_limit": 10,
+                            "subtopics": [
+                                {
+                                    "name": "Introductions & Interview Overview",
+                                    "description": "Introduction followed by overview of the interview format.",
+                                    "sections": ["Introduction", "Interview Overview"] 
+                                },
+                                {
+                                    "name": "Job & Role Fit",
+                                    "description": "Discussion regarding responsibilities, required skills, and candidate's experience.",
+                                    "sections": ["Responsibilities & Role Expectations", "Required Skills & Qualifications"]
+                                },
+                                {
+                                    "name": "Motivation & Career Goals",
+                                    "description": "Discussion regarding job change, long-term aspirations, and what excites them about the role.",
+                                    "sections": ["Reason for Job Change", "Long-Term Career Aspirations", "Interest in This Role & Company"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "interview_round_2": {
+                    "description": "Technical Problem-Solving & Deep Dive",
+                    "objective": "Evaluate the candidate's ability to solve practical software engineering challenges, assess their problem-solving approach, and conduct a deep dive into their technical reasoning.",
+                    "metrics_covered": [
+                        "coding",
+                        "knowledge and problem solving",
+                        "non-technical skills"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Software Engineering Problem Solving",
+                            "description": "Technical discussion and coding exercises.",
+                            "time_limit": 20,
+                            "subtopics": [
+                                {
+                                    "name": "Algorithm Design",
+                                    "description": "Discussion of algorithms and data structures.",
+                                    "sections": ["Algorithm Complexity", "Data Structure Selection"]
+                                },
+                                {
+                                    "name": "System Design",
+                                    "description": "Discussion of system architecture and design patterns.",
+                                    "sections": ["Architecture Patterns", "Scalability Considerations"]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "character_data": {
+            "data": [
+                {
+                    "character_id": "1",
+                    "character_name": "Alex Johnson",
+                    "role": "Senior Software Engineer",
+                    "objective": "Evaluate the candidate's technical expertise in software development, their ability to write clean and efficient code, and their understanding of software engineering best practices. Focus on their problem-solving approach and code quality.",
+                    "job_description": "Alex is a senior software engineer with 7 years of experience in full-stack development. They have worked on large-scale applications and have expertise in multiple programming languages and frameworks.",
+                    "interview_round_part_of": "TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "2",
+                    "character_name": "Priya Patel",
+                    "role": "Engineering Manager",
+                    "objective": "Assess the candidate's potential for growth, their ability to work in a team environment, and their understanding of software development processes. Focus on their communication skills and ability to collaborate effectively.",
+                    "job_description": "Priya leads the engineering team and has extensive experience in technical leadership and project management. She has a strong background in both technical and people management.",
+                    "interview_round_part_of": "TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "3",
+                    "character_name": "Lisa Chen",
+                    "role": "HR Manager",
+                    "objective": "Evaluate candidates cultural fit and alignment with company's values, focusing on their ability to work within cross-functional teams and their motivation for seeking a role at the company. Discuss potential career development within the company.",
+                    "job_description": "Lisa being a HR manager is responsible for ensuring cultural alignment and employee satisfaction. They work on developing programs that support employee growth, foster team collaboration, and ensure adherence to company values and mission.",
+                    "interview_round_part_of": "HR_ROUND"
+                }
+            ],
+            "reason": "These roles were selected to cover the two rounds of interview: HR where the HR manager is part of and technical round where Alex and Priya from the Engineering team form the interview panel, aligning with the multi-disciplinary panel aimed at evaluating candidates's suitability for a software engineer position."
+        },
+        "activity_details": {
+            "scenario": "Your company is building a high-traffic e-commerce platform and needs to implement several critical system components. The platform needs to handle thousands of concurrent users, process payments securely, and maintain high availability.",
+            "data_available": "system_requirements, performance_metrics, user_traffic_data",
+            "task_for_the_candidate": "Starter code is provided to help structure your solution. You need to implement several system components including a rate limiter, LRU cache, task scheduler, message queue, and URL shortener service."
+        },
+        "activity_code_path": "starter_code_1.txt",
+        "activity_raw_data_path": "raw_data_1.csv"
+    }
+}

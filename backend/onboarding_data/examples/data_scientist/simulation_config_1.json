@@ -1,0 +1,138 @@
+{
+    "simulation_id": "data_scientist_interview",
+    "simulation_name": "Data Scientist Interview",
+    "settings":{
+        "fast_llm": "gpt-4o",
+        "slow_llm": "gpt-4o",
+        "big_brain": true
+    },
+    "interview_data" : {
+        "interview_id": "data_scientist_interview",
+        "settings": {
+            "fast_llm": "gpt-4o",
+            "slow_llm": "gpt-4o",
+            "big_brain": true
+        },
+        "job_details": {
+            "job_title": "Data Scientist",
+            "job_description": "We are looking for a Data Scientist to develop analytical models and insights from complex datasets.\nOur Data Scientists research and develop statistical models, machine learning algorithms, and data-driven solutions to business problems. This role involves working with large datasets, developing predictive models, and communicating insights to stakeholders.\n\nWhat You'll Do\n\n- Develop and implement statistical models and machine learning algorithms\n- Analyze large datasets to identify patterns and trends\n- Create data visualizations and reports for stakeholders\n- Collaborate with cross-functional teams to define business problems\n- Evaluate model performance and iterate on solutions\n- Present findings and recommendations to technical and non-technical audiences\n\nWhat We're Looking For\n\n- 3+ years of experience in data science or related field\n- Proficiency in Python, R, or similar programming languages\n- Experience with statistical analysis and machine learning\n- Strong analytical and problem-solving skills\n- Excellent communication and presentation skills\n\nNice To Have\n\n- Advanced degree in Statistics, Mathematics, Computer Science, or related field\n- Experience with big data technologies (Spark, Hadoop)\n- Knowledge of deep learning frameworks (TensorFlow, PyTorch)\n- Experience with A/B testing and experimental design",
+            "job_requirements": [
+                "3+ years of experience in data science or related field",
+                "Proficiency in Python, R, or similar programming languages",
+                "Experience with statistical analysis and machine learning",
+                "Strong analytical and problem-solving skills",
+                "Excellent communication and presentation skills"
+            ],
+            "job_qualifications": [
+                "Advanced degree in Statistics, Mathematics, Computer Science, or related field",
+                "Experience with big data technologies (Spark, Hadoop)",
+                "Knowledge of deep learning frameworks (TensorFlow, PyTorch)",
+                "Experience with A/B testing and experimental design"
+            ],
+            "company_name": "Tech Company",
+            "company_description": "A leading technology company focused on data-driven solutions and innovation."
+        },
+        "interview_round_details": {
+            "rounds": {
+                "interview_round_1": {
+                    "description": "Role Alignment & Cultural Fit",
+                    "objective": "Assess the candidate's motivations, career goals, and work preferences while providing clarity on the role and company expectations.",
+                    "metrics_covered": [
+                        "cultural and values fit",
+                        "relevant experience",
+                        "communication",
+                        "collaboration and team work"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Introduction & Role Fit",
+                            "description": "Covers the interview structure, their alignment with the role and motivation and career aspirations.",
+                            "time_limit": 10,
+                            "subtopics": [
+                                {
+                                    "name": "Introductions & Interview Overview",
+                                    "description": "Introduction followed by overview of the interview format.",
+                                    "sections": ["Introduction", "Interview Overview"] 
+                                },
+                                {
+                                    "name": "Job & Role Fit",
+                                    "description": "Discussion regarding responsibilities, required skills, and candidate's experience.",
+                                    "sections": ["Responsibilities & Role Expectations", "Required Skills & Qualifications"]
+                                },
+                                {
+                                    "name": "Motivation & Career Goals",
+                                    "description": "Discussion regarding job change, long-term aspirations, and what excites them about the role.",
+                                    "sections": ["Reason for Job Change", "Long-Term Career Aspirations", "Interest in This Role & Company"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "interview_round_2": {
+                    "description": "Technical Problem-Solving & Deep Dive",
+                    "objective": "Evaluate the candidate's ability to solve practical data science challenges, assess their problem-solving approach, and conduct a deep dive into their technical reasoning.",
+                    "metrics_covered": [
+                        "coding",
+                        "knowledge and problem solving",
+                        "non-technical skills"
+                    ],
+                    "topic_info": [
+                        {
+                            "name": "Data Science Problem Solving",
+                            "description": "Technical discussion and problem-solving exercises.",
+                            "time_limit": 20,
+                            "subtopics": [
+                                {
+                                    "name": "Statistical Analysis",
+                                    "description": "Discussion of statistical concepts and their application.",
+                                    "sections": ["Statistical Methods", "Data Analysis Techniques"]
+                                },
+                                {
+                                    "name": "Machine Learning",
+                                    "description": "Discussion of ML algorithms and model development.",
+                                    "sections": ["Algorithm Selection", "Model Evaluation"]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "character_data": {
+            "data": [
+                {
+                    "character_id": "1",
+                    "character_name": "Sarah Chen",
+                    "role": "Senior Data Scientist",
+                    "objective": "Evaluate the candidate's technical expertise in data analysis, statistical modeling, and their ability to derive actionable insights from complex datasets. Focus on their understanding of data science methodologies and communication skills.",
+                    "job_description": "Sarah is a senior data scientist with 8 years of experience in developing predictive models and statistical analysis. She has worked across various industries including finance, healthcare, and e-commerce.",
+                    "interview_round_part_of": "TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "2",
+                    "character_name": "Michael Rodriguez",
+                    "role": "Data Science Manager",
+                    "objective": "Assess the candidate's understanding of business context, their ability to translate business problems into analytical solutions, and their potential for leadership in data science projects.",
+                    "job_description": "Michael leads the data science team and has extensive experience in translating business problems into analytical solutions. He has a strong background in both technical and business aspects of data science.",
+                    "interview_round_part_of": "TECHNICAL_ROUND"
+                },
+                {
+                    "character_id": "3",
+                    "character_name": "Lisa Chen",
+                    "role": "HR Manager",
+                    "objective": "Evaluate candidates cultural fit and alignment with company's values, focusing on their ability to work within cross-functional teams and their motivation for seeking a role at the company. Discuss potential career development within the company.",
+                    "job_description": "Lisa being a HR manager is responsible for ensuring cultural alignment and employee satisfaction. They work on developing programs that support employee growth, foster team collaboration, and ensure adherence to company values and mission.",
+                    "interview_round_part_of": "HR_ROUND"
+                }
+            ],
+            "reason": "These roles were selected to cover the two rounds of interview: HR where the HR manager is part of and technical round where Sarah and Michael from the Data Science team form the interview panel, aligning with the multi-disciplinary panel aimed at evaluating candidates's suitability for a data scientist position."
+        },
+        "activity_details": {
+            "scenario": "Your company has collected customer data from an e-commerce platform and needs to understand customer behavior patterns to improve sales performance. The dataset contains customer demographics, purchase history, and interaction data.",
+            "data_available": "customer_id, age, income, purchase_frequency, avg_order_value, customer_satisfaction, days_since_last_purchase, total_purchases, is_premium_member",
+            "task_for_the_candidate": "Starter code is provided to help structure your solution. You need to implement comprehensive data analysis including exploratory data analysis, customer segmentation, and generate actionable business recommendations."
+        },
+        "activity_code_path": "starter_code_1.txt",
+        "activity_raw_data_path": "raw_data_1.csv"
+    }
+}

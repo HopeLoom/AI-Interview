@@ -17,7 +17,10 @@
     "build:staging": "tsc && vite build --mode staging",
     "build:production": "tsc && vite build --mode production",
     "preview": "vite preview",
-    "check": "tsc"
+    "check": "tsc",
+    "lint": "eslint client/src --ext .ts,.tsx",
+    "format": "prettier --write \"client/src/**/*.{ts,tsx,json,css,md}\" \"shared/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"client/src/**/*.{ts,tsx,json,css,md}\" \"shared/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

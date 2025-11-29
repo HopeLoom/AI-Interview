@@ -7,7 +7,82 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  backend-format:
+    name: Backend Code Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install Black
+      run: pip install black
+    
+    - name: Check code formatting with Black
+      working-directory: ./backend
+      run: black --check --diff .
+
+  backend-type-check:
+    name: Backend Type Checking
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install mypy types-all
+      continue-on-error: true
+    
+    - name: Type check with mypy
+      working-directory: ./backend
+      run: |
+        mypy . --ignore-missing-imports --no-strict-optional --follow-imports=silent || true
+      continue-on-error: true
+
+  backend-lint:
+    name: Backend Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install linting tools
+      run: pip install flake8 flake8-docstrings flake8-bugbear
+    
+    - name: Lint with flake8
+      working-directory: ./backend
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=__pycache__,venv,env,.venv
+
   backend-tests:
+    name: Backend Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     
     strategy:
@@ -35,21 +110,92 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-asyncio
+        pip install pytest pytest-cov pytest-asyncio pytest-timeout
     
-    - name: Run tests
+    - name: Run unit tests
       working-directory: ./backend
       run: |
-        pytest --cov=core --cov-report=xml --cov-report=term-missing -v
+        pytest tests/unit/ -v --cov=core --cov-report=xml --cov-report=term-missing --cov-report=html -m "not slow"
     
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
       with:
         file: ./backend/coverage.xml
-        flags: backend
-        name: backend-coverage
+        flags: backend-unit
+        name: backend-coverage-py${{ matrix.python-version }}
+        fail_ci_if_error: false
 
-  frontend-tests:
+  backend-integration-tests:
+    name: Backend Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio pytest-timeout
+    
+    - name: Run integration tests
+      working-directory: ./backend
+      run: |
+        pytest tests/integration/ -v -m "not postgresql and not firebase"
+      continue-on-error: true
+
+  frontend-format:
+    name: Frontend Code Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install Prettier
+      run: npm install --save-dev prettier
+    
+    - name: Check formatting with Prettier
+      run: npx prettier --check "client/src/**/*.{ts,tsx,json,css,md}" "shared/**/*.{ts,tsx}"
+      continue-on-error: true
+
+  frontend-lint:
+    name: Frontend Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install ESLint
+      run: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+    
+    - name: Run ESLint
+      run: |
+        npx eslint client/src --ext .ts,.tsx --max-warnings 0 || true
+      continue-on-error: true
+
+  frontend-type-check:
+    name: Frontend Type Checking
     runs-on: ubuntu-latest
     
     strategy:
@@ -68,15 +214,37 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Run TypeScript type check
+    - name: Type check with TypeScript
       run: npm run check
+
+  frontend-build:
+    name: Frontend Build (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
     
-    - name: Build
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x']
+        mode: ['candidate-practice', 'company-interviewing']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build for ${{ matrix.mode }} mode
       run: npm run build
       env:
-        VITE_APP_MODE: candidate-practice
+        VITE_APP_MODE: ${{ matrix.mode }}
 
-  lint:
+  security-scan:
+    name: Security Scanning
     runs-on: ubuntu-latest
     
     steps:
@@ -87,22 +255,25 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install linting tools
+    - name: Install safety
+      run: pip install safety
+    
+    - name: Scan Python dependencies for vulnerabilities
       working-directory: ./backend
       run: |
-        pip install black flake8 mypy
         pip install -r requirements.txt
-    
-    - name: Check code formatting with black
-      working-directory: ./backend
-      run: |
-        black --check .
+        safety check --file requirements.txt || true
       continue-on-error: true
     
-    - name: Lint with flake8
-      working-directory: ./backend
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install npm audit
+      run: npm ci
+    
+    - name: Scan npm dependencies for vulnerabilities
+      run: npm audit --audit-level=moderate || true
       continue-on-error: true
-

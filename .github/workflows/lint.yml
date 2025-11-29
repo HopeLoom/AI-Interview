@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-formatting:
+    name: Check Code Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check backend formatting
+      uses: psf/black@stable
+      with:
+        options: "--check --diff"
+        src: "./backend"
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Check frontend formatting
+      run: |
+        npm install --save-dev prettier
+        npx prettier --check "client/src/**/*.{ts,tsx,json,css}" "shared/**/*.{ts,tsx}"
+      continue-on-error: true
+

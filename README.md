@@ -3,6 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.9+-green)](https://www.python.org/)
+[![CI](https://github.com/HopeLoom/AI-Interview/workflows/CI/badge.svg)](https://github.com/HopeLoom/AI-Interview/actions)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 An open-source AI-powered interview simulation platform for candidate practice and company screening. Features real-time AI interviewers, multi-LLM support, and WebSocket communication.
 
@@ -381,8 +384,31 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for gu
 
 - **Setup Guide**: [SETUP.md](./SETUP.md) - Detailed setup instructions
 - **Contributing**: [CONTRIBUTING.md](./CONTRIBUTING.md) - How to contribute
-- **Issues**: Report issues via GitHub Issues
-- **Contact**: info@hopeloom.com
+- **Architecture**: [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture and diagrams
+- **Security**: [SECURITY.md](./SECURITY.md) - Security policy and reporting
+- **Changelog**: [CHANGELOG.md](./CHANGELOG.md) - Version history
+- **Issues**: [Report issues](https://github.com/HopeLoom/AI-Interview/issues) via GitHub Issues
+- **Discussions**: [Join discussions](https://github.com/HopeLoom/AI-Interview/discussions) for questions and ideas
+
+## 🌟 Show Your Support
+
+If this project helped you, please consider:
+- ⭐ **Starring** this repository
+- 🐛 **Reporting bugs** and suggesting features
+- 💡 **Contributing** code or documentation
+- 📢 **Sharing** with others who might find it useful
+
+## 🗺️ Roadmap
+
+- [ ] Enhanced authentication and authorization
+- [ ] More LLM provider integrations
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app support
+- [ ] Multi-language support
+- [ ] Video recording capabilities
+- [ ] Integration with popular HR tools
+
+See [Projects](https://github.com/HopeLoom/AI-Interview/projects) for detailed roadmap.
 
 ## ⚠️ Important Notes
 

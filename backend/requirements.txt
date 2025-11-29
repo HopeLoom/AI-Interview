@@ -59,10 +59,10 @@ mdurl==0.1.2
 msgpack==1.1.0
 murmurhash==1.0.12
 nltk==3.9.1
-numpy==2.2.4
+numpy>=1.21.0,<2.1.0
 openai==1.73.0
 packaging==24.2
-pandas==2.2.3
+pandas>=2.0.0,<2.2.0
 pdfminer.six==20250327
 pdfplumber==0.11.6
 pillow==11.2.1

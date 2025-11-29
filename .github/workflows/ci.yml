@@ -19,12 +19,12 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install Black
-      run: pip install black
+    - name: Install Ruff
+      run: pip install ruff
     
-    - name: Check code formatting with Black
+    - name: Check code formatting with Ruff
       working-directory: ./backend
-      run: black --check --diff .
+      run: ruff format --check .
 
   backend-type-check:
     name: Backend Type Checking
@@ -72,14 +72,12 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install linting tools
-      run: pip install flake8 flake8-docstrings flake8-bugbear
+    - name: Install Ruff
+      run: pip install ruff
     
-    - name: Lint with flake8
+    - name: Lint with Ruff
       working-directory: ./backend
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=__pycache__,venv,env,.venv
+      run: ruff check .
 
   backend-tests:
     name: Backend Tests (Python ${{ matrix.python-version }})

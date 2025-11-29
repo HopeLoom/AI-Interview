@@ -175,52 +175,6 @@ async def company_login(credentials: CompanyLoginRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@router.post("/register", response_model=CompanyRegistrationResponse)
-async def company_register(company_data: CompanySignupRequest):
-    """
-    Company registration endpoint
-    """
-    try: 
-        
-        # Try to get from database first
-        try:
-            database = await get_database(main_logger)
-            company = await database.get_company_by_email(email)
-            
-            if company:
-                # In a real app, you would verify the password hash here
-                # For now, we'll assume any password is valid for existing companies
-                company_response = CompanyResponse(
-                    company_id=company.company_id,
-                    name=company.name,
-                    email=company.email,
-                    industry=company.industry,
-                    size=company.size,
-                    location=company.location,
-                    website=company.website,
-                    description=company.description,
-                    created_at=company.created_at,
-                    updated_at=company.updated_at
-                )
-                
-                return CompanyLoginResponse(
-                    success=True,
-                    message="Login successful",
-                    company=company_response,
-                    token=f"token_{company.company_id}"  # In real app, this would be a JWT
-                )
-            else:
-                raise HTTPException(status_code=401, detail="Invalid credentials")
-                
-        except Exception as e:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-                
-    except HTTPException:
-        raise
-    except Exception as e:
-        main_logger.error(f"Company login failed: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
 @router.post("/register-company", response_model=CompanyRegistrationResponse)
 async def register_company(company_data: CompanySignupRequest):
     """

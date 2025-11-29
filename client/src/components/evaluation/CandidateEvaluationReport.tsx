@@ -1,25 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useParams } from "wouter";
-import { useUser, useCompanyId } from "@/contexts/UserContext";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { 
-  ArrowLeft, 
-  User, 
-  Target, 
-  BarChart3, 
-  Code, 
-  MessageSquare, 
-  FileText, 
-  ChevronDown, 
+import React, { useState, useEffect } from 'react';
+import { useLocation, useParams } from 'wouter';
+import { useUser, useCompanyId } from '@/contexts/UserContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  ArrowLeft,
+  User,
+  Target,
+  BarChart3,
+  Code,
+  MessageSquare,
+  FileText,
+  ChevronDown,
   ChevronUp,
   Star,
   Clock,
@@ -29,10 +24,10 @@ import {
   AlertCircle,
   Eye,
   Download,
-  Home
-} from "lucide-react";
+  Home,
+} from 'lucide-react';
 
-import { CompanyEvaluationService, EvaluationReport } from "@/services/companyEvaluationService";
+import { CompanyEvaluationService, EvaluationReport } from '@/services/companyEvaluationService';
 
 interface SectionCardProps {
   title: string;
@@ -42,12 +37,12 @@ interface SectionCardProps {
   defaultOpen?: boolean;
 }
 
-const SectionCard: React.FC<SectionCardProps> = ({ 
-  title, 
-  icon, 
-  children, 
+const SectionCard: React.FC<SectionCardProps> = ({
+  title,
+  icon,
+  children,
   collapsible = false,
-  defaultOpen = true 
+  defaultOpen = true,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -60,9 +55,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
             {title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          {children}
-        </CardContent>
+        <CardContent className="pt-0">{children}</CardContent>
       </Card>
     );
   }
@@ -86,9 +79,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent className="pt-0">
-            {children}
-          </CardContent>
+          <CardContent className="pt-0">{children}</CardContent>
         </CollapsibleContent>
       </Collapsible>
     </Card>
@@ -108,7 +99,7 @@ const CandidateEvaluationReport: React.FC = () => {
       const id = user?.email || '';
       setLoading(true);
       console.log('Loading evaluation for candidate ID:', id);
-      
+
       try {
         // Try to get evaluation data from the company service
         // This will use the updated /evaluation/{company_id}/{user_id} endpoint
@@ -116,17 +107,18 @@ const CandidateEvaluationReport: React.FC = () => {
         if (!companyId) {
           throw new Error('Company ID not found in user context');
         }
-        
-        const evaluationData = await CompanyEvaluationService.getCandidateEvaluation(companyId, user?.email || '');
-        
+
+        const evaluationData = await CompanyEvaluationService.getCandidateEvaluation(
+          companyId,
+          user?.email || ''
+        );
+
         // Data is now already in the correct format
         setData(evaluationData);
-        
+
         // Show success message if using real API
         // Always show the API availability message for now
         console.log('✅ Loaded evaluation data from backend API');
-        
-        
       } catch (error) {
         console.error('Failed to load evaluation data:', error);
       } finally {
@@ -163,7 +155,11 @@ const CandidateEvaluationReport: React.FC = () => {
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Report Not Found</h2>
           <p className="text-slate-300 mb-4">Unable to load the evaluation report.</p>
-          <Button onClick={handleGoBack} variant="outline" className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent">
+          <Button
+            onClick={handleGoBack}
+            variant="outline"
+            className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
           </Button>
@@ -173,26 +169,26 @@ const CandidateEvaluationReport: React.FC = () => {
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 4.5) return "text-green-400";
-    if (score >= 4.0) return "text-blue-400";
-    if (score >= 3.5) return "text-yellow-400";
-    if (score >= 3.0) return "text-orange-400";
-    return "text-red-400";
+    if (score >= 4.5) return 'text-green-400';
+    if (score >= 4.0) return 'text-blue-400';
+    if (score >= 3.5) return 'text-yellow-400';
+    if (score >= 3.0) return 'text-orange-400';
+    return 'text-red-400';
   };
 
   const getScoreBadge = (score: number) => {
-    if (score >= 4.5) return { text: "Outstanding", color: "bg-green-600" };
-    if (score >= 4.0) return { text: "Excellent", color: "bg-blue-600" };
-    if (score >= 3.5) return { text: "Good", color: "bg-yellow-600" };
-    if (score >= 3.0) return { text: "Satisfactory", color: "bg-orange-600" };
-    return { text: "Needs Improvement", color: "bg-red-600" };
+    if (score >= 4.5) return { text: 'Outstanding', color: 'bg-green-600' };
+    if (score >= 4.0) return { text: 'Excellent', color: 'bg-blue-600' };
+    if (score >= 3.5) return { text: 'Good', color: 'bg-yellow-600' };
+    if (score >= 3.0) return { text: 'Satisfactory', color: 'bg-orange-600' };
+    return { text: 'Needs Improvement', color: 'bg-red-600' };
   };
 
   const scoreBadge = getScoreBadge(data.overall_score);
   const initials = data.candidate_name
-    .split(" ")
+    .split(' ')
     .map((w) => w[0])
-    .join("")
+    .join('')
     .toUpperCase();
 
   return (
@@ -208,7 +204,7 @@ const CandidateEvaluationReport: React.FC = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
-          
+
           <Button
             onClick={handleGoHome}
             variant="outline"
@@ -223,9 +219,9 @@ const CandidateEvaluationReport: React.FC = () => {
         <SectionCard title="Candidate Overview" icon={<User className="w-5 h-5" />}>
           <div className="flex items-center space-x-6">
             {data.candidate_profile_image ? (
-              <img 
-                src={data.candidate_profile_image} 
-                alt={`${data.candidate_name}'s profile`} 
+              <img
+                src={data.candidate_profile_image}
+                alt={`${data.candidate_name}'s profile`}
                 className="w-20 h-20 rounded-full object-cover border-2 border-slate-500"
               />
             ) : (
@@ -233,7 +229,7 @@ const CandidateEvaluationReport: React.FC = () => {
                 {initials}
               </div>
             )}
-            
+
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-white mb-2">{data.candidate_name}</h1>
               <div className="flex items-center space-x-4 mb-3">
@@ -242,10 +238,14 @@ const CandidateEvaluationReport: React.FC = () => {
                 </Badge>
                 <div className="flex items-center space-x-1">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="text-white font-semibold">{data.overall_score.toFixed(1)}/5.0</span>
+                  <span className="text-white font-semibold">
+                    {data.overall_score.toFixed(1)}/5.0
+                  </span>
                 </div>
               </div>
-              <p className="text-slate-300 text-lg">{data.overall_visual_summary.key_insights.join('. ')}</p>
+              <p className="text-slate-300 text-lg">
+                {data.overall_visual_summary.key_insights.join('. ')}
+              </p>
             </div>
           </div>
         </SectionCard>
@@ -267,20 +267,30 @@ const CandidateEvaluationReport: React.FC = () => {
                 ))}
               </ul>
             </div>
-            
+
             <div className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
               <h4 className="text-white font-semibold mb-2 flex items-center">
                 <AlertCircle className="w-4 h-4 mr-2 text-yellow-400" />
                 Areas for Improvement
               </h4>
               <ul className="space-y-1">
-                {data.code_analysis.code_dimension_summary.filter(dim => dim.rating.toLowerCase().includes('need') || dim.rating.toLowerCase().includes('poor')).map((area, idx) => (
-                  <li key={idx} className="text-slate-300 text-sm flex items-start">
-                    <AlertCircle className="w-3 h-3 mr-2 mt-0.5 text-yellow-400 flex-shrink-0" />
-                    {area.name}: {area.comment}
-                  </li>
-                ))}
-                {data.code_analysis.code_dimension_summary.filter(dim => dim.rating.toLowerCase().includes('need') || dim.rating.toLowerCase().includes('poor')).length === 0 && (
+                {data.code_analysis.code_dimension_summary
+                  .filter(
+                    (dim) =>
+                      dim.rating.toLowerCase().includes('need') ||
+                      dim.rating.toLowerCase().includes('poor')
+                  )
+                  .map((area, idx) => (
+                    <li key={idx} className="text-slate-300 text-sm flex items-start">
+                      <AlertCircle className="w-3 h-3 mr-2 mt-0.5 text-yellow-400 flex-shrink-0" />
+                      {area.name}: {area.comment}
+                    </li>
+                  ))}
+                {data.code_analysis.code_dimension_summary.filter(
+                  (dim) =>
+                    dim.rating.toLowerCase().includes('need') ||
+                    dim.rating.toLowerCase().includes('poor')
+                ).length === 0 && (
                   <li className="text-slate-300 text-sm flex items-start">
                     <CheckCircle className="w-3 h-3 mr-2 mt-0.5 text-green-400 flex-shrink-0" />
                     No significant areas for improvement identified
@@ -305,9 +315,9 @@ const CandidateEvaluationReport: React.FC = () => {
                     <span className="text-slate-400">/ 5.0</span>
                   </div>
                 </div>
-                
+
                 <p className="text-slate-300 mb-3">{metric.reason_bullets.join('. ')}</p>
-                
+
                 <div className="space-y-2">
                   <h4 className="text-slate-300 font-medium text-sm">Topics Covered:</h4>
                   <div className="flex flex-wrap gap-2">
@@ -331,9 +341,9 @@ const CandidateEvaluationReport: React.FC = () => {
               variant="outline"
               className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent"
             >
-              {showFullCode ? "Hide Code" : "Show Full Code"}
+              {showFullCode ? 'Hide Code' : 'Show Full Code'}
             </Button>
-            
+
             {showFullCode && (
               <div className="bg-slate-900 rounded-lg p-4 border border-slate-600">
                 <div className="mb-2">
@@ -358,7 +368,9 @@ const CandidateEvaluationReport: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-300">Completion</span>
-                  <span className="text-white font-semibold">{data.code_analysis.completion_percentage}%</span>
+                  <span className="text-white font-semibold">
+                    {data.code_analysis.completion_percentage}%
+                  </span>
                 </div>
                 <Progress value={data.code_analysis.completion_percentage} className="h-2" />
               </div>
@@ -367,7 +379,10 @@ const CandidateEvaluationReport: React.FC = () => {
             {/* Code Dimension Analysis */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.code_analysis.code_dimension_summary.map((dimension, index) => (
-                <div key={index} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600 text-center">
+                <div
+                  key={index}
+                  className="bg-slate-700/50 rounded-lg p-4 border border-slate-600 text-center"
+                >
                   <h5 className="text-slate-300 text-sm mb-2">{dimension.name}</h5>
                   <div className="text-lg font-bold text-blue-400 mb-1">{dimension.rating}</div>
                   <div className="text-xs text-slate-400">{dimension.comment}</div>
@@ -384,15 +399,13 @@ const CandidateEvaluationReport: React.FC = () => {
               <div key={i} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
                 <div className="flex items-start space-x-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                    {panelist.name?.charAt(0) || "P"}
+                    {panelist.name?.charAt(0) || 'P'}
                   </div>
                   <div className="flex-1">
                     <h4 className="text-white font-semibold">
                       {panelist.name || `Panelist ${i + 1}`}
                     </h4>
-                    <p className="text-slate-400 text-sm mb-2">
-                      {panelist.role || "Interviewer"}
-                    </p>
+                    <p className="text-slate-400 text-sm mb-2">{panelist.role || 'Interviewer'}</p>
                     <ul className="space-y-1">
                       {panelist.summary_bullets.map((bullet, idx) => (
                         <li key={idx} className="text-slate-300 text-sm flex items-start">
@@ -409,14 +422,19 @@ const CandidateEvaluationReport: React.FC = () => {
         </SectionCard>
 
         {/* Interview Transcript */}
-        <SectionCard title="Interview Transcript" icon={<FileText className="w-5 h-5" />} collapsible defaultOpen={false}>
+        <SectionCard
+          title="Interview Transcript"
+          icon={<FileText className="w-5 h-5" />}
+          collapsible
+          defaultOpen={false}
+        >
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {data.transcript.map((msg, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`flex ${msg.speaker === data.candidate_name ? 'justify-end' : 'justify-start'}`}
               >
-                <div 
+                <div
                   className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                     msg.speaker === data.candidate_name
                       ? 'bg-blue-600 text-white'

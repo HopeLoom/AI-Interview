@@ -4,7 +4,19 @@ import { useUser } from '@/contexts/UserContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Building, User, Target, Award, ArrowRight, RefreshCw, Upload } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  AlertCircle,
+  Building,
+  User,
+  Target,
+  Award,
+  ArrowRight,
+  RefreshCw,
+  Upload,
+} from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
@@ -20,36 +32,41 @@ const STEP_CONFIGS = {
   descriptions: [
     'Provide the job description via PDF, text, or URL',
     'Upload candidate resumes for processing',
-    'Review and submit to generate interview setup'
+    'Review and submit to generate interview setup',
   ],
-  icons: [Target, Upload, Award]
+  icons: [Target, Upload, Award],
 };
 
 export function ConfigurationWizard() {
   const { state, actions } = useConfiguration();
   const { user, isLoading } = useUser();
   const [showResults, setShowResults] = useState(false);
-  
+
   // Debug logging
-  console.log('ConfigurationWizard render:', { 
-    user, 
-    userType: user?.userType, 
+  console.log('ConfigurationWizard render:', {
+    user,
+    userType: user?.userType,
     stateUserMode: state.userMode,
     isUserLoading: !user,
     isLoading,
-    state: state
+    state: state,
   });
-  
+
   // Automatically set user mode based on logged-in user
   useEffect(() => {
     console.log('ConfigurationWizard: useEffect triggered with:', {
       user: user?.userType,
       currentStateUserMode: state.userMode,
-      shouldUpdate: user && user.userType !== state.userMode
+      shouldUpdate: user && user.userType !== state.userMode,
     });
-    
+
     if (user && user.userType !== state.userMode) {
-      console.log('ConfigurationWizard: Updating user mode from', state.userMode, 'to', user.userType);
+      console.log(
+        'ConfigurationWizard: Updating user mode from',
+        state.userMode,
+        'to',
+        user.userType
+      );
       // Increase delay to ensure user context is fully loaded
       setTimeout(() => {
         console.log('ConfigurationWizard: Executing updateUserMode with delay');
@@ -57,27 +74,27 @@ export function ConfigurationWizard() {
       }, 200);
     }
   }, [user, state.userMode, actions]);
-  
+
   // Additional effect to force user mode sync if needed
   useEffect(() => {
     if (user && state.userMode !== user.userType) {
       console.log('ConfigurationWizard: Force syncing user mode:', {
         userType: user.userType,
-        stateUserMode: state.userMode
+        stateUserMode: state.userMode,
       });
       actions.updateUserMode(user.userType);
     }
   }, [user, state.userMode, actions]);
-  
+
   // Debug step configuration
   console.log('ConfigurationWizard: Step config:', {
     userMode: state.userMode,
     currentStep: state.currentStep,
     maxSteps: state.maxSteps,
     titles: STEP_CONFIGS.titles,
-    descriptions: STEP_CONFIGS.descriptions
+    descriptions: STEP_CONFIGS.descriptions,
   });
-  
+
   // Show loading only while UserContext is initializing or if no user is logged in
   if (isLoading) {
     console.log('ConfigurationWizard: UserContext is loading, showing loading state');
@@ -88,14 +105,16 @@ export function ConfigurationWizard() {
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-slate-200">Loading ...</p>
-              <p className="text-sm text-slate-400 mt-2">Please wait while we load your information.</p>
+              <p className="text-sm text-slate-400 mt-2">
+                Please wait while we load your information.
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
     );
   }
-  
+
   // If not loading but no user, redirect to login
   if (!user) {
     console.log('ConfigurationWizard: No user found, should redirect to login');
@@ -106,26 +125,32 @@ export function ConfigurationWizard() {
             <div className="text-center">
               <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <p className="text-slate-200">No user found in the server</p>
-              <p className="text-sm text-slate-400 mt-2">Please log in to access the configuration wizard.</p>
+              <p className="text-sm text-slate-400 mt-2">
+                Please log in to access the configuration wizard.
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
     );
   }
-  
+
   const renderCurrentStep = () => {
     // Show results page if configuration has been generated
     if (showResults) {
       return <InterviewConfigurationResults />;
     }
-    
+
     // Simplified 3-step process for all users
     switch (state.currentStep) {
-      case 1: return <JobDetailsStep />;
-      case 2: return <ResumeUploadStep />;
-      case 3: return <ReviewAndGenerateStep />;
-      default: return <JobDetailsStep />;
+      case 1:
+        return <JobDetailsStep />;
+      case 2:
+        return <ResumeUploadStep />;
+      case 3:
+        return <ReviewAndGenerateStep />;
+      default:
+        return <JobDetailsStep />;
     }
   };
 
@@ -134,63 +159,62 @@ export function ConfigurationWizard() {
       userMode: state.userMode,
       currentStep: state.currentStep,
       jobDetails: state.currentConfig.job_details,
-      resumeData: state.currentConfig.resume_data
+      resumeData: state.currentConfig.resume_data,
     });
 
     // Simplified 3-step process validation
     switch (state.currentStep) {
       case 1:
         // Step 1: Job description is provided (either as text, file, or URL)
-        const step1Valid = (
+        const step1Valid =
           // Text input: has job description text
-          (state.currentConfig.job_details.input_type === 'text' && 
-           state.currentConfig.job_details.job_description && 
-           state.currentConfig.job_details.job_description.trim().length > 0) ||
+          (state.currentConfig.job_details.input_type === 'text' &&
+            state.currentConfig.job_details.job_description &&
+            state.currentConfig.job_details.job_description.trim().length > 0) ||
           // File upload: has uploaded file
-          (state.currentConfig.job_details.input_type === 'pdf' && 
-           state.currentConfig.job_details.uploaded_file) ||
+          (state.currentConfig.job_details.input_type === 'pdf' &&
+            state.currentConfig.job_details.uploaded_file) ||
           // URL input: has source URL
-          (state.currentConfig.job_details.input_type === 'url' && 
-           state.currentConfig.job_details.source_url)
-        );
+          (state.currentConfig.job_details.input_type === 'url' &&
+            state.currentConfig.job_details.source_url);
         console.log('Step 1 validation:', step1Valid, {
           inputType: state.currentConfig.job_details.input_type,
           hasText: state.currentConfig.job_details.job_description?.trim().length > 0,
           hasFile: !!state.currentConfig.job_details.uploaded_file,
-          hasUrl: !!state.currentConfig.job_details.source_url
+          hasUrl: !!state.currentConfig.job_details.source_url,
         });
         return step1Valid;
-        
+
       case 2:
         // Step 2: At least one resume has been uploaded
-        const step2Valid = state.currentConfig.resume_data && 
-               state.currentConfig.resume_data.file_count &&
-               state.currentConfig.resume_data.file_count > 0;
+        const step2Valid =
+          state.currentConfig.resume_data &&
+          state.currentConfig.resume_data.file_count &&
+          state.currentConfig.resume_data.file_count > 0;
         console.log('Step 2 validation:', step2Valid, {
           resumeData: state.currentConfig.resume_data,
-          fileCount: state.currentConfig.resume_data?.file_count
+          fileCount: state.currentConfig.resume_data?.file_count,
         });
         return step2Valid;
-        
+
       case 3:
         // Step 3: Both job description and resume data are available
-        const step3Valid = (
+        const step3Valid =
           // Job details validation (same as step 1)
-          ((state.currentConfig.job_details.input_type === 'text' && 
-            state.currentConfig.job_details.job_description && 
+          ((state.currentConfig.job_details.input_type === 'text' &&
+            state.currentConfig.job_details.job_description &&
             state.currentConfig.job_details.job_description.trim().length > 0) ||
-           (state.currentConfig.job_details.input_type === 'pdf' && 
-            state.currentConfig.job_details.uploaded_file) ||
-           (state.currentConfig.job_details.input_type === 'url' && 
-            state.currentConfig.job_details.source_url)) &&
+            (state.currentConfig.job_details.input_type === 'pdf' &&
+              state.currentConfig.job_details.uploaded_file) ||
+            (state.currentConfig.job_details.input_type === 'url' &&
+              state.currentConfig.job_details.source_url)) &&
           // Resume data validation
           state.currentConfig.resume_data &&
           state.currentConfig.resume_data.file_count &&
-          state.currentConfig.resume_data.file_count > 0
-        );
+          state.currentConfig.resume_data.file_count > 0;
         console.log('Step 3 validation:', step3Valid);
         return step3Valid;
-        
+
       default:
         return false;
     }
@@ -205,7 +229,7 @@ export function ConfigurationWizard() {
       // If this is the final step, generate configuration instead of just moving to next
       if (state.currentStep === STEP_CONFIGS.titles.length) {
         try {
-          await actions.generateFullConfiguration();            // this is the api call to generate the configuration.
+          await actions.generateFullConfiguration(); // this is the api call to generate the configuration.
           setShowResults(true); // Show results page after successful generation
         } catch (error) {
           console.error('Configuration generation failed:', error);
@@ -247,13 +271,14 @@ export function ConfigurationWizard() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-2xl font-bold text-slate-100">
-                  {state.userMode === 'company' ? 'Interview Configuration' : 'Practice Interview Setup'}
+                  {state.userMode === 'company'
+                    ? 'Interview Configuration'
+                    : 'Practice Interview Setup'}
                 </CardTitle>
                 <p className="text-slate-300 mt-2">
-                  {state.userMode === 'company' 
+                  {state.userMode === 'company'
                     ? 'Configure your interview process and AI interviewers'
-                    : 'Set up your personalized interview practice session'
-                  }
+                    : 'Set up your personalized interview practice session'}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -270,8 +295,6 @@ export function ConfigurationWizard() {
           </CardHeader>
         </Card>
 
-
-
         {/* Progress Steps */}
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="pt-6">
@@ -283,16 +306,18 @@ export function ConfigurationWizard() {
                     const status = getStepStatus(stepNumber);
                     const isCompleted = status === 'completed';
                     const isCurrent = status === 'current';
-                    
+
                     return (
                       <div key={stepNumber} className="flex items-center">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          isCompleted 
-                            ? 'bg-green-500 border-green-500 text-white' 
-                            : isCurrent 
-                            ? 'bg-blue-500 border-blue-500 text-white'
-                            : 'bg-slate-600 border-slate-500 text-slate-300'
-                        }`}>
+                        <div
+                          className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                            isCompleted
+                              ? 'bg-green-500 border-green-500 text-white'
+                              : isCurrent
+                                ? 'bg-blue-500 border-blue-500 text-white'
+                                : 'bg-slate-600 border-slate-500 text-slate-300'
+                          }`}
+                        >
                           {isCompleted ? (
                             <CheckCircle className="w-5 h-5" />
                           ) : (
@@ -300,9 +325,11 @@ export function ConfigurationWizard() {
                           )}
                         </div>
                         <div className="ml-3">
-                          <p className={`text-sm font-medium ${
-                            isCurrent ? 'text-blue-400' : 'text-slate-300'
-                          }`}>
+                          <p
+                            className={`text-sm font-medium ${
+                              isCurrent ? 'text-blue-400' : 'text-slate-300'
+                            }`}
+                          >
                             {title}
                           </p>
                           <p className="text-xs text-slate-400">
@@ -318,16 +345,17 @@ export function ConfigurationWizard() {
                 </div>
               </div>
             </div>
-            
-            <Progress value={(state.currentStep / STEP_CONFIGS.titles.length) * 100} className="w-full" />
+
+            <Progress
+              value={(state.currentStep / STEP_CONFIGS.titles.length) * 100}
+              className="w-full"
+            />
           </CardContent>
         </Card>
 
         {/* Current Step Content */}
         <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="pt-6">
-            {renderCurrentStep()}
-          </CardContent>
+          <CardContent className="pt-6">{renderCurrentStep()}</CardContent>
         </Card>
 
         {/* Navigation */}
@@ -344,43 +372,46 @@ export function ConfigurationWizard() {
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Previous
-              </Button>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-400">
-                  Step {state.currentStep} of {STEP_CONFIGS.titles.length}
-                </span>
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-400">
+                    Step {state.currentStep} of {STEP_CONFIGS.titles.length}
+                  </span>
+                </div>
+
+                <Button
+                  onClick={handleNext}
+                  disabled={
+                    !canProceed() ||
+                    (state.currentStep === STEP_CONFIGS.titles.length && state.isGenerating)
+                  }
+                  className="flex items-center gap-2"
+                >
+                  {state.currentStep === STEP_CONFIGS.titles.length ? (
+                    <>
+                      {state.isGenerating ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          Generate Interview Configuration
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
               </div>
-              
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed() || (state.currentStep === STEP_CONFIGS.titles.length && state.isGenerating)}
-                className="flex items-center gap-2"
-              >
-                {state.currentStep === STEP_CONFIGS.titles.length ? (
-                  <>
-                    {state.isGenerating ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        Generate Interview Configuration
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
         )}
 
         {/* Validation Errors */}

@@ -1,13 +1,19 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { apiClient } from "@/services/apiClient";
-import { Loader2, KeyRound } from "lucide-react";
-import { useUser } from "@/contexts/UserContext";
+import { useState } from 'react';
+import { useLocation } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/services/apiClient';
+import { Loader2, KeyRound } from 'lucide-react';
+import { useUser } from '@/contexts/UserContext';
 
 interface JoinByCodeDialogProps {
   open: boolean;
@@ -15,7 +21,7 @@ interface JoinByCodeDialogProps {
 }
 
 export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) {
-  const [invitationCode, setInvitationCode] = useState("");
+  const [invitationCode, setInvitationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -26,18 +32,18 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
 
     if (!invitationCode.trim()) {
       toast({
-        title: "Code Required",
-        description: "Please enter an invitation code",
-        variant: "destructive"
+        title: 'Code Required',
+        description: 'Please enter an invitation code',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!user?.id) {
       toast({
-        title: "Not Logged In",
-        description: "Please log in first",
-        variant: "destructive"
+        title: 'Not Logged In',
+        description: 'Please log in first',
+        variant: 'destructive',
       });
       return;
     }
@@ -45,10 +51,10 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/api/configurations/join-by-code", {
+      const response = await apiClient.post('/api/configurations/join-by-code', {
         invitation_code: invitationCode.trim().toUpperCase(),
         candidate_id: user.id,
-        candidate_email: user.email || user.id  // Pass email for auto-registration
+        candidate_email: user.email || user.id, // Pass email for auto-registration
       });
 
       if (response.data.success) {
@@ -56,7 +62,7 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
         const companyName = company?.name || 'the company';
 
         toast({
-          title: "Success!",
+          title: 'Success!',
           description: `Successfully joined ${companyName}'s interview. Redirecting...`,
         });
 
@@ -67,14 +73,17 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
           onOpenChange(false);
         }, 500);
       } else {
-        throw new Error(response.data.message || "Failed to join interview");
+        throw new Error(response.data.message || 'Failed to join interview');
       }
     } catch (error: any) {
-      console.error("Error joining interview:", error);
+      console.error('Error joining interview:', error);
       toast({
-        title: "Failed to Join",
-        description: error.response?.data?.detail || error.message || "Invalid invitation code. Please try again.",
-        variant: "destructive"
+        title: 'Failed to Join',
+        description:
+          error.response?.data?.detail ||
+          error.message ||
+          'Invalid invitation code. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -108,9 +117,7 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
               maxLength={6}
               disabled={isLoading}
             />
-            <p className="text-xs text-slate-400">
-              Enter the 6-character code (e.g., ABC123)
-            </p>
+            <p className="text-xs text-slate-400">Enter the 6-character code (e.g., ABC123)</p>
           </div>
 
           <div className="flex gap-2 justify-end">
@@ -134,7 +141,7 @@ export function JoinByCodeDialog({ open, onOpenChange }: JoinByCodeDialogProps) 
                   Joining...
                 </>
               ) : (
-                "Join Interview"
+                'Join Interview'
               )}
             </Button>
           </div>

@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-  Users, 
-  UserPlus, 
-  CheckCircle, 
-  Clock, 
+import {
+  Users,
+  UserPlus,
+  CheckCircle,
+  Clock,
   AlertCircle,
   Eye,
   Mail,
@@ -18,7 +18,7 @@ import {
   ArrowRight,
   Plus,
   Search,
-  Filter
+  Filter,
 } from 'lucide-react';
 import { CandidateService } from '@/services/candidateService';
 
@@ -70,27 +70,38 @@ export function CandidateListPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/20 text-green-300 border-green-500/30';
-      case 'in_progress': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'pending': return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
-      case 'evaluated': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-      default: return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+      case 'completed':
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
+      case 'in_progress':
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+      case 'pending':
+        return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+      case 'evaluated':
+        return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+      default:
+        return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'in_progress': return <Clock className="w-4 h-4" />;
-      case 'pending': return <AlertCircle className="w-4 h-4" />;
-      case 'evaluated': return <CheckCircle className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
+      case 'completed':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'in_progress':
+        return <Clock className="w-4 h-4" />;
+      case 'pending':
+        return <AlertCircle className="w-4 h-4" />;
+      case 'evaluated':
+        return <CheckCircle className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
     }
   };
 
-  const filteredCandidates = candidates.filter(candidate => {
-    const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredCandidates = candidates.filter((candidate) => {
+    const matchesSearch =
+      candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || candidate.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -119,7 +130,6 @@ export function CandidateListPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-8">
-          
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-2xl">
@@ -129,7 +139,8 @@ export function CandidateListPage() {
               Candidate Management
             </h1>
             <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-              Review your candidate list and manage the interview process. All candidates are ready to begin their AI-powered interviews.
+              Review your candidate list and manage the interview process. All candidates are ready
+              to begin their AI-powered interviews.
             </p>
           </div>
 
@@ -149,13 +160,13 @@ export function CandidateListPage() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-300 mb-2">
-                    {candidates.filter(c => c.status === 'pending').length}
+                    {candidates.filter((c) => c.status === 'pending').length}
                   </div>
                   <div className="text-sm text-slate-400">Ready to Start</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-300 mb-2">
-                    {candidates.filter(c => c.status === 'completed').length}
+                    {candidates.filter((c) => c.status === 'completed').length}
                   </div>
                   <div className="text-sm text-slate-400">Completed</div>
                 </div>
@@ -186,7 +197,10 @@ export function CandidateListPage() {
                 <option value="completed">Completed</option>
                 <option value="evaluated">Evaluated</option>
               </select>
-              <Button variant="outline" className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent">
+              <Button
+                variant="outline"
+                className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent"
+              >
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
               </Button>
@@ -198,7 +212,10 @@ export function CandidateListPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl text-white">Candidate List</CardTitle>
-                <Button variant="outline" className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent">
+                <Button
+                  variant="outline"
+                  className="!border-slate-600 !text-slate-200 hover:!bg-slate-700 hover:!text-white bg-transparent"
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Candidate
                 </Button>
@@ -207,20 +224,29 @@ export function CandidateListPage() {
             <CardContent>
               <div className="space-y-4">
                 {filteredCandidates.map((candidate) => (
-                  <div key={candidate.id} className="border border-slate-600 rounded-lg p-4 hover:border-slate-500 transition-colors">
+                  <div
+                    key={candidate.id}
+                    className="border border-slate-600 rounded-lg p-4 hover:border-slate-500 transition-colors"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                           <span className="text-white font-semibold text-lg">
-                            {candidate.name.split(' ').map(n => n[0]).join('')}
+                            {candidate.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
                           </span>
                         </div>
-                        
+
                         <div>
                           <h3 className="font-semibold text-white text-lg">{candidate.name}</h3>
                           <p className="text-slate-400 text-sm">{candidate.email}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs text-slate-400 border-slate-500">
+                            <Badge
+                              variant="outline"
+                              className="text-xs text-slate-400 border-slate-500"
+                            >
                               {candidate.resume_filename}
                             </Badge>
                             <Badge className={`text-xs ${getStatusColor(candidate.status)}`}>
@@ -232,7 +258,7 @@ export function CandidateListPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-4">
                         {/* Progress/Score Display */}
                         <div className="text-right">
@@ -257,13 +283,13 @@ export function CandidateListPage() {
                             </div>
                           )}
                         </div>
-                        
+
                         {/* Action Buttons */}
                         <div className="flex gap-2">
                           {candidate.status === 'evaluated' && (
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="!border-purple-500 !text-purple-400 hover:!bg-purple-500/20 hover:!text-white bg-transparent"
                               onClick={() => setLocation(`/evaluation/${candidate.id}`)}
                             >
@@ -274,12 +300,14 @@ export function CandidateListPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Additional Info */}
                     {candidate.last_updated && (
                       <div className="mt-3 pt-3 border-t border-slate-600">
                         <div className="flex items-center justify-between text-sm text-slate-400">
-                          <span>Last updated: {new Date(candidate.last_updated).toLocaleString()}</span>
+                          <span>
+                            Last updated: {new Date(candidate.last_updated).toLocaleString()}
+                          </span>
                           {candidate.interview_duration && (
                             <span>Duration: {candidate.interview_duration} minutes</span>
                           )}
@@ -314,9 +342,9 @@ export function CandidateListPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-white">Next Steps</h3>
                 <p className="text-slate-300 text-sm max-w-2xl mx-auto">
-                  Once interviews begin, you'll be able to monitor real-time progress, view candidate performance, 
-                  and access detailed evaluation reports. The dashboard will show rankings, analytics, and insights 
-                  to help you make informed hiring decisions.
+                  Once interviews begin, you'll be able to monitor real-time progress, view
+                  candidate performance, and access detailed evaluation reports. The dashboard will
+                  show rankings, analytics, and insights to help you make informed hiring decisions.
                 </p>
               </div>
             </CardContent>

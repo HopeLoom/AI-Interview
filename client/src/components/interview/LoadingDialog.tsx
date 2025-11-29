@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingDialogProps {
   isOpen: boolean;
@@ -9,11 +9,11 @@ interface LoadingDialogProps {
   progress?: number;
 }
 
-export function LoadingDialog({ 
-  isOpen, 
-  title = "Getting Interview Information", 
-  description = "Please wait while we prepare your interview...",
-  progress 
+export function LoadingDialog({
+  isOpen,
+  title = 'Getting Interview Information',
+  description = 'Please wait while we prepare your interview...',
+  progress,
 }: LoadingDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -24,21 +24,17 @@ export function LoadingDialog({
             <span>{title}</span>
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
-          <p className="text-center text-sm text-muted-foreground">
-            {description}
-          </p>
-          
+          <p className="text-center text-sm text-muted-foreground">{description}</p>
+
           {progress !== undefined && (
             <div className="space-y-2">
               <Progress value={progress} className="w-full" />
-              <p className="text-center text-xs text-muted-foreground">
-                {progress}% complete
-              </p>
+              <p className="text-center text-xs text-muted-foreground">{progress}% complete</p>
             </div>
           )}
-          
+
           {progress === undefined && (
             <div className="flex justify-center">
               <div className="animate-pulse">
@@ -50,4 +46,4 @@ export function LoadingDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

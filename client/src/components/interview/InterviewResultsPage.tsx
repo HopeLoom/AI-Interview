@@ -15,7 +15,7 @@ import {
   Target,
   MessageSquare,
   ArrowLeft,
-  Sparkles
+  Sparkles,
 } from 'lucide-react';
 
 export default function InterviewResultsPage() {
@@ -32,7 +32,9 @@ export default function InterviewResultsPage() {
         try {
           setIsLoading(true);
           setError(null);
-          const response = await apiClient.get(`/api/configurations/sessions/${params.sessionId}/evaluation`);
+          const response = await apiClient.get(
+            `/api/configurations/sessions/${params.sessionId}/evaluation`
+          );
 
           if (response.data.success) {
             setEvaluationData(response.data);
@@ -46,7 +48,7 @@ export default function InterviewResultsPage() {
           toast({
             title: 'Error',
             description: errorMsg,
-            variant: 'destructive'
+            variant: 'destructive',
           });
         } finally {
           setIsLoading(false);

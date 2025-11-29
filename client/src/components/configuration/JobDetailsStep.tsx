@@ -5,20 +5,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  Upload, 
-  FileText, 
-  Building, 
-  Briefcase
-} from 'lucide-react';
-import { interviewConfigurationService, JobType } from '../../services/interviewConfigurationService';
+import { Upload, FileText, Building, Briefcase } from 'lucide-react';
+import {
+  interviewConfigurationService,
+  JobType,
+} from '../../services/interviewConfigurationService';
 
 export function JobDetailsStep() {
   const { state, actions } = useConfiguration();
@@ -33,9 +31,9 @@ export function JobDetailsStep() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -44,7 +42,7 @@ export function JobDetailsStep() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -56,9 +54,9 @@ export function JobDetailsStep() {
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain'
+      'text/plain',
     ];
-    
+
     if (!allowedTypes.includes(file.type)) {
       alert('Please select a PDF, Word document, or text file');
       return;
@@ -71,7 +69,7 @@ export function JobDetailsStep() {
     }
 
     setSelectedFile(file);
-    
+
     // Store file metadata AND the File object in configuration context
     actions.updateJobDetails({
       job_title: jobType || undefined,
@@ -80,7 +78,7 @@ export function JobDetailsStep() {
       source_filename: file.name,
       file_size: file.size,
       file_type: file.type,
-      uploaded_file: file // Store the actual File object
+      uploaded_file: file, // Store the actual File object
     });
   };
 
@@ -99,11 +97,10 @@ export function JobDetailsStep() {
         source_filename: undefined, // Clear file-related fields
         file_size: undefined,
         file_type: undefined,
-        uploaded_file: undefined // Clear the File object
+        uploaded_file: undefined, // Clear the File object
       });
     }
   };
-
 
   const openFileDialog = () => {
     const fileInput = document.createElement('input');
@@ -136,7 +133,7 @@ export function JobDetailsStep() {
     setSelectedFile(null);
     setJobDescription('');
     // Don't clear job type when switching modes - keep it persistent
-    
+
     // Clear the configuration data when switching modes
     actions.updateJobDetails({
       job_title: jobType || undefined,
@@ -145,7 +142,7 @@ export function JobDetailsStep() {
       source_filename: undefined,
       file_size: undefined,
       file_type: undefined,
-      uploaded_file: undefined // Clear the File object
+      uploaded_file: undefined, // Clear the File object
     });
   };
 
@@ -162,12 +159,12 @@ export function JobDetailsStep() {
         setLoadingJobTypes(false);
       }
     };
-    
+
     loadJobTypes();
   }, []);
 
   const getSelectedJobLabel = () => {
-    const selectedJob = availableJobTypes.find(job => job.value === jobType);
+    const selectedJob = availableJobTypes.find((job) => job.value === jobType);
     return selectedJob ? selectedJob.label : '';
   };
 
@@ -182,7 +179,8 @@ export function JobDetailsStep() {
               <h3 className="text-2xl font-bold text-white">Job Details</h3>
             </div>
             <p className="text-slate-300">
-              Upload a file or enter text to provide the job description for your interview configuration
+              Upload a file or enter text to provide the job description for your interview
+              configuration
             </p>
           </div>
         </CardHeader>
@@ -198,12 +196,14 @@ export function JobDetailsStep() {
             </Label>
             <Select value={jobType} onValueChange={(value: string) => setJobType(value)}>
               <SelectTrigger className="h-12 border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20 focus:bg-slate-700 transition-all duration-200 shadow-sm">
-                <SelectValue placeholder={loadingJobTypes ? "Loading job types..." : "Select a job type..."} />
+                <SelectValue
+                  placeholder={loadingJobTypes ? 'Loading job types...' : 'Select a job type...'}
+                />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
                 {availableJobTypes.map((job: JobType) => (
-                  <SelectItem 
-                    key={job.value} 
+                  <SelectItem
+                    key={job.value}
                     value={job.value}
                     className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700"
                   >
@@ -216,7 +216,8 @@ export function JobDetailsStep() {
               </SelectContent>
             </Select>
             <p className="text-xs text-slate-400">
-              Select the job type that best matches your interview requirements. This will determine the template used for the interview configuration.
+              Select the job type that best matches your interview requirements. This will determine
+              the template used for the interview configuration.
             </p>
           </div>
         </CardContent>
@@ -225,10 +226,10 @@ export function JobDetailsStep() {
       {/* Input Mode Selection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* PDF Upload Option */}
-        <Card 
+        <Card
           className={`border-2 transition-all duration-200 cursor-pointer ${
-            inputMode === 'pdf' 
-              ? 'border-blue-500 bg-blue-500/10' 
+            inputMode === 'pdf'
+              ? 'border-blue-500 bg-blue-500/10'
               : 'border-slate-700 bg-slate-800/90 hover:border-slate-600'
           }`}
           onClick={() => handleModeChange('pdf')}
@@ -238,17 +239,15 @@ export function JobDetailsStep() {
               <Upload className="w-8 h-8 text-blue-400" />
             </div>
             <h4 className="text-lg font-semibold text-white mb-2">Upload PDF</h4>
-            <p className="text-sm text-slate-400">
-              Upload a job description PDF or document
-            </p>
+            <p className="text-sm text-slate-400">Upload a job description PDF or document</p>
           </CardContent>
         </Card>
 
         {/* Text Input Option */}
-        <Card 
+        <Card
           className={`border-2 transition-all duration-200 cursor-pointer ${
-            inputMode === 'text' 
-              ? 'border-green-500 bg-green-500/10' 
+            inputMode === 'text'
+              ? 'border-green-500 bg-green-500/10'
               : 'border-slate-700 bg-slate-800/90 hover:border-slate-600'
           }`}
           onClick={() => handleModeChange('text')}
@@ -258,12 +257,9 @@ export function JobDetailsStep() {
               <FileText className="w-8 h-8 text-green-400" />
             </div>
             <h4 className="text-lg font-semibold text-white mb-2">Add Text</h4>
-            <p className="text-sm text-slate-400">
-              Paste the job description text directly
-            </p>
+            <p className="text-sm text-slate-400">Paste the job description text directly</p>
           </CardContent>
         </Card>
-
       </div>
 
       {/* PDF Upload Interface */}
@@ -275,7 +271,8 @@ export function JobDetailsStep() {
               Upload Job Description
             </CardTitle>
             <p className="text-slate-300 text-sm">
-              Upload a PDF, Word document, or text file containing the job description. The file will be processed by our AI system.
+              Upload a PDF, Word document, or text file containing the job description. The file
+              will be processed by our AI system.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -289,25 +286,21 @@ export function JobDetailsStep() {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <Upload className={`w-12 h-12 mx-auto mb-4 ${
-                  dragActive ? 'text-blue-500' : 'text-slate-400'
-                }`} />
-                
+                <Upload
+                  className={`w-12 h-12 mx-auto mb-4 ${
+                    dragActive ? 'text-blue-500' : 'text-slate-400'
+                  }`}
+                />
+
                 <h4 className="text-lg font-medium mb-2 text-white">
                   Drop your job description file here
                 </h4>
-                <p className="text-slate-400 mb-4">
-                  or click to browse files
-                </p>
-                
-                <Button
-                  onClick={openFileDialog}
-                  variant="outline"
-                  className="px-6"
-                >
+                <p className="text-slate-400 mb-4">or click to browse files</p>
+
+                <Button onClick={openFileDialog} variant="outline" className="px-6">
                   Select File
                 </Button>
-                
+
                 <div className="text-sm text-slate-500 mt-4">
                   <p>Supported formats: PDF, Word (.doc, .docx), Text (.txt)</p>
                   <p>Maximum size: 10MB</p>
@@ -340,7 +333,7 @@ export function JobDetailsStep() {
                         source_filename: undefined,
                         file_size: undefined,
                         file_type: undefined,
-                        uploaded_file: undefined // Clear the File object
+                        uploaded_file: undefined, // Clear the File object
                       });
                     }}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -365,9 +358,7 @@ export function JobDetailsStep() {
               <FileText className="w-6 h-6 text-green-400" />
               Job Description Text
             </CardTitle>
-            <p className="text-slate-300 text-sm">
-              Paste the job description text below
-            </p>
+            <p className="text-slate-300 text-sm">Paste the job description text below</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
@@ -379,9 +370,7 @@ export function JobDetailsStep() {
                 className="min-h-[300px] border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500/20 focus:bg-slate-700 transition-all duration-200 resize-none shadow-sm"
               />
               <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-400">
-                  Character count: {jobDescription.length}
-                </p>
+                <p className="text-xs text-slate-400">Character count: {jobDescription.length}</p>
                 <Button
                   onClick={handleTextSubmit}
                   disabled={!jobDescription.trim()}
@@ -395,7 +384,6 @@ export function JobDetailsStep() {
         </Card>
       )}
 
-
       {/* Status Indicator */}
       {isStepComplete() && (
         <Card className="border-0 shadow-xl bg-gradient-to-br from-green-900/90 to-emerald-800/90 border-green-700">
@@ -405,11 +393,10 @@ export function JobDetailsStep() {
                 <Briefcase className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">
-                  Job Details Ready
-                </h3>
+                <h3 className="text-lg font-semibold text-white">Job Details Ready</h3>
                 <p className="text-green-200">
-                  Job title: "{getSelectedJobLabel()}" - {inputMode === 'pdf' && 'File uploaded successfully - will be processed by AI'}
+                  Job title: "{getSelectedJobLabel()}" -{' '}
+                  {inputMode === 'pdf' && 'File uploaded successfully - will be processed by AI'}
                   {inputMode === 'text' && 'Text description saved'}
                 </p>
               </div>

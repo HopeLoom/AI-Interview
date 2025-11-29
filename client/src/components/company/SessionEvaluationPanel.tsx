@@ -1,9 +1,12 @@
 import React from 'react';
+import { SessionEvaluationSummary, SessionSummary } from '@/services/companyDashboardService';
 import {
-  SessionEvaluationSummary,
-  SessionSummary
-} from '@/services/companyDashboardService';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -36,7 +39,7 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
   isOpen,
   isLoading = false,
   evaluation,
-  onClose
+  onClose,
 }) => {
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -46,7 +49,9 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
 
   const evaluationPayload = evaluation?.evaluation || {};
   const strengths = getArray(evaluationPayload.strengths || evaluationPayload.key_strengths);
-  const improvements = getArray(evaluationPayload.areas_for_improvement || evaluationPayload.areas_for_development);
+  const improvements = getArray(
+    evaluationPayload.areas_for_improvement || evaluationPayload.areas_for_development
+  );
   const feedback = evaluationPayload.feedback || evaluationPayload.overall_feedback;
   const criteriaScores = Array.isArray(evaluationPayload.criteria_specific_scoring)
     ? evaluationPayload.criteria_specific_scoring
@@ -58,7 +63,9 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent className="w-full sm:max-w-3xl bg-slate-950 text-white border-slate-800">
         <SheetHeader className="space-y-2">
-          <SheetTitle className="text-2xl font-semibold text-white">Candidate Evaluation</SheetTitle>
+          <SheetTitle className="text-2xl font-semibold text-white">
+            Candidate Evaluation
+          </SheetTitle>
           <SheetDescription className="text-slate-300">
             {evaluation?.candidate_name
               ? `Detailed evaluation for ${evaluation.candidate_name}`
@@ -71,8 +78,12 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
               <div>
                 <div className="text-sm text-slate-400">Candidate</div>
-                <div className="text-lg font-semibold text-white">{evaluation.candidate_name || 'Unknown Candidate'}</div>
-                <div className="text-sm text-slate-400">{evaluation.candidate_email || 'No email provided'}</div>
+                <div className="text-lg font-semibold text-white">
+                  {evaluation.candidate_name || 'Unknown Candidate'}
+                </div>
+                <div className="text-sm text-slate-400">
+                  {evaluation.candidate_email || 'No email provided'}
+                </div>
               </div>
               <div className="text-right">
                 <div className="text-sm text-slate-400">Overall Score</div>
@@ -94,11 +105,17 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm text-slate-300">
               <div>
                 <div className="text-slate-400">Session ID</div>
-                <div className="font-mono text-white text-sm">{evaluation.session.session_id || 'N/A'}</div>
+                <div className="font-mono text-white text-sm">
+                  {evaluation.session.session_id || 'N/A'}
+                </div>
               </div>
               <div>
                 <div className="text-slate-400">Completed At</div>
-                <div>{evaluation.session.completed_at ? new Date(evaluation.session.completed_at).toLocaleString() : 'Pending'}</div>
+                <div>
+                  {evaluation.session.completed_at
+                    ? new Date(evaluation.session.completed_at).toLocaleString()
+                    : 'Pending'}
+                </div>
               </div>
               <div>
                 <div className="text-slate-400">Status</div>
@@ -106,7 +123,11 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
               </div>
               <div>
                 <div className="text-slate-400">Started At</div>
-                <div>{evaluation.session.started_at ? new Date(evaluation.session.started_at).toLocaleString() : 'Unknown'}</div>
+                <div>
+                  {evaluation.session.started_at
+                    ? new Date(evaluation.session.started_at).toLocaleString()
+                    : 'Unknown'}
+                </div>
               </div>
             </div>
           )}
@@ -182,9 +203,7 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
                             )}
                           </div>
                           {criterion.reason && (
-                            <p className="mt-2 text-sm text-slate-300">
-                              {criterion.reason}
-                            </p>
+                            <p className="mt-2 text-sm text-slate-300">{criterion.reason}</p>
                           )}
                           {criterion.reason_bullets && Array.isArray(criterion.reason_bullets) && (
                             <ul className="mt-2 list-disc pl-6 text-sm text-slate-300 space-y-1">
@@ -193,11 +212,12 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
                               ))}
                             </ul>
                           )}
-                          {criterion.key_phrases_from_conversation && Array.isArray(criterion.key_phrases_from_conversation) && (
-                            <div className="mt-2 text-xs text-slate-400">
-                              Key phrases: {criterion.key_phrases_from_conversation.join(', ')}
-                            </div>
-                          )}
+                          {criterion.key_phrases_from_conversation &&
+                            Array.isArray(criterion.key_phrases_from_conversation) && (
+                              <div className="mt-2 text-xs text-slate-400">
+                                Key phrases: {criterion.key_phrases_from_conversation.join(', ')}
+                              </div>
+                            )}
                         </div>
                       ))}
                     </div>
@@ -212,10 +232,7 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
             </div>
           )}
 
-          <Button
-            onClick={onClose}
-            className="mt-auto bg-blue-600 hover:bg-blue-700 text-white"
-          >
+          <Button onClick={onClose} className="mt-auto bg-blue-600 hover:bg-blue-700 text-white">
             Close
           </Button>
         </div>
@@ -225,4 +242,3 @@ export const SessionEvaluationPanel: React.FC<SessionEvaluationPanelProps> = ({
 };
 
 SessionEvaluationPanel.displayName = 'SessionEvaluationPanel';
-

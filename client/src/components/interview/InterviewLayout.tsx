@@ -1,51 +1,68 @@
-import { useState, useEffect, useRef } from "react";
-import { Header } from "./Header";
-import { VideoParticipant } from "./VideoParticipant";
-import { ChatPanel } from "./ChatPanel";
-import { MediaControls } from "./MediaControls";
-import { TutorialOverlay } from "./TutorialOverlay";
-import { LiveCodingLayout } from "./LiveCodingLayout";
-import { ProblemStatement } from "./ProblemStatement";
-import { ProgressTracker } from "./ProgressTracker";
-import { useInterviewState } from "@/hooks/useInterviewState";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { formatDistanceToNowStrict } from "date-fns";
-import { useLocation } from "wouter";
-import { useUser } from "@/contexts/UserContext";
-import webSocketService from "@/lib/websocketService";
+import { useState, useEffect, useRef } from 'react';
+import { Header } from './Header';
+import { VideoParticipant } from './VideoParticipant';
+import { ChatPanel } from './ChatPanel';
+import { MediaControls } from './MediaControls';
+import { TutorialOverlay } from './TutorialOverlay';
+import { LiveCodingLayout } from './LiveCodingLayout';
+import { ProblemStatement } from './ProblemStatement';
+import { ProgressTracker } from './ProgressTracker';
+import { useInterviewState } from '@/hooks/useInterviewState';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import { formatDistanceToNowStrict } from 'date-fns';
+import { useLocation } from 'wouter';
+import { useUser } from '@/contexts/UserContext';
+import webSocketService from '@/lib/websocketService';
 import { useInterview } from '@/contexts/InterviewContext';
-import { useAudioStreaming } from "@/hooks/useAudioStreaming";
-import { useCamera } from "@/contexts/CameraContext";
-import { ExitConfirmationDialog } from "./ExitConfirmationDialog";
-import { ThankYouScreen } from "./ThankYouScreen";
+import { useAudioStreaming } from '@/hooks/useAudioStreaming';
+import { useCamera } from '@/contexts/CameraContext';
+import { ExitConfirmationDialog } from './ExitConfirmationDialog';
+import { ThankYouScreen } from './ThankYouScreen';
 
-import { WebSocketMessageTypeToServer, WebSocketMessageTypeFromServer, 
-  EvaluationDataToServer, InterviewEndDataFromServer, 
-  InterviewMessageFromServer, TOPICS, SUBTOPICS, 
-  ActivityInfoFromServer, NextSpeakerInfoFromServer, 
-  InterviewStartDataToServer, InterviewStartDataFromServer,
-  InterviewMessageToServer } from "@/lib/common";
+import {
+  WebSocketMessageTypeToServer,
+  WebSocketMessageTypeFromServer,
+  EvaluationDataToServer,
+  InterviewEndDataFromServer,
+  InterviewMessageFromServer,
+  TOPICS,
+  SUBTOPICS,
+  ActivityInfoFromServer,
+  NextSpeakerInfoFromServer,
+  InterviewStartDataToServer,
+  InterviewStartDataFromServer,
+  InterviewMessageToServer,
+} from '@/lib/common';
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from '@/hooks/use-toast';
 
 // When we reach here, interview has already started.
 export function InterviewLayout() {
   const { state, actions, interviewDetails } = useInterview(); // Use shared context
-  const [ isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const { user } = useUser();
   const userIdentifier = user?.id || (user as any)?.email || '';
   const [, setLocation] = useLocation();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showThankYouScreen, setShowThankYouScreen] = useState(false);
-  const { startStream, stopStream, isReady, isStreamActive, toggleMicrophone, muteMicrophone, unmuteMicrophone, isMicrophoneMuted } = useCamera();
-  
+  const {
+    startStream,
+    stopStream,
+    isReady,
+    isStreamActive,
+    toggleMicrophone,
+    muteMicrophone,
+    unmuteMicrophone,
+    isMicrophoneMuted,
+  } = useCamera();
+
   // Use refs to maintain stable references to the latest actions and audioStreaming
   const actionsRef = useRef(actions);
   const audioStreamingRef = useRef<any>(null);
-  
+
   // Add a ref to track participants
   const participantsRef = useRef(state.participants);
 
@@ -64,7 +81,7 @@ export function InterviewLayout() {
     participantsRef.current = state.participants;
     isLiveCodingRef.current = state.isLiveCoding;
   }, [state.participants, state.isLiveCoding]);
-  
+
   // Update refs when dependencies change
   useEffect(() => {
     actionsRef.current = actions;
@@ -84,7 +101,7 @@ export function InterviewLayout() {
           userIdentifier,
           WebSocketMessageTypeToServer.LOAD_CONFIGURATION,
           {
-            configuration_id: configId
+            configuration_id: configId,
           }
         );
       }
@@ -92,24 +109,24 @@ export function InterviewLayout() {
   }, [userIdentifier]);
 
   // Add debugging
-  console.log("InterviewLayout - state.messages:", state.messages);
-  console.log("InterviewLayout - state.participants:", state.participants);
-  console.log("InterviewLayout - isUserTurn:", isUserTurn);
-  
+  console.log('InterviewLayout - state.messages:', state.messages);
+  console.log('InterviewLayout - state.participants:', state.participants);
+  console.log('InterviewLayout - isUserTurn:', isUserTurn);
+
   // when there is an error we should show a toast message
   const handleError = (data: any, id: string) => {
-    console.error("WebSocket error:", data);
+    console.error('WebSocket error:', data);
     toast({
-      title: "Connection Error",
-      description: "Unable to connect to server. Please try again.",
-      variant: "destructive",
+      title: 'Connection Error',
+      description: 'Unable to connect to server. Please try again.',
+      variant: 'destructive',
     });
   };
 
   // Use the audio streaming hook
   const audioStreaming = useAudioStreaming({
     onAddMessage: actions.addMessage,
-    onError: handleError
+    onError: handleError,
   });
 
   // Update audioStreaming ref when it changes
@@ -120,10 +137,10 @@ export function InterviewLayout() {
   // Ensure camera is started when interview begins
   useEffect(() => {
     if (user && !isStreamActive()) {
-      console.log("Starting camera stream for interview...");
+      console.log('Starting camera stream for interview...');
       startStream();
     } else if (user && isStreamActive()) {
-      console.log("Camera stream already active, using existing stream");
+      console.log('Camera stream already active, using existing stream');
     }
   }, [user, startStream, isStreamActive]);
 
@@ -139,65 +156,65 @@ export function InterviewLayout() {
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
-          console.log("Audio chunk received:", event.data.size, "bytes");
+          console.log('Audio chunk received:', event.data.size, 'bytes');
         }
       };
 
       mediaRecorder.onstop = async () => {
-        console.log("Recording stopped, processing audio chunks...");
-        console.log("Total audio chunks:", audioChunksRef.current.length);
-        
+        console.log('Recording stopped, processing audio chunks...');
+        console.log('Total audio chunks:', audioChunksRef.current.length);
+
         if (audioChunksRef.current.length > 0) {
           try {
             // Create a blob from all audio chunks
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-            console.log("Audio blob created:", audioBlob.size, "bytes");
-            
+            console.log('Audio blob created:', audioBlob.size, 'bytes');
+
             // Convert blob to base64
             const base64Audio = await blobToBase64(audioBlob);
-            console.log("Audio converted to base64, length:", base64Audio.length);
-            
+            console.log('Audio converted to base64, length:', base64Audio.length);
+
             // Send the audio data to the server
             if (userIdentifier) {
-              console.log("Sending AUDIO_RAW_DATA to server...");
+              console.log('Sending AUDIO_RAW_DATA to server...');
               const speechData = { raw_audio_data: base64Audio };
               webSocketService.sendMessage(
-                userIdentifier, 
-                WebSocketMessageTypeToServer.AUDIO_RAW_DATA, 
+                userIdentifier,
+                WebSocketMessageTypeToServer.AUDIO_RAW_DATA,
                 speechData
               );
             }
           } catch (error) {
-            console.error("Error processing recorded audio:", error);
-            handleError("Failed to process recorded audio", "audio_processing_error");
+            console.error('Error processing recorded audio:', error);
+            handleError('Failed to process recorded audio', 'audio_processing_error');
           }
         } else {
-          console.warn("No audio chunks recorded");
+          console.warn('No audio chunks recorded');
         }
-        
+
         // Clean up
         if (audioStreamRef.current) {
-          audioStreamRef.current.getTracks().forEach(track => track.stop());
+          audioStreamRef.current.getTracks().forEach((track) => track.stop());
           audioStreamRef.current = null;
         }
         audioChunksRef.current = [];
         setIsRecording(false);
-        console.log("Audio recording cleanup completed");
+        console.log('Audio recording cleanup completed');
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      console.log("Started audio recording");
+      console.log('Started audio recording');
     } catch (error) {
-      console.error("Failed to start audio recording:", error);
-      handleError("Failed to start audio recording", "recording_error");
+      console.error('Failed to start audio recording:', error);
+      handleError('Failed to start audio recording', 'recording_error');
     }
   };
 
   // Function to stop audio recording
   const stopAudioRecording = async () => {
     if (mediaRecorderRef.current && isRecording) {
-      console.log("Stopping audio recording...");
+      console.log('Stopping audio recording...');
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       // we are sending audio data in the stop event of the media recorder
@@ -221,56 +238,58 @@ export function InterviewLayout() {
 
   // Function to set participant as thinking
   const setParticipantThinking = (speakerId: string) => {
-    console.log("Setting participant as thinking:", speakerId);
+    console.log('Setting participant as thinking:', speakerId);
     actionsRef.current.updateParticipants(
-      participantsRef.current.map(p => ({
+      participantsRef.current.map((p) => ({
         ...p,
         isActive: p.id === speakerId,
-        status: p.id === speakerId ? 'THINKING' : 'LISTENING'
+        status: p.id === speakerId ? 'THINKING' : 'LISTENING',
       }))
     );
   };
 
   // Function to set participant as speaking
   const setParticipantSpeaking = (speakerId: string) => {
-    console.log("Setting participant as speaking:", speakerId);
+    console.log('Setting participant as speaking:', speakerId);
     actionsRef.current.updateParticipants(
-      participantsRef.current.map(p => ({
+      participantsRef.current.map((p) => ({
         ...p,
         isActive: p.id === speakerId,
-        status: p.id === speakerId ? 'SPEAKING' : 'LISTENING'
+        status: p.id === speakerId ? 'SPEAKING' : 'LISTENING',
       }))
     );
   };
 
   // Function to set participant as inactive
   const setParticipantInactive = (speakerId: string) => {
-    console.log("Setting participant as inactive:", speakerId);
+    console.log('Setting participant as inactive:', speakerId);
     actionsRef.current.updateParticipants(
-      participantsRef.current.map(p => ({
+      participantsRef.current.map((p) => ({
         ...p,
         isActive: false,
-        status: 'LISTENING'
+        status: 'LISTENING',
       }))
     );
   };
 
   // this function will handle the messages received from the server
-  const handleMessages = async (data: string, id:string) => {
-    console.log("InterviewLayout - handleMessages called with:", data);
-    
+  const handleMessages = async (data: string, id: string) => {
+    console.log('InterviewLayout - handleMessages called with:', data);
+
     // convert interview message to json
-    console.log("Interview message received:", data);
+    console.log('Interview message received:', data);
     const interviewMessage: InterviewMessageFromServer = JSON.parse(data);
-    console.log("InterviewLayout - parsed interviewMessage:", interviewMessage);
+    console.log('InterviewLayout - parsed interviewMessage:', interviewMessage);
 
     let is_user_input_required = interviewMessage.is_user_input_required;
     let speaker = interviewMessage.speaker;
-    console.log("InterviewLayout - speaker:", speaker);
+    console.log('InterviewLayout - speaker:', speaker);
     // from the participant list, get the current speaker id
-    const currentSpeaker = participantsRef.current.find(participant => participant.name === speaker);
-        
-    console.log("InterviewLayout - currentSpeaker found:", currentSpeaker);
+    const currentSpeaker = participantsRef.current.find(
+      (participant) => participant.name === speaker
+    );
+
+    console.log('InterviewLayout - currentSpeaker found:', currentSpeaker);
 
     if (is_user_input_required === true) {
       if (currentSpeaker) {
@@ -278,13 +297,13 @@ export function InterviewLayout() {
         setParticipantSpeaking(currentSpeaker.id);
         actionsRef.current.setCurrentSpeakerIDData(currentSpeaker.id);
         actionsRef.current.addTypingIndicator(currentSpeaker.id, currentSpeaker.name);
-        
+
         // If it's the user's turn, enable microphone
         if (currentSpeaker.id === 'Candidate') {
           setIsUserTurn(true);
         }
       } else {
-        console.log("Speaker not found in the participant list");
+        console.log('Speaker not found in the participant list');
       }
     }
 
@@ -297,115 +316,139 @@ export function InterviewLayout() {
     if (current_topic === TOPICS.PROBLEM_INTRODUCTION_AND_CLARIFICATION_SOLVING) {
       // Use ref to check current state immediately
       if (isLiveCodingRef.current === false) {
-        console.log("Toggling live coding to true");
+        console.log('Toggling live coding to true');
         actionsRef.current.toggleLiveCoding();
         actionsRef.current.toggleProblemVisibility();
         actionsRef.current.toggleTimerVisibility();
       } else {
-        console.log("Live coding already enabled, skipping toggle");
+        console.log('Live coding already enabled, skipping toggle');
       }
-      console.log("Problem Introduction and Clarification Solving");
-    
-    } else if (current_topic === TOPICS.DEEP_DIVE_AND_QA && current_subtopic === SUBTOPICS.TASK_SPECIFIC_DISCUSSION) {
-      console.log("Task specific discussion");
+      console.log('Problem Introduction and Clarification Solving');
+    } else if (
+      current_topic === TOPICS.DEEP_DIVE_AND_QA &&
+      current_subtopic === SUBTOPICS.TASK_SPECIFIC_DISCUSSION
+    ) {
+      console.log('Task specific discussion');
       if (isLiveCodingRef.current === true) {
-        console.log("Toggling live coding to false");
+        console.log('Toggling live coding to false');
         actionsRef.current.toggleLiveCoding();
         actionsRef.current.toggleProblemVisibility();
         actionsRef.current.toggleTimerVisibility();
       } else {
-        console.log("Live coding already disabled, skipping toggle");
+        console.log('Live coding already disabled, skipping toggle');
       }
     } else {
-      console.log("Not in problem solving topic");
+      console.log('Not in problem solving topic');
     }
-    
+
     if (is_user_input_required === false && currentSpeaker) {
-      console.log("InterviewLayout - calling actions.addMessage with:", {
+      console.log('InterviewLayout - calling actions.addMessage with:', {
         text: interviewMessage.text_message,
         senderId: currentSpeaker.id,
-        senderName: currentSpeaker.name
+        senderName: currentSpeaker.name,
       });
-      
-      actionsRef.current.addMessage(interviewMessage.text_message, currentSpeaker.id, currentSpeaker.name);
-      await audioStreamingRef.current.runTextToSpeech(interviewMessage.voice_name, interviewMessage.text_message);
+
+      actionsRef.current.addMessage(
+        interviewMessage.text_message,
+        currentSpeaker.id,
+        currentSpeaker.name
+      );
+      await audioStreamingRef.current.runTextToSpeech(
+        interviewMessage.voice_name,
+        interviewMessage.text_message
+      );
     }
 
     if (!currentSpeaker) {
-      // display error message 
-      handleError("Speaker not found in the participant list", id);
+      // display error message
+      handleError('Speaker not found in the participant list', id);
     } else {
       actionsRef.current.setCurrentSpeakerIDData(currentSpeaker.id);
     }
-  }
+  };
 
-  // const handleActivityInfoData = (raw_message: string, id:string) => { 
+  // const handleActivityInfoData = (raw_message: string, id:string) => {
   //   console.log("Activity Info Data Received:", raw_message);
-  //   // convert string to json 
+  //   // convert string to json
   //   const message:ActivityInfoFromServer = JSON.parse(raw_message);
   //   const starter_code = message.starter_code || "// Start coding..."; // Use provided code or default
   //   actions.setCode(starter_code);
   // };
 
-  const handleNextSpeakerInfo = (data:string, id:string) => {
-    console.log("Next speaker info received:", data);
+  const handleNextSpeakerInfo = (data: string, id: string) => {
+    console.log('Next speaker info received:', data);
     const nextSpeakerInfo: NextSpeakerInfoFromServer = JSON.parse(data);
     let speaker = nextSpeakerInfo.speaker;
-    console.log("Next speaker info received:", speaker);
-    console.log("InterviewLayout - state.participants:", participantsRef.current);
+    console.log('Next speaker info received:', speaker);
+    console.log('InterviewLayout - state.participants:', participantsRef.current);
     // from the participant list, get the current speaker id
-    const currentSpeaker = participantsRef.current.find(participant => participant.name === speaker);
-    console.log ("Current speaker id:", currentSpeaker?.id);
-    
+    const currentSpeaker = participantsRef.current.find(
+      (participant) => participant.name === speaker
+    );
+    console.log('Current speaker id:', currentSpeaker?.id);
+
     if (!currentSpeaker) {
-      handleError("Speaker not found in the participant list", id);
-      console.error("Speaker not found in the participant list");
+      handleError('Speaker not found in the participant list', id);
+      console.error('Speaker not found in the participant list');
       return;
     }
-    
+
     // Set the speaker as thinking (not speaking yet)
     setParticipantThinking(currentSpeaker.id);
     actionsRef.current.setCurrentSpeakerIDData(currentSpeaker.id);
     actionsRef.current.addTypingIndicator(currentSpeaker.id, currentSpeaker.name);
-  }
+  };
 
-  const handleInterviewStart = (data:string, id:string) => {
-    console.log("Interview started");
+  const handleInterviewStart = (data: string, id: string) => {
+    console.log('Interview started');
     const interviewStartData: InterviewStartDataFromServer = JSON.parse(data);
-    console.log("Interview start data:", interviewStartData);
-    
+    console.log('Interview start data:', interviewStartData);
+
     // Update participants in state
     actionsRef.current.updateParticipants(interviewStartData.participants);
-    
+
     // Also update the ref immediately for immediate access
     participantsRef.current = interviewStartData.participants;
-    
+
     // say the message being received from the server.
-    audioStreamingRef.current.runTextToSpeech(interviewStartData.voice_name, interviewStartData.message);
-  }
-  
+    audioStreamingRef.current.runTextToSpeech(
+      interviewStartData.voice_name,
+      interviewStartData.message
+    );
+  };
+
   // Check if user has seen the tutorial before
   useEffect(() => {
     if (!user) {
-      console.log("No user logged in");
-      setLocation("/login");
-    }  
+      console.log('No user logged in');
+      setLocation('/login');
+    }
     webSocketService.on(WebSocketMessageTypeFromServer.INTERVIEW_START, handleInterviewStart);
     webSocketService.on(WebSocketMessageTypeFromServer.ERROR, handleError);
     webSocketService.on(WebSocketMessageTypeFromServer.INTERVIEW_DATA, handleMessages);
     webSocketService.on(WebSocketMessageTypeFromServer.NEXT_SPEAKER_INFO, handleNextSpeakerInfo);
     webSocketService.on(WebSocketMessageTypeFromServer.INTERVIEW_END, handleInterviewEnd);
     webSocketService.on(WebSocketMessageTypeFromServer.AUDIO_SPEECH_TO_TEXT, handleSpeechToText); // Use custom handler
-    webSocketService.on(WebSocketMessageTypeFromServer.AUDIO_STREAMING_COMPLETED, handleAudioStreamingCompleted);
-    webSocketService.on(WebSocketMessageTypeFromServer.AUDIO_CHUNKS, audioStreaming.handleAudioChunks);
+    webSocketService.on(
+      WebSocketMessageTypeFromServer.AUDIO_STREAMING_COMPLETED,
+      handleAudioStreamingCompleted
+    );
+    webSocketService.on(
+      WebSocketMessageTypeFromServer.AUDIO_CHUNKS,
+      audioStreaming.handleAudioChunks
+    );
 
     // send the interview start data to the server after 500ms delay
     setTimeout(() => {
       if (user) {
-        const interviewStartData: InterviewStartDataToServer = { message: "interview_started" };
-      if (userIdentifier) {
-        webSocketService.sendMessage(userIdentifier, WebSocketMessageTypeToServer.INTERVIEW_START, interviewStartData);
-      }
+        const interviewStartData: InterviewStartDataToServer = { message: 'interview_started' };
+        if (userIdentifier) {
+          webSocketService.sendMessage(
+            userIdentifier,
+            WebSocketMessageTypeToServer.INTERVIEW_START,
+            interviewStartData
+          );
+        }
       }
     }, 500);
 
@@ -416,19 +459,24 @@ export function InterviewLayout() {
       webSocketService.off(WebSocketMessageTypeFromServer.NEXT_SPEAKER_INFO, handleNextSpeakerInfo);
       webSocketService.off(WebSocketMessageTypeFromServer.INTERVIEW_END, handleInterviewEnd);
       webSocketService.off(WebSocketMessageTypeFromServer.AUDIO_SPEECH_TO_TEXT, handleSpeechToText); // Use custom handler
-      webSocketService.off(WebSocketMessageTypeFromServer.AUDIO_STREAMING_COMPLETED, handleAudioStreamingCompleted);
-      webSocketService.off(WebSocketMessageTypeFromServer.AUDIO_CHUNKS, audioStreaming.handleAudioChunks);
+      webSocketService.off(
+        WebSocketMessageTypeFromServer.AUDIO_STREAMING_COMPLETED,
+        handleAudioStreamingCompleted
+      );
+      webSocketService.off(
+        WebSocketMessageTypeFromServer.AUDIO_CHUNKS,
+        audioStreaming.handleAudioChunks
+      );
     };
   }, []);
-  
+
   const handleTakeNotes = () => {
     setIsNoteDialogOpen(true);
   };
 
-
-  const handleInterviewEnd = async(end_data:string, id:string) => {
-    console.log("Interview ended");
-    // Stop the timer first    
+  const handleInterviewEnd = async (end_data: string, id: string) => {
+    console.log('Interview ended');
+    // Stop the timer first
     // Close the video and audio streams
     actionsRef.current.endInterview();
     stopStream();
@@ -439,29 +487,29 @@ export function InterviewLayout() {
 
   // Handle audio streaming completed - set speaker as inactive
   const handleAudioStreamingCompleted = (data: string, id: string) => {
-    console.log("Audio streaming completed:", data);
-    
+    console.log('Audio streaming completed:', data);
+
     // Set current speaker as inactive
     const currentSpeakerId = state.currentSpeakerID;
     if (currentSpeakerId) {
       setParticipantInactive(currentSpeakerId);
     }
-    
+
     // Call the original handler
     audioStreamingRef.current.handleAudioStreamingCompleted(data, id);
   };
 
   // Add a specific handler for speech-to-text results to ensure typing indicators are removed
   const handleSpeechToText = (data: string, id: string) => {
-    console.log("Speech-to-text result received:", data);
-    
+    console.log('Speech-to-text result received:', data);
+
     // Call the original handler first
     audioStreamingRef.current.handleTextFromSpeech(data, id);
-    
+
     // Ensure typing indicator is removed for the current user
     if (user) {
       // Force remove typing indicator for the user
-      actionsRef.current.addMessage("", user.id, user.name);
+      actionsRef.current.addMessage('', user.id, user.name);
     }
   };
 
@@ -477,7 +525,11 @@ export function InterviewLayout() {
     // send the done problem solving message to the server with the code written by the user
     if (user) {
       if (userIdentifier) {
-        webSocketService.sendMessage(userIdentifier, WebSocketMessageTypeToServer.DONE_PROBLEM_SOLVING, {message: "done_problem_solving", activity_data: state.candidateCode});
+        webSocketService.sendMessage(
+          userIdentifier,
+          WebSocketMessageTypeToServer.DONE_PROBLEM_SOLVING,
+          { message: 'done_problem_solving', activity_data: state.candidateCode }
+        );
       }
     }
   };
@@ -489,8 +541,7 @@ export function InterviewLayout() {
   const handleEndInterviewButtonClick = () => {
     // show exit confirmation dialog
     setShowExitDialog(true);
-   
-  }
+  };
 
   if (state.isLiveCoding) {
     return (
@@ -510,13 +561,15 @@ export function InterviewLayout() {
   const handleCancelExit = () => {
     setShowExitDialog(false);
   };
-  
+
   const handleConfirmExit = () => {
     setShowExitDialog(false);
     actionsRef.current.endInterview(); // This will stop the timer
     if (user) {
       if (userIdentifier) {
-        webSocketService.sendMessage(userIdentifier, WebSocketMessageTypeToServer.INTERVIEW_END, {message: "interview_ended"});
+        webSocketService.sendMessage(userIdentifier, WebSocketMessageTypeToServer.INTERVIEW_END, {
+          message: 'interview_ended',
+        });
       }
     }
   };
@@ -543,9 +596,9 @@ export function InterviewLayout() {
 
       <div className="relative z-10 min-h-screen flex flex-col interview-interface">
         {/* Header */}
-        <Header 
-          title={interviewDetails?.company || "HopeLoom"}
-          interviewType={interviewDetails?.role || "ML Engineer"}
+        <Header
+          title={interviewDetails?.company || 'HopeLoom'}
+          interviewType={interviewDetails?.role || 'ML Engineer'}
           elapsedTime="00:00"
           onEndInterview={() => setShowExitDialog(true)}
           isTimerVisible={true}
@@ -568,7 +621,7 @@ export function InterviewLayout() {
 
             {/* Live Coding Interface */}
             {state.isLiveCoding && (
-              <LiveCodingLayout 
+              <LiveCodingLayout
                 participants={state.participants}
                 messages={state.messages}
                 onSendMessage={actions.addMessage}
@@ -582,7 +635,7 @@ export function InterviewLayout() {
 
             {/* Problem Statement */}
             {state.problemStatement && (
-              <ProblemStatement 
+              <ProblemStatement
                 title="Problem Statement"
                 content={state.problemStatement}
                 isVisible={true}
@@ -593,7 +646,7 @@ export function InterviewLayout() {
           {/* Right Panel - Chat and Controls */}
           <div className="lg:w-1/3 space-y-6">
             {/* Chat Panel */}
-            <ChatPanel 
+            <ChatPanel
               messages={state.messages}
               participants={state.participants}
               onSendMessage={actions.addMessage}
@@ -610,13 +663,13 @@ export function InterviewLayout() {
             />
 
             {/* Progress Tracker */}
-            <ProgressTracker 
+            <ProgressTracker
               steps={[
-                { id: 1, name: "Introduction", status: "completed" },
-                { id: 2, name: "Technical", status: "active" },
-                { id: 3, name: "Behavioral", status: "upcoming" },
-                { id: 4, name: "Coding", status: "upcoming" },
-                { id: 5, name: "Conclusion", status: "upcoming" }
+                { id: 1, name: 'Introduction', status: 'completed' },
+                { id: 2, name: 'Technical', status: 'active' },
+                { id: 3, name: 'Behavioral', status: 'upcoming' },
+                { id: 4, name: 'Coding', status: 'upcoming' },
+                { id: 5, name: 'Conclusion', status: 'upcoming' },
               ]}
               currentStep={state.currentStep || 1}
             />
@@ -677,7 +730,7 @@ export function InterviewLayout() {
             isVisible={showThankYouScreen}
             onClose={() => {
               setShowThankYouScreen(false);
-              setLocation("/");
+              setLocation('/');
             }}
             interviewDuration="00:00"
             role={interviewDetails?.role}

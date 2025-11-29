@@ -10,12 +10,12 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { apiClient } from '@/services/apiClient';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  CheckCircle, 
-  Clock, 
-  Users, 
-  Code, 
-  Building, 
+import {
+  CheckCircle,
+  Clock,
+  Users,
+  Code,
+  Building,
   Briefcase,
   MessageSquare,
   AlertCircle,
@@ -32,7 +32,7 @@ import {
   Award,
   Star,
   TrendingUp,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 
 interface InterviewRound {
@@ -82,7 +82,9 @@ export default function InterviewConfigurationResults() {
       const fetchEvaluation = async () => {
         try {
           setIsLoading(true);
-          const response = await apiClient.get(`/api/configurations/sessions/${params.sessionId}/evaluation`);
+          const response = await apiClient.get(
+            `/api/configurations/sessions/${params.sessionId}/evaluation`
+          );
 
           if (response.data.success) {
             setEvaluationData(response.data);
@@ -95,7 +97,7 @@ export default function InterviewConfigurationResults() {
           toast({
             title: 'Error',
             description: error.response?.data?.detail || 'Failed to load interview results',
-            variant: 'destructive'
+            variant: 'destructive',
           });
           setIsLoading(false);
         }
@@ -121,10 +123,10 @@ export default function InterviewConfigurationResults() {
     try {
       // Here you would send the updated configuration to the backend
       console.log('Saving updated configuration:', editedConfig);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setGeneratedConfig(editedConfig);
       setEditingMode(false);
     } catch (error) {
@@ -171,10 +173,15 @@ export default function InterviewConfigurationResults() {
                 </div>
                 <div className="absolute inset-0 w-24 h-24 mx-auto border-4 border-blue-500/30 rounded-full animate-ping"></div>
               </div>
-              
+
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Generating Your Interview Configuration</h2>
-                <p className="text-slate-300">Our AI is analyzing your job requirements and creating a comprehensive interview setup...</p>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  Generating Your Interview Configuration
+                </h2>
+                <p className="text-slate-300">
+                  Our AI is analyzing your job requirements and creating a comprehensive interview
+                  setup...
+                </p>
               </div>
 
               <div className="space-y-3">
@@ -212,7 +219,9 @@ export default function InterviewConfigurationResults() {
             <div className="text-center">
               <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Configuration Not Found</h3>
-              <p className="text-slate-300">Unable to load the generated interview configuration.</p>
+              <p className="text-slate-300">
+                Unable to load the generated interview configuration.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -221,28 +230,30 @@ export default function InterviewConfigurationResults() {
   }
 
   const config = editingMode ? editedConfig! : generatedConfig;
-  
+
   // Handle the actual API response structure with fallbacks
-  const interviewData = config?.simulation_config?.interview_data || config?.simulation_config || {};
+  const interviewData =
+    config?.simulation_config?.interview_data || config?.simulation_config || {};
   const rounds = interviewData.interview_round_details?.rounds || {};
   const characters = interviewData.character_data?.data || [];
-  
+
   // Add fallback data if the API response is missing expected structure
-  const hasValidData = config && (
-    config.simulation_config || 
-    config.generated_question || 
-    config.generated_characters || 
-    config.candidate_profile
-  );
-  
+  const hasValidData =
+    config &&
+    (config.simulation_config ||
+      config.generated_question ||
+      config.generated_characters ||
+      config.candidate_profile);
+
   const totalRounds = Object.keys(rounds).length;
   const totalCharacters = characters.length;
-  const totalDuration = Object.values(rounds).reduce(
-    (total: number, round: any) => {
-      const topicInfo = round.topic_info || [];
-      return total + topicInfo.reduce((roundTotal: number, topic: any) => roundTotal + (topic.time_limit || 0), 0);
-    }, 0
-  );
+  const totalDuration = Object.values(rounds).reduce((total: number, round: any) => {
+    const topicInfo = round.topic_info || [];
+    return (
+      total +
+      topicInfo.reduce((roundTotal: number, topic: any) => roundTotal + (topic.time_limit || 0), 0)
+    );
+  }, 0);
 
   // Show message if no configuration data is available
   if (!hasValidData) {
@@ -254,10 +265,15 @@ export default function InterviewConfigurationResults() {
               <div className="w-24 h-24 mx-auto bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center">
                 <AlertCircle className="w-12 h-12 text-white" />
               </div>
-              
+
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">No Configuration Data Available</h2>
-                <p className="text-slate-300">The interview configuration generation may have failed or the data is not yet available.</p>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  No Configuration Data Available
+                </h2>
+                <p className="text-slate-300">
+                  The interview configuration generation may have failed or the data is not yet
+                  available.
+                </p>
               </div>
 
               <Button
@@ -279,7 +295,6 @@ export default function InterviewConfigurationResults() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-8">
-          
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-6 shadow-2xl">
@@ -289,9 +304,10 @@ export default function InterviewConfigurationResults() {
               Interview Configuration Generated!
             </h1>
             <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-              Your AI-powered interview setup is ready. Review the details below and make any adjustments before finalizing.
+              Your AI-powered interview setup is ready. Review the details below and make any
+              adjustments before finalizing.
             </p>
-            
+
             {/* Action Buttons */}
             <div className="flex gap-4 justify-center">
               {editingMode ? (
@@ -394,8 +410,13 @@ export default function InterviewConfigurationResults() {
                   <label className="text-sm font-medium text-slate-300 mb-2 block">Job Title</label>
                   {editingMode ? (
                     <Input
-                                      value={interviewData.job_details?.job_title || ''}
-                onChange={(e) => updateField('simulation_config.interview_data.job_details.job_title', e.target.value)}
+                      value={interviewData.job_details?.job_title || ''}
+                      onChange={(e) =>
+                        updateField(
+                          'simulation_config.interview_data.job_details.job_title',
+                          e.target.value
+                        )
+                      }
                       className="bg-slate-800 border-slate-600 text-white"
                     />
                   ) : (
@@ -408,8 +429,13 @@ export default function InterviewConfigurationResults() {
                   <label className="text-sm font-medium text-slate-300 mb-2 block">Company</label>
                   {editingMode ? (
                     <Input
-                                      value={interviewData.job_details?.company_name || ''}
-                onChange={(e) => updateField('simulation_config.interview_data.job_details.company_name', e.target.value)}
+                      value={interviewData.job_details?.company_name || ''}
+                      onChange={(e) =>
+                        updateField(
+                          'simulation_config.interview_data.job_details.company_name',
+                          e.target.value
+                        )
+                      }
                       className="bg-slate-800 border-slate-600 text-white"
                     />
                   ) : (
@@ -419,18 +445,26 @@ export default function InterviewConfigurationResults() {
                   )}
                 </div>
               </div>
-              
+
               <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">Job Description</label>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">
+                  Job Description
+                </label>
                 {editingMode ? (
                   <Textarea
-                                    value={interviewData.job_details?.job_description || ''}
-                onChange={(e) => updateField('simulation_config.interview_data.job_details.job_description', e.target.value)}
+                    value={interviewData.job_details?.job_description || ''}
+                    onChange={(e) =>
+                      updateField(
+                        'simulation_config.interview_data.job_details.job_description',
+                        e.target.value
+                      )
+                    }
                     className="min-h-[100px] bg-slate-800 border-slate-600 text-white"
                   />
                 ) : (
                   <div className="p-3 bg-slate-800 border border-slate-600 rounded-lg text-white">
-                    {interviewData.job_details?.job_description || 'Job description will appear here...'}
+                    {interviewData.job_details?.job_description ||
+                      'Job description will appear here...'}
                   </div>
                 )}
               </div>
@@ -446,48 +480,63 @@ export default function InterviewConfigurationResults() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {Object.entries(rounds).map(([roundKey, round]: [string, any], roundIndex: number) => (
-                <div key={roundKey} className="border border-slate-600 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-500/30">
-                      Round {roundIndex + 1}
-                    </Badge>
-                    <h3 className="text-lg font-semibold text-white">{round.description}</h3>
-                  </div>
-                  
-                  <p className="text-slate-300 mb-4">{round.objective}</p>
-                  
-                  <div className="space-y-3">
-                    {round.topic_info.map((topic: any, topicIndex: number) => (
-                      <div key={topicIndex} className="bg-slate-800/50 rounded-lg p-3 border border-slate-600">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-white">{topic.name}</h4>
-                          <Badge variant="outline" className="text-orange-300 border-orange-500/30">
-                            {topic.time_limit}m
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-slate-400 mb-3">{topic.description}</p>
-                        
-                        {topic.subtopics && (
-                          <div className="space-y-2">
-                            {topic.subtopics.map((subtopic: any, subtopicIndex: number) => (
-                              <div key={subtopicIndex} className="bg-slate-700/50 rounded p-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-slate-300">{subtopic.name}</span>
-                                  {subtopic.time_limit && (
-                                    <span className="text-xs text-slate-500">{subtopic.time_limit}m</span>
-                                  )}
-                                </div>
-                                <p className="text-xs text-slate-500 mt-1">{subtopic.description}</p>
-                              </div>
-                            ))}
+              {Object.entries(rounds).map(
+                ([roundKey, round]: [string, any], roundIndex: number) => (
+                  <div key={roundKey} className="border border-slate-600 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-500/20 text-blue-300 border-blue-500/30"
+                      >
+                        Round {roundIndex + 1}
+                      </Badge>
+                      <h3 className="text-lg font-semibold text-white">{round.description}</h3>
+                    </div>
+
+                    <p className="text-slate-300 mb-4">{round.objective}</p>
+
+                    <div className="space-y-3">
+                      {round.topic_info.map((topic: any, topicIndex: number) => (
+                        <div
+                          key={topicIndex}
+                          className="bg-slate-800/50 rounded-lg p-3 border border-slate-600"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-white">{topic.name}</h4>
+                            <Badge
+                              variant="outline"
+                              className="text-orange-300 border-orange-500/30"
+                            >
+                              {topic.time_limit}m
+                            </Badge>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          <p className="text-sm text-slate-400 mb-3">{topic.description}</p>
+
+                          {topic.subtopics && (
+                            <div className="space-y-2">
+                              {topic.subtopics.map((subtopic: any, subtopicIndex: number) => (
+                                <div key={subtopicIndex} className="bg-slate-700/50 rounded p-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-slate-300">{subtopic.name}</span>
+                                    {subtopic.time_limit && (
+                                      <span className="text-xs text-slate-500">
+                                        {subtopic.time_limit}m
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500 mt-1">
+                                    {subtopic.description}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </CardContent>
           </Card>
 
@@ -502,7 +551,10 @@ export default function InterviewConfigurationResults() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {characters.map((character: any, index: number) => (
-                  <div key={character.character_id} className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg p-4 border border-slate-600">
+                  <div
+                    key={character.character_id}
+                    className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-lg p-4 border border-slate-600"
+                  >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center">
                         <User className="w-5 h-5 text-white" />
@@ -512,9 +564,9 @@ export default function InterviewConfigurationResults() {
                         <p className="text-sm text-purple-300">{character.role}</p>
                       </div>
                     </div>
-                    
+
                     <p className="text-sm text-slate-300 mb-3">{character.objective}</p>
-                    
+
                     <Badge variant="outline" className="text-xs text-slate-400 border-slate-500">
                       {character.interview_round_part_of.replace('_', ' ')}
                     </Badge>
@@ -537,28 +589,40 @@ export default function InterviewConfigurationResults() {
                 <label className="text-sm font-medium text-slate-300 mb-2 block">Scenario</label>
                 {editingMode ? (
                   <Textarea
-                                    value={interviewData.activity_details?.scenario || ''}
-                onChange={(e) => updateField('simulation_config.interview_data.activity_details.scenario', e.target.value)}
+                    value={interviewData.activity_details?.scenario || ''}
+                    onChange={(e) =>
+                      updateField(
+                        'simulation_config.interview_data.activity_details.scenario',
+                        e.target.value
+                      )
+                    }
                     className="min-h-[80px] bg-slate-800 border-slate-600 text-white"
                   />
                 ) : (
                   <div className="p-3 bg-slate-800 border border-slate-600 rounded-lg text-white">
-                    {interviewData.activity_details?.scenario || 'Activity scenario will appear here...'}
+                    {interviewData.activity_details?.scenario ||
+                      'Activity scenario will appear here...'}
                   </div>
                 )}
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-slate-300 mb-2 block">Task</label>
                 {editingMode ? (
                   <Textarea
-                                    value={interviewData.activity_details?.task_for_the_candidate || ''}
-                onChange={(e) => updateField('simulation_config.interview_data.activity_details.task_for_the_candidate', e.target.value)}
+                    value={interviewData.activity_details?.task_for_the_candidate || ''}
+                    onChange={(e) =>
+                      updateField(
+                        'simulation_config.interview_data.activity_details.task_for_the_candidate',
+                        e.target.value
+                      )
+                    }
                     className="min-h-[80px] bg-slate-800 border-slate-600 text-white"
                   />
                 ) : (
                   <div className="p-3 bg-slate-800 border border-slate-600 rounded-lg text-white">
-                    {interviewData.activity_details?.task_for_the_candidate || 'Task description will appear here...'}
+                    {interviewData.activity_details?.task_for_the_candidate ||
+                      'Task description will appear here...'}
                   </div>
                 )}
               </div>
@@ -576,7 +640,9 @@ export default function InterviewConfigurationResults() {
             <CardContent className="space-y-4">
               {/* Prominent Invitation Code Display */}
               <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-500/50 rounded-lg p-6 text-center">
-                <label className="text-sm font-medium text-blue-300 mb-3 block uppercase tracking-wide">Interview Code</label>
+                <label className="text-sm font-medium text-blue-300 mb-3 block uppercase tracking-wide">
+                  Interview Code
+                </label>
                 <div className="text-5xl font-bold text-white tracking-widest mb-4 font-mono">
                   {config.invitation_code || 'N/A'}
                 </div>
@@ -597,7 +663,9 @@ export default function InterviewConfigurationResults() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">Configuration ID</label>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">
+                  Configuration ID
+                </label>
                 <div className="flex gap-2">
                   <Input
                     value={config.configuration_id || 'No ID available'}
@@ -619,10 +687,16 @@ export default function InterviewConfigurationResults() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">Direct Interview Link</label>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">
+                  Direct Interview Link
+                </label>
                 <div className="flex gap-2">
                   <Input
-                    value={config.configuration_id ? `${window.location.origin}/interview?config_id=${config.configuration_id}` : 'No link available'}
+                    value={
+                      config.configuration_id
+                        ? `${window.location.origin}/interview?config_id=${config.configuration_id}`
+                        : 'No link available'
+                    }
                     readOnly
                     className="bg-slate-700 border-slate-600 text-white text-sm"
                   />
@@ -674,7 +748,8 @@ export default function InterviewConfigurationResults() {
             </div>
 
             <div className="text-sm text-slate-400">
-              Your interview configuration is ready! Start the interview or share the link with candidates.
+              Your interview configuration is ready! Start the interview or share the link with
+              candidates.
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { VideoParticipant } from './VideoParticipant';
 import { ChatPanel } from './ChatPanel';
 import { Header } from './Header';
@@ -7,7 +7,7 @@ import { Mic, MicOff } from 'lucide-react';
 import { Message } from '@/lib/types';
 import { PanelData } from '@/lib/common';
 import { useInterview } from '@/contexts/InterviewContext';
-import webSocketService from "@/lib/websocketService";
+import webSocketService from '@/lib/websocketService';
 import { WebSocketMessageTypeToServer } from '@/lib/common';
 import { useUser } from '@/contexts/UserContext';
 import { useCamera } from '@/contexts/CameraContext';
@@ -31,7 +31,7 @@ export function LiveCodingLayout({
   onBackToInterview,
   elapsedTime,
   timeRemaining,
-  starterCode
+  starterCode,
 }: LiveCodingLayoutProps) {
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
@@ -40,7 +40,7 @@ export function LiveCodingLayout({
   const { user } = useUser();
   const userIdentifier = user?.id || (user as any)?.email || '';
   const { startStream, isStreamActive, isMicrophoneMuted, toggleMicrophone } = useCamera();
-  
+
   // Add ref to track if timer has been started
   const timerStartedRef = useRef(false);
 
@@ -55,7 +55,7 @@ export function LiveCodingLayout({
   // Start live coding timer when component mounts
   useEffect(() => {
     if (!timerStartedRef.current) {
-      console.log("Starting live coding timer");
+      console.log('Starting live coding timer');
       timerStartedRef.current = true;
       // The timer is already running in the context, we just need to ensure it's visible
       actions.toggleLiveCodingTimer();
@@ -65,17 +65,17 @@ export function LiveCodingLayout({
   // Ensure camera is active for live coding
   useEffect(() => {
     if (user && !isStreamActive()) {
-      console.log("Starting camera stream for live coding...");
+      console.log('Starting camera stream for live coding...');
       startStream();
     } else if (user && isStreamActive()) {
-      console.log("Camera stream already active for live coding");
+      console.log('Camera stream already active for live coding');
     }
   }, [user, startStream, isStreamActive]);
 
   // Freeze code editor when time runs out
   useEffect(() => {
     if (state.liveCodingTimeRemaining <= 0) {
-      console.log("Time ran out - freezing code editor");
+      console.log('Time ran out - freezing code editor');
       setIsCodeEditorFrozen(true);
       // Stop the timer by ending the interview
       //actions.endInterview();
@@ -88,16 +88,20 @@ export function LiveCodingLayout({
   useEffect(() => {
     const interval = setInterval(() => {
       if (state.isLiveCoding && userIdentifier && !isCodeEditorFrozen) {
-        webSocketService.sendMessage(userIdentifier, WebSocketMessageTypeToServer.DONE_PROBLEM_SOLVING, {message: "", activity_data: state.candidateCode});
+        webSocketService.sendMessage(
+          userIdentifier,
+          WebSocketMessageTypeToServer.DONE_PROBLEM_SOLVING,
+          { message: '', activity_data: state.candidateCode }
+        );
       }
     }, 60000);
-    
+
     return () => clearInterval(interval);
   }, [state.isLiveCoding, state.candidateCode, user, isCodeEditorFrozen]);
 
   // Handle Done button click
   const handleDoneClick = () => {
-    console.log("User clicked Done - freezing code editor");
+    console.log('User clicked Done - freezing code editor');
     setIsCodeEditorFrozen(true);
     // Stop the timer
     actions.stopTimer();
@@ -107,9 +111,9 @@ export function LiveCodingLayout({
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       {/* Header */}
-      <Header 
-        title={interviewData?.company || "HopeLoom" } 
-        interviewType={interviewData?.role || "ML Engineer"}
+      <Header
+        title={interviewData?.company || 'HopeLoom'}
+        interviewType={interviewData?.role || 'ML Engineer'}
         elapsedTime={elapsedTime}
         onEndInterview={OnEndInterview}
         isTimerVisible={true}
@@ -147,11 +151,11 @@ export function LiveCodingLayout({
                 </div>
               )}
             </div>
-            <div className={`px-4 py-2 rounded-lg font-medium text-sm text-white shadow-lg ${
-              isCodeEditorFrozen 
-                ? 'bg-gray-600' 
-                : 'bg-gradient-to-r from-red-600 to-red-500'
-            }`}>
+            <div
+              className={`px-4 py-2 rounded-lg font-medium text-sm text-white shadow-lg ${
+                isCodeEditorFrozen ? 'bg-gray-600' : 'bg-gradient-to-r from-red-600 to-red-500'
+              }`}
+            >
               {isCodeEditorFrozen ? 'Time Up' : `Time Remaining: ${timeRemaining}`}
             </div>
           </div>
@@ -161,17 +165,19 @@ export function LiveCodingLayout({
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium text-slate-300">Code Editor</span>
               <div className="flex items-center space-x-2 text-xs text-slate-400">
-                <div className={`w-2 h-2 rounded-full ${isCodeEditorFrozen ? 'bg-gray-400' : 'bg-green-400'}`}></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${isCodeEditorFrozen ? 'bg-gray-400' : 'bg-green-400'}`}
+                ></div>
                 <span>Python</span>
                 {isCodeEditorFrozen && <span className="text-yellow-400">• Frozen</span>}
               </div>
             </div>
-            
-            <div className={`flex-1 rounded-xl border overflow-hidden shadow-2xl bg-slate-800/50 backdrop-blur-sm min-h-0 ${
-              isCodeEditorFrozen 
-                ? 'border-yellow-500/30 bg-slate-800/70' 
-                : 'border-slate-600/50'
-            }`}>
+
+            <div
+              className={`flex-1 rounded-xl border overflow-hidden shadow-2xl bg-slate-800/50 backdrop-blur-sm min-h-0 ${
+                isCodeEditorFrozen ? 'border-yellow-500/30 bg-slate-800/70' : 'border-slate-600/50'
+              }`}
+            >
               <textarea
                 value={code}
                 onChange={(e) => {
@@ -180,36 +186,39 @@ export function LiveCodingLayout({
                   }
                 }}
                 className={`w-full h-full bg-transparent p-6 font-mono text-sm focus:outline-none resize-none border-0 leading-relaxed ${
-                  isCodeEditorFrozen 
-                    ? 'text-slate-400 cursor-not-allowed' 
-                    : 'text-slate-100'
+                  isCodeEditorFrozen ? 'text-slate-400 cursor-not-allowed' : 'text-slate-100'
                 }`}
                 spellCheck="false"
                 disabled={isCodeEditorFrozen}
-                style={{ 
-                  fontFamily: '"JetBrains Mono", "Fira Code", Monaco, Menlo, "Ubuntu Mono", monospace',
-                  lineHeight: '1.6'
+                style={{
+                  fontFamily:
+                    '"JetBrains Mono", "Fira Code", Monaco, Menlo, "Ubuntu Mono", monospace',
+                  lineHeight: '1.6',
                 }}
-                placeholder={isCodeEditorFrozen ? "Code editor is frozen" : "Start coding here..."}
+                placeholder={isCodeEditorFrozen ? 'Code editor is frozen' : 'Start coding here...'}
               />
             </div>
           </div>
 
           {/* Bottom Controls - Moved lower with more spacing */}
           <div className="flex justify-center space-x-4 pb-4">
-            <Button 
+            <Button
               variant="outline"
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                isMicrophoneMuted 
-                  ? 'bg-red-600 border-red-500 text-white hover:bg-red-700 shadow-lg shadow-red-600/25' 
+                isMicrophoneMuted
+                  ? 'bg-red-600 border-red-500 text-white hover:bg-red-700 shadow-lg shadow-red-600/25'
                   : 'bg-green-600 border-green-500 text-white hover:bg-green-700 shadow-lg shadow-green-600/25'
               }`}
               onClick={toggleMicrophone}
             >
-              {isMicrophoneMuted ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
+              {isMicrophoneMuted ? (
+                <MicOff className="w-4 h-4 mr-2" />
+              ) : (
+                <Mic className="w-4 h-4 mr-2" />
+              )}
               {isMicrophoneMuted ? 'Unmute' : 'Mute'}
             </Button>
-            <Button 
+            <Button
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg ${
                 isCodeEditorFrozen
                   ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
@@ -224,11 +233,7 @@ export function LiveCodingLayout({
         </div>
 
         {/* Chat Panel - Fixed to match InterviewLayout structure */}
-        <ChatPanel 
-          messages={messages} 
-          participants={participants}
-          onSendMessage={onSendMessage}
-        />
+        <ChatPanel messages={messages} participants={participants} onSendMessage={onSendMessage} />
       </div>
     </div>
   );

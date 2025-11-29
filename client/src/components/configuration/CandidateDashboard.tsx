@@ -6,9 +6,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Search, Filter, Eye, Edit, Trash2, User, Briefcase, Calendar, MapPin, Target, BookOpen, Play, History, Settings, KeyRound } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  User,
+  Briefcase,
+  Calendar,
+  MapPin,
+  Target,
+  BookOpen,
+  Play,
+  History,
+  Settings,
+  KeyRound,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCompanyCandidate } from '@/contexts/CompanyCandidateContext';
 import { useLocation } from 'wouter';
@@ -24,7 +53,7 @@ const CandidateDashboard: React.FC = () => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showSkillEdit, setShowSkillEdit] = useState(false);
   const [showJoinByCodeDialog, setShowJoinByCodeDialog] = useState(false);
-  
+
   const [practiceSessions, setPracticeSessions] = useState<PracticeSession[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
 
@@ -35,13 +64,13 @@ const CandidateDashboard: React.FC = () => {
     location: '',
     linkedinUrl: '',
     githubUrl: '',
-    portfolioUrl: ''
+    portfolioUrl: '',
   });
 
   const [skillForm, setSkillForm] = useState({
     name: '',
     level: 'beginner' as const,
-    category: 'technical' as const
+    category: 'technical' as const,
   });
 
   useEffect(() => {
@@ -53,7 +82,7 @@ const CandidateDashboard: React.FC = () => {
         location: user.candidateDetails.location || '',
         linkedinUrl: user.candidateDetails.linkedinUrl || '',
         githubUrl: user.candidateDetails.githubUrl || '',
-        portfolioUrl: user.candidateDetails.portfolioUrl || ''
+        portfolioUrl: user.candidateDetails.portfolioUrl || '',
       });
 
       // Load practice sessions and skills from service
@@ -61,20 +90,20 @@ const CandidateDashboard: React.FC = () => {
         try {
           const [sessions, userSkills] = await Promise.all([
             CandidateService.getPracticeSessions(user.id),
-            CandidateService.getSkills(user.id)
+            CandidateService.getSkills(user.id),
           ]);
           const normalizedSessions = sessions.map((session) => ({
             ...session,
-            completedAt: session.completedAt ? new Date(session.completedAt) : session.completedAt
+            completedAt: session.completedAt ? new Date(session.completedAt) : session.completedAt,
           }));
           setPracticeSessions(normalizedSessions);
           setSkills(userSkills);
         } catch (error) {
           console.error('Failed to load candidate data:', error);
           toast({
-            title: "Error",
-            description: "Failed to load your data. Please try again.",
-            variant: "destructive"
+            title: 'Error',
+            description: 'Failed to load your data. Please try again.',
+            variant: 'destructive',
           });
         }
       };
@@ -93,7 +122,7 @@ const CandidateDashboard: React.FC = () => {
           location: profileForm.location,
           linkedin_url: profileForm.linkedinUrl,
           github_url: profileForm.githubUrl,
-          portfolio_url: profileForm.portfolioUrl
+          portfolio_url: profileForm.portfolioUrl,
         });
 
         updateProfile({
@@ -104,21 +133,21 @@ const CandidateDashboard: React.FC = () => {
             location: profileForm.location,
             linkedinUrl: profileForm.linkedinUrl,
             githubUrl: profileForm.githubUrl,
-            portfolioUrl: profileForm.portfolioUrl
-          }
+            portfolioUrl: profileForm.portfolioUrl,
+          },
         });
-        
+
         toast({
-          title: "Profile Updated",
-          description: "Your profile has been updated successfully",
+          title: 'Profile Updated',
+          description: 'Your profile has been updated successfully',
         });
         setShowProfileEdit(false);
       } catch (error) {
         console.error('Failed to update profile:', error);
         toast({
-          title: "Update Failed",
+          title: 'Update Failed',
           description: "We couldn't update your profile. Please try again.",
-          variant: "destructive"
+          variant: 'destructive',
         });
       }
     }
@@ -129,9 +158,9 @@ const CandidateDashboard: React.FC = () => {
       setSkills([...skills, { ...skillForm, name: skillForm.name.trim() }]);
       setSkillForm({ name: '', level: 'beginner', category: 'technical' });
       setShowSkillEdit(false);
-      
+
       toast({
-        title: "Skill Added",
+        title: 'Skill Added',
         description: `${skillForm.name} has been added to your skills`,
       });
     }
@@ -148,19 +177,27 @@ const CandidateDashboard: React.FC = () => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'scheduled': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'in-progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'scheduled':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -222,7 +259,7 @@ const CandidateDashboard: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Completed</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {practiceSessions.filter(s => s.status === 'completed').length}
+                    {practiceSessions.filter((s) => s.status === 'completed').length}
                   </p>
                 </div>
               </div>
@@ -252,10 +289,14 @@ const CandidateDashboard: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Avg Score</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {practiceSessions.filter(s => s.score).length > 0 
-                      ? Math.round(practiceSessions.filter(s => s.score).reduce((acc, s) => acc + (s.score || 0), 0) / practiceSessions.filter(s => s.score).length)
-                      : 'N/A'
-                    }
+                    {practiceSessions.filter((s) => s.score).length > 0
+                      ? Math.round(
+                          practiceSessions
+                            .filter((s) => s.score)
+                            .reduce((acc, s) => acc + (s.score || 0), 0) /
+                            practiceSessions.filter((s) => s.score).length
+                        )
+                      : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -286,7 +327,10 @@ const CandidateDashboard: React.FC = () => {
                 <CardContent>
                   <div className="space-y-3">
                     {practiceSessions.slice(0, 3).map((session) => (
-                      <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={session.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
                         <div>
                           <p className="font-medium text-gray-900">{session.title}</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -322,14 +366,12 @@ const CandidateDashboard: React.FC = () => {
                     {skills.slice(0, 5).map((skill, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <span className="font-medium text-gray-900">{skill.name}</span>
-                        <Badge className={getDifficultyColor(skill.level)}>
-                          {skill.level}
-                        </Badge>
+                        <Badge className={getDifficultyColor(skill.level)}>{skill.level}</Badge>
                       </div>
                     ))}
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full mt-4"
                     onClick={() => setShowSkillEdit(true)}
                   >
@@ -362,9 +404,7 @@ const CandidateDashboard: React.FC = () => {
                             <Badge className={getStatusColor(session.status)}>
                               {session.status}
                             </Badge>
-                            <span className="text-sm text-gray-500">
-                              {session.duration} min
-                            </span>
+                            <span className="text-sm text-gray-500">{session.duration} min</span>
                           </div>
                           {session.score && (
                             <p className="text-sm text-gray-600 mt-1">
@@ -374,9 +414,7 @@ const CandidateDashboard: React.FC = () => {
                         </div>
                         <div className="flex gap-2">
                           {session.status === 'in-progress' && (
-                            <Button onClick={() => continuePractice(session.id)}>
-                              Continue
-                            </Button>
+                            <Button onClick={() => continuePractice(session.id)}>Continue</Button>
                           )}
                           {session.status === 'completed' && (
                             <Button variant="outline">
@@ -409,9 +447,7 @@ const CandidateDashboard: React.FC = () => {
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold">{skill.name}</h3>
-                        <Badge className={getDifficultyColor(skill.level)}>
-                          {skill.level}
-                        </Badge>
+                        <Badge className={getDifficultyColor(skill.level)}>{skill.level}</Badge>
                       </div>
                       <p className="text-sm text-gray-600 capitalize">{skill.category}</p>
                     </div>
@@ -453,28 +489,38 @@ const CandidateDashboard: React.FC = () => {
                     <Label>LinkedIn</Label>
                     <p className="text-gray-900 font-medium">
                       {user.candidateDetails.linkedinUrl ? (
-                        <a href={user.candidateDetails.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a
+                          href={user.candidateDetails.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
                           View Profile
                         </a>
-                      ) : 'Not provided'}
+                      ) : (
+                        'Not provided'
+                      )}
                     </p>
                   </div>
                   <div>
                     <Label>GitHub</Label>
                     <p className="text-gray-900 font-medium">
                       {user.candidateDetails.githubUrl ? (
-                        <a href={user.candidateDetails.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a
+                          href={user.candidateDetails.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
                           View Profile
                         </a>
-                      ) : 'Not provided'}
+                      ) : (
+                        'Not provided'
+                      )}
                     </p>
                   </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setShowProfileEdit(true)}
-                >
+                <Button variant="outline" className="mt-4" onClick={() => setShowProfileEdit(true)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
@@ -553,9 +599,7 @@ const CandidateDashboard: React.FC = () => {
             <Button variant="outline" onClick={() => setShowProfileEdit(false)}>
               Cancel
             </Button>
-            <Button onClick={handleProfileUpdate}>
-              Save Changes
-            </Button>
+            <Button onClick={handleProfileUpdate}>Save Changes</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -578,7 +622,10 @@ const CandidateDashboard: React.FC = () => {
             </div>
             <div>
               <Label htmlFor="skillLevel">Proficiency Level</Label>
-              <Select value={skillForm.level} onValueChange={(value: any) => setSkillForm({ ...skillForm, level: value })}>
+              <Select
+                value={skillForm.level}
+                onValueChange={(value: any) => setSkillForm({ ...skillForm, level: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -592,7 +639,10 @@ const CandidateDashboard: React.FC = () => {
             </div>
             <div>
               <Label htmlFor="skillCategory">Category</Label>
-              <Select value={skillForm.category} onValueChange={(value: any) => setSkillForm({ ...skillForm, category: value })}>
+              <Select
+                value={skillForm.category}
+                onValueChange={(value: any) => setSkillForm({ ...skillForm, category: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -608,18 +658,13 @@ const CandidateDashboard: React.FC = () => {
             <Button variant="outline" onClick={() => setShowSkillEdit(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddSkill}>
-              Add Skill
-            </Button>
+            <Button onClick={handleAddSkill}>Add Skill</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Join by Code Dialog */}
-      <JoinByCodeDialog
-        open={showJoinByCodeDialog}
-        onOpenChange={setShowJoinByCodeDialog}
-      />
+      <JoinByCodeDialog open={showJoinByCodeDialog} onOpenChange={setShowJoinByCodeDialog} />
     </div>
   );
 };

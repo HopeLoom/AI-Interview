@@ -4,9 +4,9 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface ExitConfirmationDialogProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ interface ExitConfirmationDialogProps {
 export function ExitConfirmationDialog({
   isOpen,
   onClose,
-  onConfirm
+  onConfirm,
 }: ExitConfirmationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

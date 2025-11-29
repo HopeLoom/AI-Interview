@@ -1,21 +1,21 @@
-import { useState, useRef, useEffect } from "react";
-import { Message, Participant } from "@/lib/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Paperclip, Image, SmilePlus, Send, Save } from "lucide-react";
-import { format } from "date-fns";
-import { useUser } from "@/contexts/UserContext";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogFooter, 
-  DialogHeader, 
+import { useState, useRef, useEffect } from 'react';
+import { Message, Participant } from '@/lib/types';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Paperclip, Image, SmilePlus, Send, Save } from 'lucide-react';
+import { format } from 'date-fns';
+import { useUser } from '@/contexts/UserContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface ChatPanelProps {
   messages: Message[];
@@ -25,35 +25,35 @@ interface ChatPanelProps {
   onNoteDialogOpenChange?: (open: boolean) => void;
 }
 
-export function ChatPanel({ 
-  messages, 
-  participants, 
+export function ChatPanel({
+  messages,
+  participants,
   onSendMessage,
   isNoteDialogOpenExternal,
-  onNoteDialogOpenChange
+  onNoteDialogOpenChange,
 }: ChatPanelProps) {
-  const [input, setInput] = useState("");
-  const [noteInput, setNoteInput] = useState("");
+  const [input, setInput] = useState('');
+  const [noteInput, setNoteInput] = useState('');
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [notes, setNotes] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState("chat"); // Add missing state
+  const [activeTab, setActiveTab] = useState('chat'); // Add missing state
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
-  
+
   // Add debugging for messages
-  console.log("ChatPanel - messages received:", messages);
-  console.log("ChatPanel - participants received:", participants);
-  
+  console.log('ChatPanel - messages received:', messages);
+  console.log('ChatPanel - participants received:', participants);
+
   const handleSendMessage = () => {
     if (input.trim()) {
-      onSendMessage(input, user?.id || "", user?.name || "");
-      setInput("");
+      onSendMessage(input, user?.id || '', user?.name || '');
+      setInput('');
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -61,12 +61,12 @@ export function ChatPanel({
 
   // Auto-scroll to bottom when new messages are added
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Remove or comment out the auto-scroll effect for now
   useEffect(() => {
-    console.log("ChatPanel - messages changed, scrolling to bottom");
+    console.log('ChatPanel - messages changed, scrolling to bottom');
     scrollToBottom();
   }, [messages]);
 
@@ -76,7 +76,7 @@ export function ChatPanel({
       setIsNoteDialogOpen(isNoteDialogOpenExternal);
     }
   }, [isNoteDialogOpenExternal]);
-  
+
   // Notify parent component when internal note dialog state changes
   useEffect(() => {
     if (onNoteDialogOpenChange) {
@@ -85,21 +85,24 @@ export function ChatPanel({
   }, [isNoteDialogOpen, onNoteDialogOpenChange]);
 
   const getParticipantById = (id: string) => {
-    return participants.find(p => p.id === id);
+    return participants.find((p) => p.id === id);
   };
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('');
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('');
   };
-  
+
   const handleCreateNote = () => {
     setIsNoteDialogOpen(true);
   };
-  
+
   const handleSaveNote = () => {
     if (noteInput.trim()) {
       setNotes([...notes, noteInput]);
-      setNoteInput("");
+      setNoteInput('');
       setIsNoteDialogOpen(false);
     }
   };
@@ -110,20 +113,20 @@ export function ChatPanel({
       <div className="bg-slate-700 border-b border-slate-600 px-4 py-3">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-slate-600">
-            <TabsTrigger 
-              value="chat" 
+            <TabsTrigger
+              value="chat"
               className="data-[state=active]:bg-slate-500 data-[state=active]:text-slate-100 text-slate-300"
             >
               Chat
             </TabsTrigger>
-            <TabsTrigger 
-              value="transcript" 
+            <TabsTrigger
+              value="transcript"
               className="data-[state=active]:bg-slate-500 data-[state=active]:text-slate-100 text-slate-300"
             >
               Transcript
             </TabsTrigger>
-            <TabsTrigger 
-              value="notes" 
+            <TabsTrigger
+              value="notes"
               className="data-[state=active]:bg-slate-500 data-[state=active]:text-slate-100 text-slate-300"
             >
               Notes
@@ -141,48 +144,51 @@ export function ChatPanel({
               {messages.map((message, index) => {
                 const participant = getParticipantById(message.senderId);
                 const isOwnMessage = message.senderId === user?.id;
-                
+
                 return (
                   <div
                     key={index}
                     className={cn(
-                      "flex items-start space-x-3",
-                      isOwnMessage ? "flex-row-reverse space-x-reverse" : ""
+                      'flex items-start space-x-3',
+                      isOwnMessage ? 'flex-row-reverse space-x-reverse' : ''
                     )}
                   >
                     {/* Avatar */}
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-white flex-shrink-0",
-                      isOwnMessage ? "bg-blue-500" : "bg-slate-600"
-                    )}>
+                    <div
+                      className={cn(
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-white flex-shrink-0',
+                        isOwnMessage ? 'bg-blue-500' : 'bg-slate-600'
+                      )}
+                    >
                       {participant?.avatar ? (
-                        <img 
-                          src={participant.avatar} 
-                          alt={participant.name} 
+                        <img
+                          src={participant.avatar}
+                          alt={participant.name}
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        getInitials(participant?.name || "Unknown")
+                        getInitials(participant?.name || 'Unknown')
                       )}
                     </div>
-                    
+
                     {/* Message */}
-                    <div className={cn(
-                      "flex-1 max-w-[80%]",
-                      isOwnMessage ? "text-right" : ""
-                    )}>
-                      <div className={cn(
-                        "rounded-lg px-3 py-2",
-                        isOwnMessage 
-                          ? "bg-blue-500 text-white ml-auto" 
-                          : "bg-slate-700 text-slate-100"
-                      )}>
+                    <div className={cn('flex-1 max-w-[80%]', isOwnMessage ? 'text-right' : '')}>
+                      <div
+                        className={cn(
+                          'rounded-lg px-3 py-2',
+                          isOwnMessage
+                            ? 'bg-blue-500 text-white ml-auto'
+                            : 'bg-slate-700 text-slate-100'
+                        )}
+                      >
                         <p className="text-sm">{message.content}</p>
                       </div>
-                      <div className={cn(
-                        "text-xs text-slate-400 mt-1",
-                        isOwnMessage ? "text-right" : ""
-                      )}>
+                      <div
+                        className={cn(
+                          'text-xs text-slate-400 mt-1',
+                          isOwnMessage ? 'text-right' : ''
+                        )}
+                      >
                         {format(new Date(message.timestamp), 'HH:mm')}
                       </div>
                     </div>
@@ -192,7 +198,7 @@ export function ChatPanel({
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
-          
+
           {/* Input */}
           <div className="p-4 border-t border-slate-600">
             <div className="flex space-x-2">
@@ -225,7 +231,7 @@ export function ChatPanel({
                   <div key={index} className="p-3 bg-slate-700 rounded-lg border border-slate-600">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-slate-200">
-                        {participant?.name || "Unknown"}
+                        {participant?.name || 'Unknown'}
                       </span>
                       <span className="text-xs text-slate-400">
                         {format(new Date(message.timestamp), 'HH:mm:ss')}
@@ -252,7 +258,7 @@ export function ChatPanel({
                 New Note
               </Button>
             </div>
-            
+
             <ScrollArea className="flex-1">
               <div className="space-y-3">
                 {notes.map((note, index) => (

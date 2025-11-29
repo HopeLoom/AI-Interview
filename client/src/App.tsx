@@ -1,6 +1,6 @@
-import { ModeAwareRouter } from "@/components/routing/ModeAwareRouter";
-import webSocketService from "@/lib/websocketService";
-import { useEffect } from "react";
+import { ModeAwareRouter } from '@/components/routing/ModeAwareRouter';
+import webSocketService from '@/lib/websocketService';
+import { useEffect } from 'react';
 
 function Router() {
   return <ModeAwareRouter />;
@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     // Initialize WebSocket connection when app starts
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-    console.log("apiBaseUrl", apiBaseUrl);
+    console.log('apiBaseUrl', apiBaseUrl);
 
     try {
       let resolvedBase = apiBaseUrl;

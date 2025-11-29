@@ -6,7 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, FileText, CheckCircle, AlertCircle, X, User, Building, FolderOpen, Files } from 'lucide-react';
+import {
+  Upload,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  X,
+  User,
+  Building,
+  FolderOpen,
+  Files,
+} from 'lucide-react';
 
 export function ResumeUploadStep() {
   const { state, actions } = useConfiguration();
@@ -23,9 +33,9 @@ export function ResumeUploadStep() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -34,7 +44,7 @@ export function ResumeUploadStep() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(Array.from(e.dataTransfer.files));
     }
@@ -52,18 +62,20 @@ export function ResumeUploadStep() {
 
     try {
       const validFiles: File[] = [];
-      
+
       // Validate each file
       for (const file of files) {
         const allowedTypes = [
           'application/pdf',
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'text/plain'
+          'text/plain',
         ];
-        
+
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`File ${file.name} is not a supported format. Please upload PDF, Word document, or text files only.`);
+          throw new Error(
+            `File ${file.name} is not a supported format. Please upload PDF, Word document, or text files only.`
+          );
         }
 
         if (file.size > 10 * 1024 * 1024) {
@@ -76,13 +88,12 @@ export function ResumeUploadStep() {
       // Add valid files to the list
       const newFileList = [...uploadedFiles, ...validFiles];
       setUploadedFiles(newFileList);
-      
+
       // Update resume data with file count and File objects
       actions.setResumeData({
         file_count: newFileList.length,
-        uploaded_files: newFileList // Store all File objects for backend upload
+        uploaded_files: newFileList, // Store all File objects for backend upload
       });
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to process files');
     } finally {
@@ -94,17 +105,17 @@ export function ResumeUploadStep() {
     const newFiles = [...uploadedFiles];
     const removedFile = newFiles.splice(index, 1)[0];
     setUploadedFiles(newFiles);
-    
+
     // Update resume data to reflect the new file list
     if (newFiles.length === 0) {
       actions.setResumeData({
         file_count: 0,
-        uploaded_files: []
+        uploaded_files: [],
       });
     } else {
       actions.setResumeData({
         file_count: newFiles.length,
-        uploaded_files: newFiles // Update with remaining File objects
+        uploaded_files: newFiles, // Update with remaining File objects
       });
     }
   };
@@ -117,20 +128,21 @@ export function ResumeUploadStep() {
     setUploadedFiles([]);
     actions.setResumeData({
       file_count: 0,
-      uploaded_files: []
+      uploaded_files: [],
     });
   };
 
   const getHeaderContent = () => {
     if (isCompany) {
       return {
-        title: "Upload Candidate Resumes",
-        description: "Upload candidate resumes to create personalized interview experiences. You can upload multiple files at once."
+        title: 'Upload Candidate Resumes',
+        description:
+          'Upload candidate resumes to create personalized interview experiences. You can upload multiple files at once.',
       };
     } else {
       return {
-        title: "Upload Your Resume",
-        description: "Upload your resume to help us create a personalized interview experience"
+        title: 'Upload Your Resume',
+        description: 'Upload your resume to help us create a personalized interview experience',
       };
     }
   };
@@ -138,24 +150,24 @@ export function ResumeUploadStep() {
   const getTipsContent = () => {
     if (isCompany) {
       return {
-        title: "Resume Upload Tips",
+        title: 'Resume Upload Tips',
         tips: [
-          "Upload multiple candidate resumes at once",
-          "Supported formats: PDF, Word documents, and text files",
-          "Maximum file size: 10MB per file",
-          "The AI will process all resumes to create targeted interview questions",
-          "You can review the uploaded files before proceeding"
-        ]
+          'Upload multiple candidate resumes at once',
+          'Supported formats: PDF, Word documents, and text files',
+          'Maximum file size: 10MB per file',
+          'The AI will process all resumes to create targeted interview questions',
+          'You can review the uploaded files before proceeding',
+        ],
       };
     } else {
       return {
-        title: "Resume Tips",
+        title: 'Resume Tips',
         tips: [
-          "Ensure your resume is up-to-date with your latest experience",
+          'Ensure your resume is up-to-date with your latest experience',
           "Include relevant skills and projects for the role you're practicing",
-          "Make sure contact information is current",
-          "The AI will use this to create a personalized interview experience"
-        ]
+          'Make sure contact information is current',
+          'The AI will use this to create a personalized interview experience',
+        ],
       };
     }
   };
@@ -177,18 +189,18 @@ export function ResumeUploadStep() {
               )}
               <h3 className="text-2xl font-bold text-white">{headerContent.title}</h3>
             </div>
-            <p className="text-slate-300">
-              {headerContent.description}
-            </p>
+            <p className="text-slate-300">{headerContent.description}</p>
           </div>
         </CardHeader>
       </Card>
 
       {/* File Upload Area */}
       {uploadedFiles.length === 0 && (
-        <Card className={`border-2 border-dashed transition-colors rounded-lg ${
-          dragActive ? 'border-blue-500 bg-blue-500/20' : 'border-slate-600 bg-slate-800/90'
-        }`}>
+        <Card
+          className={`border-2 border-dashed transition-colors rounded-lg ${
+            dragActive ? 'border-blue-500 bg-blue-500/20' : 'border-slate-600 bg-slate-800/90'
+          }`}
+        >
           <CardContent className="pt-6">
             <div
               className="text-center p-8"
@@ -197,17 +209,17 @@ export function ResumeUploadStep() {
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              <Upload className={`w-12 h-12 mx-auto mb-4 ${
-                dragActive ? 'text-blue-500' : 'text-slate-400'
-              }`} />
-              
+              <Upload
+                className={`w-12 h-12 mx-auto mb-4 ${
+                  dragActive ? 'text-blue-500' : 'text-slate-400'
+                }`}
+              />
+
               <h4 className="text-lg font-medium mb-2 text-white">
                 {isCompany ? 'Drop candidate resumes here' : 'Drop your resume here'}
               </h4>
-              <p className="text-slate-400 mb-4">
-                or click to browse files
-              </p>
-              
+              <p className="text-slate-400 mb-4">or click to browse files</p>
+
               <Button
                 onClick={openFileDialog}
                 variant="outline"
@@ -216,7 +228,7 @@ export function ResumeUploadStep() {
               >
                 {isCompany ? 'Select Resume Files' : 'Select Resume'}
               </Button>
-              
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -225,7 +237,7 @@ export function ResumeUploadStep() {
                 onChange={handleFileInput}
                 className="hidden"
               />
-              
+
               <div className="text-sm text-slate-500 mt-4">
                 <p>Supported formats: PDF, Word (.doc, .docx), Text (.txt)</p>
                 <p>Maximum size: 10MB per file</p>
@@ -247,7 +259,10 @@ export function ResumeUploadStep() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               {uploadedFiles.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-600">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-600"
+                >
                   <div className="flex items-center space-x-3">
                     <FileText className="w-6 h-6 text-blue-400" />
                     <div>
@@ -268,16 +283,17 @@ export function ResumeUploadStep() {
                 </div>
               ))}
             </div>
-            
+
             {isCompany && (
               <div className="mt-4 p-4 bg-blue-500/20 rounded-lg border border-blue-500/30">
                 <p className="text-sm text-blue-200">
-                  <strong>Note:</strong> {uploadedFiles.length} resume{uploadedFiles.length !== 1 ? 's' : ''} uploaded. 
-                  These will be processed by our AI to create targeted interview questions for each candidate.
+                  <strong>Note:</strong> {uploadedFiles.length} resume
+                  {uploadedFiles.length !== 1 ? 's' : ''} uploaded. These will be processed by our
+                  AI to create targeted interview questions for each candidate.
                 </p>
               </div>
             )}
-            
+
             <div className="mt-4 flex space-x-3">
               <Button
                 onClick={openFileDialog}

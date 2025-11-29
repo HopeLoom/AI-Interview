@@ -6,19 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  Clock, 
-  Users, 
-  Code, 
-  Building, 
+import {
+  CheckCircle,
+  Clock,
+  Users,
+  Code,
+  Building,
   Briefcase,
   MessageSquare,
   AlertCircle,
   Download,
   Play,
   FileText,
-  Target
+  Target,
 } from 'lucide-react';
 
 export function ReviewAndGenerateStep() {
@@ -32,7 +32,8 @@ export function ReviewAndGenerateStep() {
     actions.validateConfiguration();
   }, []);
 
-  const { currentConfig, generatedConfig, isGenerating, generationProgress, generationStep } = state;
+  const { currentConfig, generatedConfig, isGenerating, generationProgress, generationStep } =
+    state;
   const isCompany = user?.userType === 'company';
 
   // Parse job description for company mode
@@ -44,15 +45,18 @@ export function ReviewAndGenerateStep() {
 
   const parseJobDescription = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/configurations/parse-job-description`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          job_description: currentConfig.job_details.job_description
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/configurations/parse-job-description`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            job_description: currentConfig.job_details.job_description,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -63,8 +67,6 @@ export function ReviewAndGenerateStep() {
     }
   };
 
-
-
   const handleStartInterview = () => {
     // Navigate to interview - this would be implemented based on your routing
     console.log('Starting interview with configuration:', generatedConfig);
@@ -72,12 +74,12 @@ export function ReviewAndGenerateStep() {
 
   const downloadConfiguration = () => {
     if (!generatedConfig?.simulation_config) return;
-    
+
     const dataStr = JSON.stringify(generatedConfig.simulation_config, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
     const exportFileDefaultName = `interview-config-${Date.now()}.json`;
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
@@ -99,7 +101,8 @@ export function ReviewAndGenerateStep() {
                   Configuration Generated Successfully!
                 </h3>
                 <p className="text-green-200">
-                  Your interview setup is ready. You can now start the interview or download the configuration.
+                  Your interview setup is ready. You can now start the interview or download the
+                  configuration.
                 </p>
               </div>
             </div>
@@ -107,7 +110,6 @@ export function ReviewAndGenerateStep() {
         </Card>
 
         {/* Configuration Summary */}
-
 
         {/* Action Buttons */}
         <div className="flex gap-4">
@@ -174,10 +176,9 @@ export function ReviewAndGenerateStep() {
         </CardHeader>
         <CardContent>
           <p className="text-slate-300">
-            {isCompany 
-              ? "Review your job details and candidate resumes before generating the interview configuration."
-              : "Review your interview configuration before starting the practice session."
-            }
+            {isCompany
+              ? 'Review your job details and candidate resumes before generating the interview configuration.'
+              : 'Review your interview configuration before starting the practice session.'}
           </p>
         </CardContent>
       </Card>
@@ -195,15 +196,24 @@ export function ReviewAndGenerateStep() {
               <h4 className="font-medium text-white">Job Details</h4>
             </div>
             <div className="pl-6 space-y-2 text-sm text-slate-200">
-              <div><strong>Input Method:</strong> {currentConfig.job_details.input_type.toUpperCase()}</div>
+              <div>
+                <strong>Input Method:</strong> {currentConfig.job_details.input_type.toUpperCase()}
+              </div>
               {currentConfig.job_details.source_filename && (
-                <div><strong>Source File:</strong> {currentConfig.job_details.source_filename}</div>
+                <div>
+                  <strong>Source File:</strong> {currentConfig.job_details.source_filename}
+                </div>
               )}
               {currentConfig.job_details.source_url && (
-                <div><strong>Source URL:</strong> {currentConfig.job_details.source_url}</div>
+                <div>
+                  <strong>Source URL:</strong> {currentConfig.job_details.source_url}
+                </div>
               )}
               {currentConfig.job_details.job_description && (
-                <div><strong>Description Preview:</strong> {currentConfig.job_details.job_description.slice(0, 150)}...</div>
+                <div>
+                  <strong>Description Preview:</strong>{' '}
+                  {currentConfig.job_details.job_description.slice(0, 150)}...
+                </div>
               )}
             </div>
           </div>
@@ -218,7 +228,7 @@ export function ReviewAndGenerateStep() {
               <div className="pl-6 space-y-2 text-sm text-slate-200">
                 {jobAnalysis.skills && (
                   <div>
-                    <strong>Key Skills:</strong> 
+                    <strong>Key Skills:</strong>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {jobAnalysis.skills.slice(0, 8).map((skill: string, index: number) => (
                         <Badge key={index} variant="secondary" className="text-xs">
@@ -229,16 +239,18 @@ export function ReviewAndGenerateStep() {
                   </div>
                 )}
                 {jobAnalysis.difficulty && (
-                  <div><strong>Difficulty Level:</strong> {jobAnalysis.difficulty}</div>
+                  <div>
+                    <strong>Difficulty Level:</strong> {jobAnalysis.difficulty}
+                  </div>
                 )}
                 {jobAnalysis.estimated_duration && (
-                  <div><strong>Estimated Duration:</strong> {jobAnalysis.estimated_duration} minutes</div>
+                  <div>
+                    <strong>Estimated Duration:</strong> {jobAnalysis.estimated_duration} minutes
+                  </div>
                 )}
               </div>
             </div>
           )}
-
-
 
           {/* Resume Information */}
           {currentConfig.resume_data && (
@@ -248,9 +260,13 @@ export function ReviewAndGenerateStep() {
                 <h4 className="font-medium text-white">Candidate Resumes</h4>
               </div>
               <div className="pl-6 text-sm text-slate-200">
-                <div><strong>Total Files:</strong> {currentConfig.resume_data.file_count} resume{currentConfig.resume_data.file_count !== 1 ? 's' : ''}</div>
+                <div>
+                  <strong>Total Files:</strong> {currentConfig.resume_data.file_count} resume
+                  {currentConfig.resume_data.file_count !== 1 ? 's' : ''}
+                </div>
                 <div className="text-xs text-slate-400 mt-1">
-                  These resumes will be processed by our AI to create targeted interview questions for each candidate.
+                  These resumes will be processed by our AI to create targeted interview questions
+                  for each candidate.
                 </div>
               </div>
             </div>
@@ -275,8 +291,6 @@ export function ReviewAndGenerateStep() {
           </div>
         </CardContent>
       </Card>
-
-
 
       {/* Validation Errors */}
       {state.validationErrors.length > 0 && (

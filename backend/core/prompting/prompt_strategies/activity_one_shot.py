@@ -165,7 +165,6 @@ Output consists of the following:
         starter_code = prompt_input.starter_code
         code_data_from_candidate = prompt_input.activity_code_from_candidate
 
-
         code_intrepretation_with_respect_to_question = (
             activity_progress_with_respect_to_question.code_intrepretation_with_respect_to_question
         )

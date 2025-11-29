@@ -887,11 +887,14 @@ class PanelistPromptStrategy(BasePanelistPromptStrategy):
                 "You can find this information in the conversation history and conversation summary.\n"
             )
 
-            if (
-                topic.name in (TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value, TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value)
+            if topic.name in (
+                TOPICS_TECHNICAL_ROUND.PROBLEM_INTRODUCTION_AND_CLARIFICATION_AND_PROBLEM_SOLVING.value,
+                TOPICS_TECHNICAL_ROUND.DEEP_DIVE_QA.value,
             ):
-                if (
-                    subtopic.name in (SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value, SUBTOPICS_TECHNICAL_ROUND.PROBLEM_SOLVING.value, SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value)
+                if subtopic.name in (
+                    SUBTOPICS_TECHNICAL_ROUND.TASK_SPECIFIC_DISCUSSION.value,
+                    SUBTOPICS_TECHNICAL_ROUND.PROBLEM_SOLVING.value,
+                    SUBTOPICS_TECHNICAL_ROUND.CONCEPTUAL_KNOWLEDGE_CHECK.value,
                 ):
                     output_prompt += (
                         "- **Technical Problem Details presented to the candidate:**\n"

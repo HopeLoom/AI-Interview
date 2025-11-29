@@ -1,4 +1,3 @@
-
 from interview_details_agent.base import (
     BaseInterviewConfiguration,
     InterviewRoundData,

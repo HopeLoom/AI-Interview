@@ -166,9 +166,7 @@ class MemoryGraph(BaseModel):
         """Get topic node with optimized search"""
         topic_nodes = self.interview_round_topic_memory.get(interview_round, [])
         # Use list comprehension for better performance
-        matching_nodes = [
-            node for node in topic_nodes if topic_name in node.topic_subtopic_graph
-        ]
+        matching_nodes = [node for node in topic_nodes if topic_name in node.topic_subtopic_graph]
         return matching_nodes[0] if matching_nodes else None
 
     def create_interview_round_node(self, interview_round):

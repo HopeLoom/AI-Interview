@@ -1,4 +1,3 @@
-
 import chromadb
 
 from core.memory.base import Passage

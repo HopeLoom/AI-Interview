@@ -71,7 +71,6 @@ class VectorDatabase:
             query_embeddings=[query_embedding], n_results=1, where={"speaker": "Soumil Chugh"}
         )
 
-
         return results
 
     def get_neighbours(self, center_index: int):

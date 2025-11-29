@@ -354,9 +354,7 @@ Make sure key insights is a list of strings
         conversation_history = "\n".join(converted_conversation_history)
         panelists: list[Profile] = message.panelists
         interviewer_names = [f"{profile.background.name}" for profile in panelists]
-        [
-            f"{profile.background.current_occupation.occupation}" for profile in panelists
-        ]
+        [f"{profile.background.current_occupation.occupation}" for profile in panelists]
         candidate_profile: Profile = message.candidate_profile
         candidate_name = candidate_profile.background.name
 

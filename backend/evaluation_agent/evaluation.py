@@ -1142,9 +1142,7 @@ class Evaluation(BaseEvaluation):
                 evaluation_report: EvaluationMessageToFrontEnd = (
                     await self.generate_evaluation_report()
                 )
-                (
-                    await self.revise_evaluation_report_for_visualization(evaluation_report)
-                )
+                (await self.revise_evaluation_report_for_visualization(evaluation_report))
 
         except Exception as e:
             self.logger.exception(f"Error in evaluation run: {e}")

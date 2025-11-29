@@ -1047,7 +1047,9 @@ class FireBaseDataBase:
 
         except Exception as e:
             if self.logger is not None:
-                self.logger.exception(f"Error while fetching recent session ID for user {user_id}: {e}")
+                self.logger.exception(
+                    f"Error while fetching recent session ID for user {user_id}: {e}"
+                )
             return None
 
     def get_all_users_data(self) -> list[UserProfile]:
@@ -1314,7 +1316,9 @@ class FireBaseDataBase:
             return candidates
         except Exception as e:
             if self.logger is not None:
-                self.logger.exception(f"Error getting candidates by company name {company_name}: {e}")
+                self.logger.exception(
+                    f"Error getting candidates by company name {company_name}: {e}"
+                )
             return []
 
     def get_candidates_by_company_id(self, company_id):
@@ -1378,7 +1382,9 @@ class FireBaseDataBase:
             return sessions
         except Exception as e:
             if self.logger is not None:
-                self.logger.exception(f"Error getting interview sessions for candidate {user_id}: {e}")
+                self.logger.exception(
+                    f"Error getting interview sessions for candidate {user_id}: {e}"
+                )
             return []
 
     def get_company_dashboard_data(self, company_id):

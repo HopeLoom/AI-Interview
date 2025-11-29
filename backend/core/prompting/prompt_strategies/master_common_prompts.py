@@ -1,4 +1,3 @@
-
 from core.database.base import DatabaseInterface
 from master_agent.base import (
     SUBTOPICS_HR_ROUND,

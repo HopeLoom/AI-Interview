@@ -176,12 +176,11 @@ async def company_login(credentials: CompanyLoginRequest):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @router.post("/register", response_model=CompanyRegistrationResponse)
+async def company_register(company_data: CompanySignupRequest):
     """
-    Company login endpoint. 
+    Company registration endpoint
     """
-    try:
-        email = credentials.email
-        password = credentials.password 
+    try: 
         
         # Try to get from database first
         try:

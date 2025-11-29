@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { JobDetailsStep } from './JobDetailsStep';
 import { ResumeUploadStep } from './ResumeUploadStep';
 import { ReviewAndGenerateStep } from './ReviewAndGenerateStep';
-import { InterviewConfigurationResults } from './InterviewConfigurationResults';
+import InterviewConfigurationResults from './InterviewConfigurationResults';
 
 // Simplified 3-step configuration
 const STEP_CONFIGS = {

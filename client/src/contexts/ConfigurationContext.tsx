@@ -28,6 +28,7 @@ export interface SimpleConfigurationInput {
 export interface GeneratedConfiguration {
   success: boolean;
   configuration_id: string;
+  invitation_code?: string;
   simulation_config?: any;
   generated_question?: any;
   generated_characters?: any[];

@@ -38,7 +38,8 @@ export enum WebSocketMessageTypeToServer {
     USER_LOGOUT = "USER_LOGOUT",
     AUDIO_RAW_DATA = "AUDIO_RAW_DATA",
     START_AUDIO_STREAMING = "START_AUDIO_STREAMING",
-    EVALUATION_DATA = "EVALUATION_DATA"
+    EVALUATION_DATA = "EVALUATION_DATA",
+    LOAD_CONFIGURATION = "LOAD_CONFIGURATION"
 }
 
 // Enum for different types of WebSocket messages that are sent to the client from the server
@@ -124,6 +125,10 @@ export interface AudioPlaybackCompletedDataToServer {
 
 export interface ActivityInfoDataToServer {
     message: string;
+}
+
+export interface LoadConfigurationDataToServer {
+    configuration_id: string;
 }
 
 export enum SpeakerStatus {

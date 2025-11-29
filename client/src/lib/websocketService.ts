@@ -35,7 +35,8 @@ import {
   AudioPlaybackCompletedDataToServer,
   ActivityInfoDataToServer,
   SpeechDataToServer,
-  TextToSpeechDataMessageToServer
+  TextToSpeechDataMessageToServer,
+  LoadConfigurationDataToServer
 } from "./common";
 
 class WebSocketService {
@@ -134,6 +135,7 @@ class WebSocketService {
       | ActivityInfoDataToServer
       | SpeechDataToServer
       | TextToSpeechDataMessageToServer
+      | LoadConfigurationDataToServer
   ) {
     if (this.socket?.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify({ message_type, message, id }));

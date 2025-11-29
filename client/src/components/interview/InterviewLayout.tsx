@@ -27,6 +27,7 @@ import {
   WebSocketMessageTypeFromServer,
   EvaluationDataToServer,
   InterviewEndDataFromServer,
+  LoadConfigurationDataToServer,
   InterviewMessageFromServer,
   TOPICS,
   SUBTOPICS,
@@ -97,12 +98,13 @@ export function InterviewLayout() {
         console.log(`Loading configuration: ${configId} for user: ${userIdentifier}`);
 
         // Send LOAD_CONFIGURATION message via WebSocket
+        const loadConfigData: LoadConfigurationDataToServer = {
+          configuration_id: configId,
+        };
         webSocketService.sendMessage(
           userIdentifier,
           WebSocketMessageTypeToServer.LOAD_CONFIGURATION,
-          {
-            configuration_id: configId,
-          }
+          loadConfigData
         );
       }
     }

@@ -78,24 +78,32 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A[Frontend Client] -->|1. WebSocket Message| B[Connection Manager]
-    B -->|2. Route Message| C[Master Agent]
+    A[Frontend Client] -->|Step 1: Send Message| B[Connection Manager]
+    B -->|Step 2: Route| C[Master Agent]
     
-    C -->|3. Determine Action| D{Message Type}
+    C -->|Step 3: Forward| E[Panelist Agent]
+    C -->|Step 3: Forward| F[Activity Agent]
+    C -->|Step 3: Forward| G[Evaluation Agent]
     
-    D -->|Interview Message| E[Panelist Agent]
-    D -->|Code Activity| F[Activity Agent]
-    D -->|Evaluation| G[Evaluation Agent]
+    E -->|Step 4: Process| H[LLM Provider]
+    F -->|Step 4: Analyze| H
+    G -->|Step 4: Evaluate| H
     
-    E -->|4. Process with LLM| H[LLM Provider]
-    F -->|4. Analyze Code| H
-    G -->|4. Evaluate| H
+    H -->|Step 5: Response| E
+    H -->|Step 5: Response| F
+    H -->|Step 5: Response| G
     
-    E -->|5. Update Memory| I[Memory System]
-    C -->|5. Track State| I
+    E -->|Step 6: Update| I[Memory System]
+    F -->|Step 6: Update| I
+    G -->|Step 6: Update| I
+    C -->|Step 6: Track| I
     
-    C -->|6. Response| B
-    B -->|7. WebSocket| A
+    E -->|Step 7: Return| C
+    F -->|Step 7: Return| C
+    G -->|Step 7: Return| C
+    
+    C -->|Step 8: Send Response| B
+    B -->|Step 9: Update UI| A
     
     style C fill:#ff6b6b
     style H fill:#4ecdc4

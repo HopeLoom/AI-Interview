@@ -170,109 +170,12 @@ async def company_login(credentials: CompanyLoginRequest):
                 
         except Exception as e:
             raise HTTPException(status_code=401, detail="Invalid credentials")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-# Pydantic models for API requests and responses
-class CompanyLoginRequest(BaseModel):
-    email: str
-    password: str
-
-class CompanySignupRequest(BaseModel):
-    name: str
-    email: str
-    userType: str = "company"
-    industry: str
-    size: str
-    location: str
-    website: Optional[str] = None
-    description: Optional[str] = None
-
-class CompanyUpdateRequest(BaseModel):
-    name: Optional[str] = None
-    industry: Optional[str] = None
-    size: Optional[str] = None
-    location: Optional[str] = None
-    website: Optional[str] = None
-    description: Optional[str] = None
-
-class CompanyResponse(BaseModel):
-    company_id: str
-    name: str
-    email: str
-    industry: str
-    size: str
-    location: str
-    website: Optional[str] = None
-    description: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
-class CompanyLoginResponse(BaseModel):
-    success: bool
-    message: str
-    company: CompanyResponse
-    token: str
-
-class CompanyRegistrationResponse(BaseModel):
-    success: bool
-    message: str
-    company_id: str
-    profile: CompanyResponse
-    next_steps: str
-
-class CandidateResponse(BaseModel):
-    candidate_id: str
-    name: str
-    email: str
-    position: str = "Unknown"  # Make required with default
-    status: str
-    interview_date: Optional[str] = None
-    overall_score: Optional[float] = None
-    evaluation_id: Optional[str] = None
-    resume_url: Optional[str] = None
-    applied_date: Optional[str] = None
-    
-    # Add a method to convert to frontend format
-    def to_frontend_format(self):
-        return {
-            "id": self.candidate_id,  # Map candidate_id to id for frontend
-            "name": self.name,
-            "email": self.email,
-            "position": self.position,
-            "status": self.status,
-            "interview_date": self.interview_date,
-            "overall_score": self.overall_score,
-            "evaluation_id": self.evaluation_id,
-            "resume_url": self.resume_url,
-            "applied_date": self.applied_date
-        }
-
-class CompanyInfo(BaseModel):
-    company_id: str
-    name: str
-    industry: str
-    size: str
-    location: str
-
-class DashboardData(BaseModel):
-    total_candidates: int
-    completed_interviews: int
-    pending_interviews: int
-    average_score: float
-    recent_interviews: List[CandidateResponse]
-    active_jobs: int
-    total_evaluations: int
-
-class CompanyDashboardResponse(BaseModel):
-    success: bool
-    dashboard: DashboardData
-
-class CompanyCandidatesResponse(BaseModel):
-    success: bool
-    candidates: List[CandidateResponse]
-    total: int
-
-@router.post("/login", response_model=CompanyLoginResponse)
-async def company_login(credentials: CompanyLoginRequest):
+@router.post("/register", response_model=CompanyRegistrationResponse)
     """
     Company login endpoint. 
     """

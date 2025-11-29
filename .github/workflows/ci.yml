@@ -77,7 +77,7 @@ jobs:
     
     - name: Lint with Ruff
       working-directory: ./backend
-      run: ruff check . --exit-zero || true
+      run: ruff check .
       continue-on-error: true
 
   backend-tests:
